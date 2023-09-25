@@ -98,6 +98,7 @@ import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 import { Currency } from 'utils/handler/calculation'
+import { useUtils } from 'services/context/utilsContext'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -253,6 +254,7 @@ export default function LoanCalculatorPage() {
   const dataCar: trackDataCarType | null = getSessionStorage(
     SessionStorageKey.PreviousCarDataBeforeLogin,
   )
+  const { saveMobileWebTopMenus, saveDataAnnouncementBox } = useUtils()
 
   const getAutofilledCityData = () => {
     // related to logic inside component "FormSelectCity"
@@ -370,9 +372,21 @@ export default function LoanCalculatorPage() {
           'is-login': getToken() ? 'true' : 'false',
         },
       })
-      .then((res) => {
+      .then((res: { data: AnnouncementBoxDataType }) => {
         if (res.data === undefined) {
           setShowAnnouncementBox(false)
+        } else {
+          saveDataAnnouncementBox(res.data)
+          const sessionAnnouncmentBox = getSessionStorage(
+            getToken()
+              ? SessionStorageKey.ShowWebAnnouncementLogin
+              : SessionStorageKey.ShowWebAnnouncementNonLogin,
+          )
+          if (typeof sessionAnnouncmentBox !== 'undefined') {
+            setShowAnnouncementBox(sessionAnnouncmentBox as boolean)
+          } else {
+            setShowAnnouncementBox(true)
+          }
         }
       })
   }
@@ -623,6 +637,7 @@ export default function LoanCalculatorPage() {
     fetchAllCarModels()
     fetchArticles()
     getAnnouncementBox()
+    fetchMobileTopMenus()
     const timeoutCountlyTracker = setTimeout(() => {
       if (!isSentCountlyPageView) {
         trackCountlyPageView()
@@ -1388,6 +1403,12 @@ export default function LoanCalculatorPage() {
       (car: any) => car.loanRank === LoanRank.Green,
     )
     setCarRecommendations(filteredCarRecommendations.slice(0, 10))
+  }
+
+  const fetchMobileTopMenus = async () => {
+    const menus = await api.getMobileHeaderMenu()
+    saveMobileWebTopMenus(menus.data)
+    console.log('asdf', menus.data)
   }
 
   useEffect(() => {
