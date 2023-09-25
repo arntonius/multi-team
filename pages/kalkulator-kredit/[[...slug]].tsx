@@ -93,6 +93,7 @@ import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
+import { Currency } from 'utils/handler/calculation'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -239,6 +240,9 @@ export default function LoanCalculatorPage() {
     !!filterStorage?.monthlyIncome &&
     !!filterStorage?.tenure
 
+  const referralCodeFromUrl: string | null = getLocalStorage(
+    LocalStorageKey.referralTemanSeva,
+  )
   const getAutofilledCityData = () => {
     // related to logic inside component "FormSelectCity"
     if (cityOtr) {
@@ -1304,11 +1308,54 @@ export default function LoanCalculatorPage() {
   const handleTooltipClose = () => {
     setIsTooltipOpen(false)
   }
+  const trackCountlyDirectToWhatsapp = async (tenure: number) => {
+    let temanSevaStatus = 'No'
+    if (referralCodeFromUrl) {
+      temanSevaStatus = 'Yes'
+    } else if (!!getToken()) {
+      const response = await getCustomerInfoSeva()
+      if (response.data[0].temanSevaTrxCode) {
+        temanSevaStatus = 'Yes'
+      }
+    }
+
+    trackEventCountly(CountlyEventNames.WEB_WA_DIRECT_CLICK, {
+      PAGE_ORIGINATION:
+        router.query.from && router.query.from === 'homepageKualifikasi'
+          ? 'Loan Calculator - Kualifikasi Kredit'
+          : 'Loan Calculator',
+      SOURCE_BUTTON: 'CTA button Hubungi Agen SEVA',
+      CAR_BRAND: forms.model?.brandName,
+      CAR_MODEL: removeCarBrand(forms.model?.modelName ?? 'Null'),
+      CAR_VARIANT: forms.variant?.variantName
+        ? forms.variant?.variantName
+        : 'Null',
+      PELUANG_KREDIT_BADGE:
+        isUsingFilterFinancial && IsShowBadgeCreditOpportunity
+          ? dataCar?.PELUANG_KREDIT_BADGE
+          : 'Null',
+      TENOR_OPTION: tenure ? tenure + ' Tahun' : 'Null',
+      TENOR_RESULT:
+        selectedLoan?.loanRank && selectedLoan?.loanRank === 'Green'
+          ? 'Mudah disetujui'
+          : selectedLoan?.loanRank && selectedLoan?.loanRank === 'Red'
+          ? 'Sulit disetujui'
+          : 'Null',
+      KK_RESULT: 'Null',
+      IA_RESULT: 'Null',
+      TEMAN_SEVA_STATUS: temanSevaStatus,
+      INCOME_LOAN_CALCULATOR: `Rp${Currency(forms.monthlyIncome)}`,
+      INCOME_KUALIFIKASI_KREDIT: 'Null',
+      INCOME_CHANGE: 'Null',
+      OCCUPATION: 'Null',
+    })
+  }
 
   const handleRedirectToWhatsapp = async (
     loan: SpecialRateListWithPromoType,
   ) => {
     trackLCCtaWaDirectClick(getDataForAmplitudeQualification(loan))
+    trackCountlyDirectToWhatsapp(selectedLoan?.tenure)
     const { model, variant, downPaymentAmount } = forms
     const message = `Halo, saya tertarik dengan ${model?.modelName} ${variant?.variantName} dengan DP sebesar Rp ${downPaymentAmount}, cicilan per bulannya Rp ${loan?.installment}, dan tenor ${loan?.tenure} tahun.`
 
