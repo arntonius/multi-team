@@ -68,6 +68,7 @@ import { CityOtrOption } from 'utils/types'
 import { CarModel } from 'utils/types/carModel'
 import { ModelVariant } from 'utils/types/carVariant'
 import {
+  AnnouncementBoxDataType,
   CarRecommendation,
   FinalLoan,
   trackDataCarType,
