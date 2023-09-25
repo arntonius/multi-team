@@ -1408,7 +1408,6 @@ export default function LoanCalculatorPage() {
   const fetchMobileTopMenus = async () => {
     const menus = await api.getMobileHeaderMenu()
     saveMobileWebTopMenus(menus.data)
-    console.log('asdf', menus.data)
   }
 
   useEffect(() => {
