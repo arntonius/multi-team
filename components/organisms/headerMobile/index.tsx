@@ -80,11 +80,13 @@ export const HeaderMobile = ({
 }: HeaderMobileProps): JSX.Element => {
   const enableAnnouncementBoxAleph =
     getCurrentEnvironment.featureToggles.enableAnnouncementBoxAleph
+
   const [isOpenSearchModal, setIsOpenSearchModal] = useState(false)
 
   const router = useRouter()
 
   const adaSeva = router.asPath.split('/')[1]
+  const redirectHome = adaSeva === 'adaSEVAdiOTO' ? rootOTOUrl : rootUrl
 
   const handleClickCityIcon = () => {
     if (!isActive) {
@@ -150,9 +152,9 @@ export const HeaderMobile = ({
     } else {
       saveDataForCountlyTrackerPageViewHomepage(PreviousButton.SevaLogo)
     }
-  }
 
-  const redirectHome = adaSeva === 'adaSEVAdiOTO' ? rootOTOUrl : rootUrl
+    window.location.href = redirectHome
+  }
 
   return (
     <>
