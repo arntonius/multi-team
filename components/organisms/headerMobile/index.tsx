@@ -61,6 +61,7 @@ type HeaderMobileProps = {
   isOTO?: boolean
   transparent?: boolean
   isRegular?: boolean
+  passCountlyTrackerPageView?: (() => void) | (() => Promise<void>)
 }
 
 export const HeaderMobile = ({
@@ -74,6 +75,8 @@ export const HeaderMobile = ({
   pageOrigination,
   isOTO = false,
   transparent = false,
+  isRegular = true,
+  passCountlyTrackerPageView,
 }: HeaderMobileProps): JSX.Element => {
   const enableAnnouncementBoxAleph =
     getCurrentEnvironment.featureToggles.enableAnnouncementBoxAleph
@@ -125,13 +128,28 @@ export const HeaderMobile = ({
     trackSevaLogoClick({
       Page_Origination_URL: window.location.href,
     })
-    trackEventCountly(CountlyEventNames.WEB_SEVA_LOGO_CLICK, {
-      PAGE_ORIGINATION: getPageName(),
-      USER_TYPE: valueForUserTypeProperty(),
-    })
+    if (pageOrigination && pageOrigination.length !== 0) {
+      trackEventCountly(CountlyEventNames.WEB_SEVA_LOGO_CLICK, {
+        PAGE_ORIGINATION: pageOrigination.includes('PDP')
+          ? 'PDP - ' + valueMenuTabCategory()
+          : pageOrigination,
+        USER_TYPE: valueForUserTypeProperty(),
+      })
+    }
     saveDataForCountlyTrackerPageViewHomepage(PreviousButton.SevaLogo)
-
-    window.location.href = redirectHome
+    if (window.location.pathname.includes('kalkulator-kredit')) {
+      saveDataForCountlyTrackerPageViewHomepage(
+        PreviousButton.SevaLogo,
+        pageOrigination,
+      )
+    } else if (window.location.pathname === '/') {
+      saveDataForCountlyTrackerPageViewHomepage(PreviousButton.SevaLogo)
+      setTimeout(() => {
+        passCountlyTrackerPageView && passCountlyTrackerPageView()
+      }, 1000)
+    } else {
+      saveDataForCountlyTrackerPageViewHomepage(PreviousButton.SevaLogo)
+    }
   }
 
   const redirectHome = adaSeva === 'adaSEVAdiOTO' ? rootOTOUrl : rootUrl

@@ -104,7 +104,8 @@ const getVariantCar = (params?: string, config?: AxiosRequestConfig) =>
 const getTypeCar = (params: string, config?: AxiosRequestConfig) =>
   get(collections.product.type + params, config)
 const getBanner = () => get(collections.utils.banner)
-const getCarofTheMonth = () => get(collections.product.carofTheMonth)
+const getCarofTheMonth = (city?: string) =>
+  get(collections.product.carofTheMonth + city ? `?city=${city}` : '')
 const getCarVideoReview = () => get(collections.product.carVideoReview)
 const getAnnouncementBox = (config: AxiosRequestConfig) =>
   get(collections.utils.announcementBox, config)
