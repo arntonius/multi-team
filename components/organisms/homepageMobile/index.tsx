@@ -59,11 +59,9 @@ import {
   removeSessionStorage,
   saveSessionStorage,
 } from 'utils/handler/sessionStorage'
+import { RouteName } from 'utils/navigate'
 
 const HomepageMobile = ({ dataReccomendation }: any) => {
-  useEffect(() => {
-    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
-  }, [])
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
     HomePageDataLocalContext,
   )
@@ -71,7 +69,6 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
   const [openCitySelectorModal, setOpenCitySelectorModal] = useState(false)
   const [cityListApi, setCityListApi] =
     useState<Array<CityOtrOption>>(dataCities)
-  const [loadLP, setLoadLP] = useState(true)
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -165,7 +162,6 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
   }
 
   const cleanEffect = (timeout: NodeJS.Timeout) => {
-    setLoadLP(true)
     clearTimeout(timeout)
   }
 
@@ -226,16 +222,15 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
   }
 
   useEffect(() => {
+    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
     cityHandler()
     setTrackEventMoEngageWithoutValue(EventName.view_homepage)
-    Promise.all([
-      loadCarRecommendation(),
-      getCarOfTheMonth(),
-      checkCitiesData(),
-      getArticles(),
-    ]).then(() => {
-      setLoadLP(false)
-    })
+
+    loadCarRecommendation()
+    getCarOfTheMonth()
+    checkCitiesData()
+    getArticles()
+
     const timeoutCountlyTracker = setTimeout(() => {
       if (!isSentCountlyPageView) {
         trackCountlyPageView()
@@ -337,6 +332,8 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
           isOpen={openCitySelectorModal}
           onClickCloseButton={() => setOpenCitySelectorModal(false)}
           cityListFromApi={cityListApi}
+          pageOrigination={RouteName.Homepage}
+          sourceButton={sourceButton}
         />
         {isModalOpenend && (
           <LeadsFormPrimary
