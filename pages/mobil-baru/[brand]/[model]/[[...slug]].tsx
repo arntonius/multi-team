@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { PdpDesktop, PdpMobile } from 'components/organisms'
+import { PdpMobile } from 'components/organisms'
 import { api } from 'services/api'
 import {
   CarModelDetailsResponse,
@@ -329,11 +329,7 @@ export default function index({
           carArticleReviewRes: carArticleReviewRes,
         }}
       >
-        {isMobile ? (
-          <PdpMobile />
-        ) : (
-          <PdpDesktop metaTagDataRes={metaTagDataRes} />
-        )}
+        <PdpMobile />
       </PdpDataLocalContext.Provider>
     </>
   )
@@ -533,7 +529,9 @@ const jsonLD = (
         .replace(' ', '-')
         .toLocaleLowerCase()}`,
       bodyType: carVariant?.variantDetail.bodyType,
-      description: carVariant?.variantDetail.description,
+      description: carVariant?.variantDetail?.description?.id && {
+        id: carVariant?.variantDetail?.description?.id,
+      },
       brand: {
         '@type': 'Brand',
         name: carModel?.brand,

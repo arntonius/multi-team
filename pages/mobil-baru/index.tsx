@@ -10,7 +10,6 @@ import {
   MobileWebTopMenuType,
   NavbarItemResponse,
 } from 'utils/types/utils'
-import PLPDesktop from 'components/organisms/PLPDesktop'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import { api } from 'services/api'
 import Seo from 'components/atoms/seo'
@@ -76,14 +75,7 @@ const NewCarResultPage = ({
         recommendation={meta.carRecommendations.carRecommendations}
         recommendationToyota={[]}
       >
-        {isMobile ? (
-          <PLP minmaxPrice={meta.MinMaxPrice} />
-        ) : (
-          <PLPDesktop
-            carRecommendation={meta.carRecommendations}
-            footer={meta.footer}
-          />
-        )}
+        <PLP minmaxPrice={meta.MinMaxPrice} />
       </CarProvider>
     </>
   )
