@@ -249,7 +249,11 @@ export const HeaderMobile = ({
           isOTO={isOTO}
         />
       </header>
-      <Overlay isShow={isActive} onClick={() => setIsActive(false)} />
+      <Overlay
+        isShow={isActive}
+        onClick={() => setIsActive(false)}
+        additionalStyle={styles.overlayAdditionalStyle}
+      />
     </>
   )
 }
