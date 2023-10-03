@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { PdpDesktop, PdpMobile } from 'components/organisms'
+import { PdpMobile } from 'components/organisms'
 import { api } from 'services/api'
 import {
   CarModelDetailsResponse,
@@ -282,11 +282,7 @@ export default function index({
           carArticleReviewRes: carArticleReviewRes,
         }}
       >
-        {isMobile ? (
-          <PdpMobile />
-        ) : (
-          <PdpDesktop metaTagDataRes={metaTagDataRes} />
-        )}
+        <PdpMobile />
       </PdpDataLocalContext.Provider>
     </>
   )

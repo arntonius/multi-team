@@ -13,7 +13,6 @@ import {
   MobileWebTopMenuType,
   NavbarItemResponse,
 } from 'utils/types/utils'
-import PLPDesktop from 'components/organisms/PLPDesktop'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { useUtils } from 'services/context/utilsContext'
 import { MobileWebFooterMenuType } from 'utils/types/props'
@@ -82,14 +81,7 @@ const NewCarResultPage = ({
         recommendation={meta.carRecommendations.carRecommendations}
         recommendationToyota={[]}
       >
-        {isMobile ? (
-          <PLP minmaxPrice={meta.MinMaxPrice} />
-        ) : (
-          <PLPDesktop
-            carRecommendation={meta.carRecommendations}
-            footer={meta.footer}
-          />
-        )}
+        <PLP minmaxPrice={meta.MinMaxPrice} />
       </CarProvider>
     </>
   )
