@@ -34,13 +34,13 @@ const NewCarResultPage = ({
   dataDesktopMenu,
   isSsrMobileLocal,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  const router = useRouter()
   const todayDate = new Date()
 
   const metaTitle = `Beli Mobil Terbaru ${todayDate.getFullYear()} Harga OTR dengan Cicilan Kredit & Spesifikasi bulan ${monthId(
     todayDate.getMonth(),
   )} | SEVA`
   const metaDesc = `Beli mobil ${todayDate.getFullYear()} terbaru di SEVA. Beli mobil secara kredit dengan Instant Approval*.`
-
   const [isMobile, setIsMobile] = useState(isSsrMobileLocal)
   const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const {
@@ -64,7 +64,6 @@ const NewCarResultPage = ({
   return (
     <>
       <Seo title={metaTitle} description={metaDesc} image={defaultSeoImage} />
-
       <CarProvider
         car={null}
         carOfTheMonth={[]}
@@ -123,8 +122,6 @@ export const getServerSideProps: GetServerSideProps<{
     'public, s-maxage=10, stale-while-revalidate=59',
   )
   const metabrand = getBrand(ctx.query.brand)
-  const metaTagBaseApi =
-    'https://api.sslpots.com/api/meta-seos/?filters[location_page3][$eq]=CarSearchResult'
   const footerTagBaseApi =
     'https://api.sslpots.com/api/footer-seos/?filters[location_page2][$eq]=CarSearchResult'
   const meta = {
@@ -164,14 +161,12 @@ export const getServerSideProps: GetServerSideProps<{
 
   try {
     const [
-      fetchMeta,
       fetchFooter,
       menuDesktopRes,
       menuMobileRes,
       footerRes,
       cityRes,
     ]: any = await Promise.all([
-      axios.get(metaTagBaseApi + metabrand),
       axios.get(footerTagBaseApi + metabrand),
       api.getMenu(),
       api.getMobileHeaderMenu(),
@@ -179,7 +174,6 @@ export const getServerSideProps: GetServerSideProps<{
       api.getCities(),
     ])
 
-    const metaData = fetchMeta.data.data
     const footerData = fetchFooter.data.data
 
     if (!priceRangeGroup) {
@@ -215,21 +209,7 @@ export const getServerSideProps: GetServerSideProps<{
       getNewFunnelRecommendations({ ...queryParam }),
     ])
 
-    const generateRecommendation = await generateBlurRecommendations(
-      funnel.carRecommendations,
-    )
-    const recommendation = {
-      carRecommendations: generateRecommendation
-        ? [...generateRecommendation]
-        : funnel.carRecommendations,
-      lowestCarPrice: funnel.lowestCarPrice,
-      highestCarPrice: funnel.highestCarPrice,
-    }
-
-    if (metaData && metaData.length > 0) {
-      meta.title = metaData[0].attributes.meta_title
-      meta.description = metaData[0].attributes.meta_description
-    }
+    const recommendation = funnel
 
     if (footerData && footerData.length > 0) {
       meta.footer = footerData[0].attributes
@@ -237,12 +217,6 @@ export const getServerSideProps: GetServerSideProps<{
 
     if (recommendation) {
       meta.carRecommendations = recommendation
-    }
-
-    if (brand) {
-      if (typeof brand === 'string') {
-        meta.footer.location_tag = brand
-      }
     }
 
     return {
