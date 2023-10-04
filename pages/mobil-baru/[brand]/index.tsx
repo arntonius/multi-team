@@ -25,7 +25,6 @@ import { useMediaQuery } from 'react-responsive'
 import { CarProvider } from 'services/context'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import styles from 'styles/pages/plp.module.scss'
-import PLPDesktop from 'components/organisms/PLPDesktop'
 
 const NewCarResultPage = ({
   meta,
@@ -83,15 +82,7 @@ const NewCarResultPage = ({
         recommendation={meta.carRecommendations.carRecommendations}
         recommendationToyota={[]}
       >
-        <div className={styles.mobile}>
-          <PLP minmaxPrice={meta.MinMaxPrice} />
-        </div>
-        <div className={styles.desktop}>
-          <PLPDesktop
-            carRecommendation={meta.carRecommendations}
-            footer={meta.footer}
-          />
-        </div>
+        <PLP minmaxPrice={meta.MinMaxPrice} />
       </CarProvider>
     </>
   )

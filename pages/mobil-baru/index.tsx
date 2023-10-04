@@ -24,7 +24,6 @@ import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
 import { useMediaQuery } from 'react-responsive'
 import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import { useRouter } from 'next/router'
-import PLPDesktop from 'components/organisms/PLPDesktop'
 
 const NewCarResultPage = ({
   meta,
@@ -74,15 +73,7 @@ const NewCarResultPage = ({
         recommendation={meta.carRecommendations.carRecommendations}
         recommendationToyota={[]}
       >
-        <div className={styles.mobile}>
-          <PLP minmaxPrice={meta.MinMaxPrice} />
-        </div>
-        <div className={styles.desktop}>
-          <PLPDesktop
-            carRecommendation={meta.carRecommendations}
-            footer={meta.footer}
-          />
-        </div>
+        <PLP minmaxPrice={meta.MinMaxPrice} />
       </CarProvider>
     </>
   )
