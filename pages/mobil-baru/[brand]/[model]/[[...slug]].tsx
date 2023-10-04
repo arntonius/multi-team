@@ -29,7 +29,8 @@ import { getCity } from 'utils/hooks/useGetCity'
 import { useCar } from 'services/context/carContext'
 import { capitalizeFirstLetter } from 'utils/stringUtils'
 import { lowerSectionNavigationTab } from 'config/carVariantList.config'
-
+import styles from 'styles/pages/pdp.module.scss'
+import PLPDesktop from 'components/organisms/PLPDesktop'
 interface PdpDataLocalContextType {
   /**
    * this variable use "jakarta" as default payload, so that search engine could see page content.
@@ -282,7 +283,12 @@ export default function index({
           carArticleReviewRes: carArticleReviewRes,
         }}
       >
-        <PdpMobile />
+        <div className={styles.mobile}>
+          <PdpMobile />
+        </div>
+        <div className={styles.desktop}>
+          <PdpDesktop metaTagDataRes={metaTagDataRes} />
+        </div>
       </PdpDataLocalContext.Provider>
     </>
   )
