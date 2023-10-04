@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { PdpDesktop, PdpMobile } from 'components/organisms'
+import { PdpMobile } from 'components/organisms'
 import { api } from 'services/api'
 import {
   CarModelDetailsResponse,
@@ -11,7 +11,6 @@ import { InferGetServerSidePropsType } from 'next'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import { useUtils } from 'services/context/utilsContext'
 import { getToken } from 'utils/handler/auth'
-import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import { useMediaQuery } from 'react-responsive'
 import { mergeModelDetailsWithLoanRecommendations } from 'services/recommendations'
 import Seo from 'components/atoms/seo'
@@ -329,12 +328,7 @@ export default function index({
           carArticleReviewRes: carArticleReviewRes,
         }}
       >
-        <div className={styles.mobile}>
-          <PdpMobile />
-        </div>
-        <div className={styles.desktop}>
-          <PdpDesktop metaTagDataRes={metaTagDataRes} />
-        </div>
+        <PdpMobile />
       </PdpDataLocalContext.Provider>
     </>
   )

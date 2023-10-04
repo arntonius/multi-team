@@ -13,7 +13,6 @@ import {
   MobileWebTopMenuType,
   NavbarItemResponse,
 } from 'utils/types/utils'
-import PLPDesktop from 'components/organisms/PLPDesktop'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { useUtils } from 'services/context/utilsContext'
 import { MobileWebFooterMenuType } from 'utils/types/props'
@@ -25,7 +24,6 @@ import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import { useMediaQuery } from 'react-responsive'
 import { CarProvider } from 'services/context'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
-import styles from 'styles/pages/plp.module.scss'
 
 const NewCarResultPage = ({
   meta,
@@ -83,15 +81,7 @@ const NewCarResultPage = ({
         recommendation={meta.carRecommendations.carRecommendations}
         recommendationToyota={[]}
       >
-        <div className={styles.mobile}>
-          <PLP minmaxPrice={meta.MinMaxPrice} />
-        </div>
-        <div className={styles.desktop}>
-          <PLPDesktop
-            carRecommendation={meta.carRecommendations}
-            footer={meta.footer}
-          />
-        </div>
+        <PLP minmaxPrice={meta.MinMaxPrice} />
       </CarProvider>
     </>
   )

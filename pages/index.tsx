@@ -90,11 +90,7 @@ export default function WithTracker({
         dataCarofTheMonth,
       }}
     >
-      {isMobile ? (
-        <HomepageMobile dataReccomendation={dataReccomendation} />
-      ) : (
-        <HomepageDesktop />
-      )}
+      <HomepageMobile dataReccomendation={dataReccomendation} />
     </HomePageDataLocalContext.Provider>
   )
 }
