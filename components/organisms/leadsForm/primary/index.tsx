@@ -110,6 +110,20 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
     sendUnverifiedLeads()
   }
 
+  const trackCountlySendLeads = async (verifiedPhone: string) => {
+    let pageOrigination = 'Homepage - Car of The Month'
+
+    if (onPage !== 'LP') {
+      pageOrigination = 'PLP'
+    }
+    trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SEND_CLICK, {
+      PAGE_ORIGINATION: pageOrigination,
+      LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
+      PHONE_VERIFICATION_STATUS: verifiedPhone,
+      PHONE_NUMBER: '+62' + phone,
+    })
+  }
+
   const sendOtpCode = async () => {
     setIsLoading(true)
     if (trackerProperties)
@@ -118,6 +132,11 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
         trackerProperties,
       )
     const dataLeads = checkDataFlagLeads()
+    let pageOrigination = 'Homepage - Car of The Month'
+
+    if (onPage !== 'LP') {
+      pageOrigination = 'PLP'
+    }
     if (dataLeads) {
       if (phone === dataLeads.phone && name === dataLeads.name) {
         trackCountlySendLeads('Yes')
@@ -129,7 +148,7 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
       } else {
         trackCountlySendLeads('No')
         trackEventCountly(CountlyEventNames.WEB_OTP_VIEW, {
-          PAGE_ORIGINATION: 'PLP',
+          PAGE_ORIGINATION: pageOrigination,
         })
         setModalOpened('otp')
       }
@@ -138,7 +157,7 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
     } else {
       trackCountlySendLeads('No')
       trackEventCountly(CountlyEventNames.WEB_OTP_VIEW, {
-        PAGE_ORIGINATION: 'PLP',
+        PAGE_ORIGINATION: pageOrigination,
       })
       setModalOpened('otp')
     }
@@ -160,20 +179,6 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
     saveLocalStorage(LocalStorageKey.flagLeads, encryptedData)
   }
 
-  const trackCountlySendLeads = async (verifiedPhone: string) => {
-    let temanSevaStatus = 'No'
-    let pageOrigination = 'PLP'
-
-    if (onPage === 'LP') {
-      pageOrigination = 'PLP'
-    }
-    trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SEND_CLICK, {
-      PAGE_ORIGINATION: 'PLP',
-      LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
-      PHONE_VERIFICATION_STATUS: verifiedPhone,
-      PHONE_NUMBER: '+62' + phone,
-    })
-  }
   const onClose = () => {
     if (trackerProperties)
       trackLeadsFormAction(
@@ -227,7 +232,7 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
           trackerProperties,
         )
       trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
-        PAGE_ORIGINATION: 'PLP',
+        PAGE_ORIGINATION: pageOrigination,
         LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
         TEMAN_SEVA_STATUS: temanSevaStatus,
         PHONE_NUMBER: '+62' + phone,
@@ -278,6 +283,11 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
   const onClickNameField = () => {
     if (onPage === 'LP') {
       trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_NAME_CLICK, {
+        PAGE_ORIGINATION: 'Homepage - Car of The Month',
+        USER_TYPE: valueForUserTypeProperty(),
+      })
+    } else {
+      trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_NAME_CLICK, {
         PAGE_ORIGINATION: 'PLP',
         USER_TYPE: valueForUserTypeProperty(),
       })
@@ -286,6 +296,11 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
 
   const onClickPhoneField = () => {
     if (onPage === 'LP') {
+      trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_PHONE_NUMBER_CLICK, {
+        PAGE_ORIGINATION: 'Homepage - Car of The Month',
+        USER_TYPE: valueForUserTypeProperty(),
+      })
+    } else {
       trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_PHONE_NUMBER_CLICK, {
         PAGE_ORIGINATION: 'PLP',
         USER_TYPE: valueForUserTypeProperty(),
