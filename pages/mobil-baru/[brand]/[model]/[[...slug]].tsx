@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { PdpMobile } from 'components/organisms'
+import { PdpDesktop, PdpMobile } from 'components/organisms'
 import { api } from 'services/api'
 import {
   CarModelDetailsResponse,
@@ -654,7 +654,8 @@ const jsonLD = (
     ImageObject: [
       {
         '@type': 'ImageObject',
-        contentUrl: 'https://images.prod.seva.id/Toyota/All%20New%20Rush/gallery/main_galery_toyota_all_new_rush_eksterior_1.jpg',
+        contentUrl:
+          'https://images.prod.seva.id/Toyota/All%20New%20Rush/gallery/main_galery_toyota_all_new_rush_eksterior_1.jpg',
         mainEntityOfPage: `https://www.seva.id/mobil-baru/${carModel?.brand}/${carModel?.model}?tab=Eksterior`,
         representativeOfPage: 'https://schema.org/True',
         isFamilyFriendly: 'https://schema.org/True',
@@ -662,7 +663,8 @@ const jsonLD = (
       },
       {
         '@type': 'ImageObject',
-        contentUrl: 'https://images.prod.seva.id/Toyota/All%20New%20Rush/gallery/main_galery_toyota_all_new_rush_interior_1.jpg',
+        contentUrl:
+          'https://images.prod.seva.id/Toyota/All%20New%20Rush/gallery/main_galery_toyota_all_new_rush_interior_1.jpg',
         mainEntityOfPage: `https://www.seva.id/mobil-baru/${carModel?.brand}/${carModel?.model}?tab=Interior`,
         representativeOfPage: 'https://schema.org/True',
         isFamilyFriendly: 'https://schema.org/True',
