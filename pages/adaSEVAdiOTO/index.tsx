@@ -87,9 +87,7 @@ export default function WithTracker({
         dataCarofTheMonth,
       }}
     >
-      <div className={styles.mobile}>
-        <HomepageAdaSEVAdiOTO dataReccomendation={dataReccomendation} />
-      </div>
+      <HomepageAdaSEVAdiOTO dataReccomendation={dataReccomendation} />
     </HomePageDataLocalContext2.Provider>
   )
 }
