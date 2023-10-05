@@ -10,7 +10,6 @@ import {
   MobileWebTopMenuType,
   NavbarItemResponse,
 } from 'utils/types/utils'
-import PLPDesktop from 'components/organisms/PLPDesktop'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import { api } from 'services/api'
 import Seo from 'components/atoms/seo'
@@ -25,6 +24,7 @@ import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
 import { useMediaQuery } from 'react-responsive'
 import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import { useRouter } from 'next/router'
+import PLPDesktop from 'components/organisms/PLPDesktop'
 
 const NewCarResultPage = ({
   meta,
@@ -36,13 +36,11 @@ const NewCarResultPage = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter()
   const todayDate = new Date()
-  const carBrand = meta.carRecommendations.carRecommendations[0]?.brand
-  const metaTitle = `Harga OTR ${carBrand} - Harga OTR dengan Promo Cicilan bulan ${monthId(
+
+  const metaTitle = `Beli Mobil Terbaru ${todayDate.getFullYear()} Harga OTR dengan Cicilan Kredit & Spesifikasi bulan ${monthId(
     todayDate.getMonth(),
   )} | SEVA`
   const metaDesc = `Beli mobil ${todayDate.getFullYear()} terbaru di SEVA. Beli mobil secara kredit dengan Instant Approval*.`
-  const metaBrandDesc = `Beli mobil ${carBrand} ${todayDate.getFullYear()} terbaru secara kredit dengan Instant Approval*. Cari tau spesifikasi, harga, promo, dan kredit di SEVA`
-  const descTag = router.query.brand ? metaBrandDesc : metaDesc
   const [isMobile, setIsMobile] = useState(isSsrMobileLocal)
   const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const {
@@ -65,7 +63,7 @@ const NewCarResultPage = ({
 
   return (
     <>
-      <Seo title={metaTitle} description={descTag} image={defaultSeoImage} />
+      <Seo title={metaTitle} description={metaDesc} image={defaultSeoImage} />
       <CarProvider
         car={null}
         carOfTheMonth={[]}
@@ -76,15 +74,7 @@ const NewCarResultPage = ({
         recommendation={meta.carRecommendations.carRecommendations}
         recommendationToyota={[]}
       >
-        <div className={styles.mobile}>
-          <PLP minmaxPrice={meta.MinMaxPrice} />
-        </div>
-        <div className={styles.desktop}>
-          <PLPDesktop
-            carRecommendation={meta.carRecommendations}
-            footer={meta.footer}
-          />
-        </div>
+        <PLP minmaxPrice={meta.MinMaxPrice} />
       </CarProvider>
     </>
   )

@@ -13,7 +13,6 @@ import {
   MobileWebTopMenuType,
   NavbarItemResponse,
 } from 'utils/types/utils'
-import PLPDesktop from 'components/organisms/PLPDesktop'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { useUtils } from 'services/context/utilsContext'
 import { MobileWebFooterMenuType } from 'utils/types/props'
@@ -25,7 +24,6 @@ import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import { useMediaQuery } from 'react-responsive'
 import { CarProvider } from 'services/context'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
-import styles from 'styles/pages/plp.module.scss'
 
 const NewCarResultPage = ({
   meta,
@@ -62,12 +60,12 @@ const NewCarResultPage = ({
 
   const todayDate = new Date()
 
-  const metaTitle =
-    `Harga OTR ` +
-    meta.title.split('20')[0] +
-    ` ${todayDate.getFullYear()} - Promo Cicilan bulan ${monthId(
-      todayDate.getMonth(),
-    )} | SEVA`
+  const getUrlBrand = router.query.brand?.toString() ?? ''
+  const carBrand = getUrlBrand.charAt(0).toUpperCase() + getUrlBrand.slice(1)
+
+  const metaTitle = `Harga OTR ${carBrand} ${todayDate.getFullYear()} - Promo Cicilan bulan ${monthId(
+    todayDate.getMonth(),
+  )} | SEVA `
   const metaDesc = `Beli mobil Toyota ${todayDate.getFullYear()} terbaru secara kredit dengan Instant Approval*. Cari tau spesifikasi, harga, promo, dan kredit di SEVA`
 
   return (
@@ -83,15 +81,7 @@ const NewCarResultPage = ({
         recommendation={meta.carRecommendations.carRecommendations}
         recommendationToyota={[]}
       >
-        <div className={styles.mobile}>
-          <PLP minmaxPrice={meta.MinMaxPrice} />
-        </div>
-        <div className={styles.desktop}>
-          <PLPDesktop
-            carRecommendation={meta.carRecommendations}
-            footer={meta.footer}
-          />
-        </div>
+        <PLP minmaxPrice={meta.MinMaxPrice} />
       </CarProvider>
     </>
   )
