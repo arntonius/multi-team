@@ -309,7 +309,7 @@ const SearchWidget = () => {
         bodyType,
         priceRangeGroup,
         downPaymentAmount: '',
-        tenure: '',
+        tenure: 5,
         age: '',
         monthlyIncome: '',
       })
