@@ -21,11 +21,14 @@ import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
 import { carResultsUrl, loanCalculatorDefaultUrl } from 'utils/helpers/routes'
+import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 
 const HowToUse = () => {
   const router = useRouter()
+  const { clearQueryFilter } = useFunnelQueryData()
 
   const onClickDreamCar = () => {
+    clearQueryFilter()
     sendAmplitudeData(AmplitudeEventName.WEB_LP_HOW_TO_USE_SEVA_CLICK, {
       Page_Direction_URL:
         'https://' + window.location.host + urls.internalUrls.carResultsUrl,

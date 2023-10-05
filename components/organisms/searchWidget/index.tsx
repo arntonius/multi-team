@@ -304,7 +304,15 @@ const SearchWidget = () => {
       patchFinancialQuery(dataFinancial)
       patchFunnelQuery({ ...state })
     } else {
-      patchFunnelQuery({ brand, bodyType, priceRangeGroup })
+      patchFunnelQuery({
+        brand,
+        bodyType,
+        priceRangeGroup,
+        downPaymentAmount: '',
+        tenure: '',
+        age: '',
+        monthlyIncome: '',
+      })
     }
 
     sendAmplitudeData(AmplitudeEventName.WEB_LP_SEARCHWIDGET_SUBMIT, {
