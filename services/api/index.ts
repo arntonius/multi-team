@@ -3,6 +3,7 @@ import {
   DeleteAccountRequestType,
   SendInstantApproval,
   UpdateProfileType,
+  updateLeadFormOTO,
 } from './../../utils/types/utils'
 import get from './get'
 import post from './post'
@@ -206,6 +207,14 @@ const postUpdateProfile = (
   config: AxiosRequestConfig,
 ) => post(collections.profile.updateProfile, body, config)
 
+const getLeadsDetail = (id: string) =>
+  get(collections.omnicom.check.replace(':id', id))
+
+const postUpdateLeadsOTO = (
+  body: updateLeadFormOTO,
+  config: AxiosRequestConfig,
+) => post(collections.omnicom.updateLeads, body, config)
+
 export const api = {
   getMenu,
   getCities,
@@ -234,6 +243,7 @@ export const api = {
   getCustomerKtpSeva,
   getCustomerSpouseKtpSeva,
   getAvailableNIK,
+  getLeadsDetail,
 
   postUnverifiedLeadsNew,
   postRefreshToken,
