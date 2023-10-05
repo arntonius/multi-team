@@ -247,6 +247,7 @@ export const saveDataForCountlyTrackerPageViewHomepage = (
     ? pageReferrer
     : defineRouteName(window.location.href.replace(origin, ''))
   saveSessionStorage(SessionStorageKey.PageReferrerHomepage, referrer)
+
   saveSessionStorage(
     SessionStorageKey.PreviousSourceButtonHomepage,
     previousButton,
