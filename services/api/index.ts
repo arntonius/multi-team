@@ -3,6 +3,7 @@ import {
   DeleteAccountRequestType,
   SendInstantApproval,
   UpdateProfileType,
+  updateLeadFormCM,
   updateLeadFormOTO,
 } from './../../utils/types/utils'
 import get from './get'
@@ -76,6 +77,7 @@ const getConfigToken = () => {
 // get request
 const getMenu = () => get(collections.utils.menu)
 const getCities = () => get(collections.utils.cities)
+const getAgent = () => get(collections.utils.salesAgent)
 const getTestimony = () => get(collections.utils.testimonials)
 const getRecommendation = (params?: string, config?: AxiosRequestConfig) =>
   get(collections.product.recommendation + params, config)
@@ -215,9 +217,15 @@ const postUpdateLeadsOTO = (
   config: AxiosRequestConfig,
 ) => post(collections.omnicom.updateLeads, body, config)
 
+const postUpdateLeadsCM = (
+  body: updateLeadFormCM,
+  config: AxiosRequestConfig,
+) => post(collections.omnicom.updateLeadsCM, body, config)
+
 export const api = {
   getMenu,
   getCities,
+  getAgent,
   getTestimony,
   getRecommendation,
   getUsage,
@@ -267,4 +275,5 @@ export const api = {
   postSaveKtpSpouse,
   postDeleteAccount,
   postUpdateProfile,
+  postUpdateLeadsCM,
 }
