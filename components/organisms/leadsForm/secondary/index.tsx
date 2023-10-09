@@ -14,10 +14,6 @@ import { capitalizeWords, filterNonDigitCharacters } from 'utils/stringUtils'
 import { onlyLettersAndSpaces } from 'utils/handler/regex'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import {
-  UnverifiedLeadSubCategory,
-  createUnverifiedLeadNew,
-} from 'services/lead'
 import elementId from 'helpers/elementIds'
 import { OTP } from '../../otp'
 import {
@@ -34,7 +30,11 @@ import { getConvertFilterIncome } from 'utils/filterUtils'
 import { useRouter } from 'next/router'
 import { useCar } from 'services/context/carContext'
 import { ButtonVersion, ButtonSize } from 'components/atoms/button'
-import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
+import {
+  LocalStorageKey,
+  SessionStorageKey,
+  UnverifiedLeadSubCategory,
+} from 'utils/enum'
 import { Currency } from 'utils/handler/calculation'
 import { CityOtrOption } from 'utils/types'
 import { LoanRank } from 'utils/types/models'
@@ -45,12 +45,13 @@ import {
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
-import { getCustomerInfoSeva } from 'services/customer'
 import {
   PreviousButton,
   saveDataForCountlyTrackerPageViewLC,
 } from 'utils/navigate'
 import Image from 'next/image'
+import { createUnverifiedLeadNew } from 'utils/handler/lead'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
 
 const SupergraphicLeft = '/revamp/illustration/supergraphic-small.webp'
 const SupergraphicRight = '/revamp/illustration/supergraphic-large.webp'
@@ -255,7 +256,7 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
       temanSevaStatus = 'Yes'
     } else if (!!getToken()) {
       const response = await getCustomerInfoSeva()
-      if (response.data[0].temanSevaTrxCode) {
+      if (response[0]?.temanSevaTrxCode) {
         temanSevaStatus = 'Yes'
       }
     }
@@ -384,7 +385,13 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
           <div className={styles.wrapperSupergraphicLeft}>
             <Image
               src={SupergraphicLeft}
-              alt="Vector Promosi Mobil"
+              alt={
+                brand
+                  ? `Vector Form Customer Service Mobil ${
+                      carModelDetails?.brand
+                    } ${carModelDetails?.model.replace('-', ' ')}`
+                  : 'Vector Promosi Mobil'
+              }
               width={200}
               height={140}
               className={styles.supergraphicLeft}
@@ -393,7 +400,13 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
           <div className={styles.wrapperSupergraphicRight}>
             <Image
               src={SupergraphicRight}
-              alt="Vector Promosi Mobil"
+              alt={
+                brand
+                  ? `Vector Form Customer Service Mobil ${
+                      carModelDetails?.brand
+                    } ${carModelDetails?.model.replace('-', ' ')}`
+                  : 'Vector Promosi Mobil'
+              }
               width={200}
               height={140}
               className={styles.supergraphicRight}
