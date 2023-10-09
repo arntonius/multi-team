@@ -76,22 +76,18 @@ export const HeaderMobile = ({
   pageOrigination,
   isOTO = false,
   transparent = false,
-  isRegular = true,
   passCountlyTrackerPageView,
 }: HeaderMobileProps): JSX.Element => {
   const enableAnnouncementBoxAleph =
     getCurrentEnvironment.featureToggles.enableAnnouncementBoxAleph
-
   const [isOpenSearchModal, setIsOpenSearchModal] = useState(false)
 
   const router = useRouter()
 
   const adaSeva = router.asPath.split('/')[1]
-
   const [isLogin] = useState(!!getToken())
 
   const redirectHome = adaSeva === 'adaSEVAdiOTO' ? rootOTOUrl : rootUrl
-
 
   const handleClickCityIcon = () => {
     if (!isActive) {
@@ -112,15 +108,17 @@ export const HeaderMobile = ({
 
   const handleSearch = () => {
     if (!isActive) {
-      trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_CLICK, {
-        PAGE_ORIGINATION: pageOrigination.includes('PDP')
-          ? 'PDP - ' + valueMenuTabCategory()
-          : pageOrigination,
-      })
       setIsOpenSearchModal(true)
       trackSearchbarOpen({
         Page_Origination_URL: window.location.href,
       })
+      if (pageOrigination && pageOrigination.length !== 0) {
+        trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_CLICK, {
+          PAGE_ORIGINATION: pageOrigination.includes('PDP')
+            ? 'PDP - ' + valueMenuTabCategory()
+            : pageOrigination,
+        })
+      }
     }
   }
 
