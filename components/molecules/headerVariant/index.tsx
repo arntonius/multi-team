@@ -13,7 +13,6 @@ import React, {
 import { useMediaQuery } from 'react-responsive'
 import { api } from 'services/api'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import { getCarsSearchBar } from 'services/searchbar'
 import styles from 'styles/components/molecules/headerSearch.module.scss'
 import { LocalStorageKey } from 'utils/enum'
 import { convertObjectQuery } from 'utils/handler/convertObjectQuery'
@@ -44,10 +43,6 @@ import dynamic from 'next/dynamic'
 import { getCity } from 'utils/hooks/useGetCity'
 import { removeCarBrand } from 'utils/handler/removeCarBrand'
 import { removeCarModel } from 'utils/handler/removeCarModel'
-
-const Loading = dynamic(() =>
-  import('components/atoms/loading').then((mod) => mod.Loading),
-)
 
 interface HeaderVariantProps {
   overrideDisplay?: string
@@ -87,7 +82,13 @@ export default function HeaderVariant({
   const isInLoanCalcKK = router.query.from === 'homepageKualifikasi'
 
   const handleDebounceFn = (inputValue: string) => {
-    getCarsSearchBar(inputValue)
+    const params = new URLSearchParams()
+    getCity().cityCode && params.append('city', getCity().cityCode as string)
+    getCity().id && params.append('cityId', getCity().id as string)
+    params.append('query', inputValue as string)
+
+    api
+      .getSearchDataQuery('', { params })
       .then((response) => {
         const listedResult = response.map(
           (item: { value: string; label: string }) => {
@@ -516,7 +517,6 @@ export default function HeaderVariant({
                 </div>
               </div>
             )}
-            <Loading isShowLoading={isShowLoading} progress={progress} />
           </div>
         </div>
       </div>

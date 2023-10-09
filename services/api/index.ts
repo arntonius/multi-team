@@ -1,11 +1,12 @@
 import {
+  CreateProbeTrackRequest,
   CustomerKtpSeva,
   DeleteAccountRequestType,
   SendInstantApproval,
   UpdateProfileType,
   updateLeadFormCM,
   updateLeadFormOTO,
-} from './../../utils/types/utils'
+} from 'utils/types/utils'
 import get from './get'
 import post from './post'
 import { collections } from './collections'
@@ -18,7 +19,6 @@ import {
   SendMultiKualifikasiKredit,
   SpecialRateRequest,
 } from 'utils/types/utils'
-import { CreateProbeTrackRequest } from 'services/probe'
 import environments from 'helpers/environments'
 import { AES } from 'crypto-js'
 // import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -157,8 +157,8 @@ const postUnverifiedLeadsNew = (body: any) => {
 }
 const postRefreshToken = (body: any, config?: AxiosRequestConfig) =>
   post(collections.auth.refresh, body, config)
-const postSendSMSGeneration = (recaptchaToken: string, phoneNumber: string) =>
-  post(collections.auth.otp, { recaptchaToken, phoneNumber })
+const postSendSMSGeneration = (phoneNumber: string) =>
+  post(collections.auth.otp, { phoneNumber })
 const postVerifyOTPGeneration = (code: string, phoneNumber: string) =>
   post(collections.auth.otpVerification, { code, phoneNumber })
 const postNewFunnelLoanSpecialRate = (
