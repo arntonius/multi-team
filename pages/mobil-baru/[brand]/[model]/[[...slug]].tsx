@@ -655,7 +655,8 @@ const jsonLD = (
     ImageObject: [
       {
         '@type': 'ImageObject',
-        contentUrl: filterImageBasedOnType(carModel?.images, 'eksterior')?.[0],
+        contentUrl: (filterImageBasedOnType(carModel?.images, 'eksterior') as string[]).length ?
+          filterImageBasedOnType(carModel?.images, 'eksterior')?.[0] : carModel?.images?.[0],
         mainEntityOfPage: `https://www.seva.id/mobil-baru/${carModel?.brand}/${carModel?.model}?tab=Eksterior`,
         representativeOfPage: 'https://schema.org/True',
         isFamilyFriendly: 'https://schema.org/True',
@@ -663,7 +664,8 @@ const jsonLD = (
       },
       {
         '@type': 'ImageObject',
-        contentUrl: filterImageBasedOnType(carModel?.images, 'interior')?.[0],
+        contentUrl: (filterImageBasedOnType(carModel?.images, 'eksterior') as string[]).length ?
+          filterImageBasedOnType(carModel?.images, 'interior')?.[0] : carModel?.images?.[0],
         mainEntityOfPage: `https://www.seva.id/mobil-baru/${carModel?.brand}/${carModel?.model}?tab=Interior`,
         representativeOfPage: 'https://schema.org/True',
         isFamilyFriendly: 'https://schema.org/True',
