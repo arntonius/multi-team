@@ -8,7 +8,6 @@ import 'swiper/css/pagination'
 import { initAmplitude } from 'services/amplitude/'
 import TagManager from 'react-gtm-module'
 import { GlobalContextProvider } from 'services/context'
-import { applyPolyfills, defineCustomElements } from 'seva-ui-kit/loader'
 import Script from 'next/script'
 import 'react-spring-bottom-sheet/dist/style.css'
 import 'react-lazy-load-image-component/src/effects/blur.css'
@@ -62,10 +61,6 @@ const OpenSansExtraBold = localFont({
   src: '../public/revamp/fonts/OpenSans/OpenSans-ExtraBold.woff2',
   style: 'normal',
   display: 'swap',
-})
-
-applyPolyfills().then(() => {
-  defineCustomElements()
 })
 
 export default function App({ Component, pageProps }: AppProps) {
