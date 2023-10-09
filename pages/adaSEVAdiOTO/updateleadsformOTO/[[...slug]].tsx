@@ -11,7 +11,6 @@ import FormSelectCitySevaOTO from 'components/molecules/formUpdateLeadsSevaOTO/f
 import { useEffect, useState } from 'react'
 import { variantEmptyValue } from 'components/molecules/form/formSelectCarVariant'
 import { ModelVariant } from 'utils/types/carVariant'
-import { getCarModelDetailsById } from 'services/recommendations'
 import { CityOtrOption } from 'utils/types'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
@@ -23,9 +22,10 @@ import { FormSelectCarVariantSevaOTO } from 'components/molecules/formUpdateLead
 import { getLeadsDetail, updateLeadFormOTO } from 'services/leadsSeva'
 import { FormSelectBrandCarSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectBrandCarSevaOTO'
 import { LabelTooltipSevaOTO } from 'components/molecules/label/labelTooltipSevaOTO'
-import { getNewFunnelRecommendationsByCity } from 'services/newFunnel'
 import { capitalizeFirstLetter } from 'utils/stringUtils'
 import dynamic from 'next/dynamic'
+import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
+import { api } from 'services/api'
 const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
 
 const CarSillhouete = '/revamp/illustration/car-sillhouete.webp'
@@ -182,10 +182,12 @@ const UpdateLeadsFormOTO = ({
 
   const fetchAllCarModels = async () => {
     if (forms?.city?.id) {
-      const response = await getNewFunnelRecommendationsByCity(
-        forms?.city?.id,
-        forms?.city?.cityCode,
-      )
+      const params = new URLSearchParams()
+      params.append('cityId', forms?.city?.id as string)
+      params.append('city', forms?.city?.cityCode as string)
+
+      const response = await api.getRecommendation('', { params })
+
       setAllModalCarList(
         response.carRecommendations.filter(
           (item: any) => item.brand === isCheckedBrand[0],
