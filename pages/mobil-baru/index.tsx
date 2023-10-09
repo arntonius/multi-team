@@ -53,6 +53,15 @@ const NewCarResultPage = ({
   } = useUtils()
 
   useEffect(() => {
+    console.log(
+      'qwe env var storage encrypt',
+      process.env.NEXT_PUBLIC_LOCAL_STORAGE_ENCRYPTION_KEY,
+    )
+    console.log(
+      'qwe env var lead payload encrypt',
+      process.env.NEXT_PUBLIC_LEAD_PAYLOAD_ENCRYPTION_KEY,
+    )
+    console.log('qwe env var environment', process.env.NEXT_PUBLIC_ENVIRONMENT)
     saveDesktopWebTopMenu(dataDesktopMenu)
     saveMobileWebTopMenus(dataMobileMenu)
     saveMobileWebFooterMenus(dataFooter)
