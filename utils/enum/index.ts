@@ -157,6 +157,8 @@ export enum SessionStorageKey {
   PreviousSourceSectionLogin = 'previousSourceSectionLogin',
   PageReferrerLoginPage = 'pageReferrerLoginPage',
   IsShowBadgeCreditOpportunity = 'IsShowBadgeCreditOpportunity',
+  PageReferrerMultiKK = 'pageReferrerMultiKK',
+  PageReferrerProfilePage = 'pageReferrerProfilePage',
 }
 
 export enum HTTPResponseStatusCode {
