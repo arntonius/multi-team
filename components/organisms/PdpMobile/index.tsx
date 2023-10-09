@@ -70,7 +70,6 @@ import {
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 
-
 const OverlayGallery = dynamic(() =>
   import('components/molecules').then((mod) => mod.OverlayGallery),
 )
@@ -367,11 +366,6 @@ export default function NewCarVariantList({
       PELUANG_KREDIT_BADGE:
         isUsingFilterFinancial && IsShowBadgeCreditOpportunity
           ? dataCar?.PELUANG_KREDIT_BADGE
-          : 'Null',
-      TENOR_OPTION:
-        window.location.href.includes('kredit') &&
-        dataCar?.PELUANG_KREDIT_BADGE !== 'Null'
-          ? dataCar?.TENOR_OPTION + ' Tahun'
           : 'Null',
       TENOR_OPTION:
         window.location.href.includes('kredit') &&
