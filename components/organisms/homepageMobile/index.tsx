@@ -104,7 +104,9 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
 
   const getCarOfTheMonth = async () => {
     try {
-      const carofmonth: any = await api.getCarofTheMonth(getCity().cityCode)
+      const carofmonth: any = await api.getCarofTheMonth(
+        '?city=' + getCity().cityCode,
+      )
 
       setCarOfTheMonthData(carofmonth.data)
     } catch (e: any) {
@@ -351,7 +353,10 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
           />
         )}
         {!isLeadsFormSectionVisible && (
-          <CSAButton onClick={scrollToLeadsForm} additionalStyle={'csa-button-homepage'} />
+          <CSAButton
+            onClick={scrollToLeadsForm}
+            additionalStyle={'csa-button-homepage'}
+          />
         )}
 
         {isLoginModalOpened && (
