@@ -151,7 +151,7 @@ export default function index({
   const carOTRValue = dataCombinationOfCarRecomAndModelDetail?.variants[
     dataCombinationOfCarRecomAndModelDetail?.variants.length - 1
   ].priceValue as number
-  const carOTR = `Rp ${carOTRValue / 1000000} Juta`
+  const carOTR = `Rp ${carOTRValue / 1000000} juta`
 
   const getMetaTitle = () => {
     if (isMobile) {
@@ -206,7 +206,7 @@ export default function index({
           return `Daftar harga ${carBrand} ${carModel} ${currentYear}. Harga mulai dari ${carOTR}, dapatkan informasi mengenai harga ${carBrand} ${carModel} ${currentYear} terbaru di SEVA.`
 
         default:
-          return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tahu spesifikasi, harga, dan kredit di SEVA`
+          return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tau spesifikasi, harga, dan kredit di SEVA`
       }
     }
     if (Array.isArray(slug)) {
@@ -220,13 +220,13 @@ export default function index({
             return `Daftar harga ${carBrand} ${carModel} ${currentYear}. Harga mulai dari ${carOTR}, dapatkan informasi mengenai harga ${carBrand} ${carModel} ${currentYear} terbaru di SEVA.`
 
           default:
-            return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tahu spesifikasi, harga, dan kredit di SEVA`
+            return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tau spesifikasi, harga, dan kredit di SEVA`
         }
       })
 
       return descriptions.join(' ')
     }
-    return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tahu spesifikasi, harga, dan kredit di SEVA`
+    return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tau spesifikasi, harga, dan kredit di SEVA`
   }
 
   const modelDetailData =
@@ -560,7 +560,7 @@ const jsonLD = (
         },
         {
           '@type': 'Question',
-          name: 'Berapa Harga Toyota Rush?',
+          name: `Berapa Harga Toyota ${carModel?.model}?`,
           acceptedAnswer: {
             '@type': 'Answer',
             text: `Harga ${carModel?.brand} ${carModel?.model} dimulai dari kisaran harga Rp ${priceRange} juta.`,
@@ -571,7 +571,7 @@ const jsonLD = (
           name: `Berapa Panjang Mobil ${carModel?.brand} ${carModel?.model}?`,
           acceptedAnswer: {
             '@type': 'Answer',
-            text: `Panjang dimensi Toyota Rush adalah ${
+            text: `Panjang dimensi Toyota ${carModel?.model} adalah ${
               selectedCar.length
             } mm dan lebarnya ${
               selectedCar ? selectedCar.width : ''

@@ -32,7 +32,10 @@ import {
   CarVariantListPageUrlParams,
   trackDataCarType,
 } from 'utils/types/utils'
-import { getSessionStorage } from 'utils/handler/sessionStorage'
+import {
+  getSessionStorage,
+  saveSessionStorage,
+} from 'utils/handler/sessionStorage'
 import { removeCarBrand } from 'utils/handler/removeCarBrand'
 
 type AlternativeCarCardProps = {
@@ -162,6 +165,14 @@ export const AlternativeCarCard = ({
     trackCarRecommendation()
 
     trackCountlyCarRecommendation()
+    const dataCarTemp = {
+      ...dataCar,
+      PELUANG_KREDIT_BADGE: 'Mudah disetujui',
+    }
+    saveSessionStorage(
+      SessionStorageKey.PreviousCarDataBeforeLogin,
+      JSON.stringify(dataCarTemp),
+    )
     if (window.location.pathname.includes('kalkulator-kredit')) {
       saveDataForCountlyTrackerPageViewPDP(
         PreviousButton.CarRecommendation,
@@ -170,7 +181,6 @@ export const AlternativeCarCard = ({
     } else {
       saveDataForCountlyTrackerPageViewPDP(PreviousButton.CarRecommendation)
     }
-
     window.location.href = detailCarRoute
   }
 
