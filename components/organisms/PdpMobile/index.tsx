@@ -18,19 +18,11 @@ import {
 } from 'utils/types/utils'
 import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-import { getNewFunnelRecommendations } from 'services/newFunnel'
 import { savePreviouslyViewed } from 'utils/carUtils'
-import {
-  getCarModelDetailsById,
-  getCarVariantDetailsById,
-  handleRecommendationsAndCarModelDetailsUpdate,
-} from 'services/recommendations'
-import { getCities } from 'services/cities'
+
 import { decryptValue } from 'utils/encryptionUtils'
 import { CSAButton, WhatsappButton } from 'components/atoms'
-import { getCustomerAssistantWhatsAppNumber } from 'services/lead'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import { getCustomerInfoSeva } from 'services/customer'
 import elementId from 'helpers/elementIds'
 import {
   CarSearchPageMintaPenawaranParam,
@@ -69,6 +61,15 @@ import { defaultCity, getCity } from 'utils/hooks/useGetCity'
 import dynamic from 'next/dynamic'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { Currency } from 'utils/handler/calculation'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
+import {
+  getCarModelDetailsById,
+  getCarVariantDetailsById,
+  handleRecommendationsAndCarModelDetailsUpdate,
+} from 'utils/handler/carRecommendation'
+import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
+
 
 const OverlayGallery = dynamic(() =>
   import('components/molecules').then((mod) => mod.OverlayGallery),
@@ -366,6 +367,11 @@ export default function NewCarVariantList({
       PELUANG_KREDIT_BADGE:
         isUsingFilterFinancial && IsShowBadgeCreditOpportunity
           ? dataCar?.PELUANG_KREDIT_BADGE
+          : 'Null',
+      TENOR_OPTION:
+        window.location.href.includes('kredit') &&
+        dataCar?.PELUANG_KREDIT_BADGE !== 'Null'
+          ? dataCar?.TENOR_OPTION + ' Tahun'
           : 'Null',
       TENOR_OPTION:
         window.location.href.includes('kredit') &&

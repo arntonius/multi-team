@@ -240,11 +240,14 @@ export const saveDataForCountlyTrackerPageViewLC = (
 
 export const saveDataForCountlyTrackerPageViewHomepage = (
   previousButton: PreviousButton,
+  pageReferrer?: string,
 ) => {
-  saveSessionStorage(
-    SessionStorageKey.PageReferrerHomepage,
-    defineRouteName(window.location.pathname),
-  )
+  const origin = window.location.origin
+  const referrer = pageReferrer
+    ? pageReferrer
+    : defineRouteName(window.location.href.replace(origin, ''))
+  saveSessionStorage(SessionStorageKey.PageReferrerHomepage, referrer)
+
   saveSessionStorage(
     SessionStorageKey.PreviousSourceButtonHomepage,
     previousButton,
