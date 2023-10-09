@@ -87,6 +87,8 @@ export const HeaderMobile = ({
   const adaSeva = router.asPath.split('/')[1]
   const [isLogin] = useState(!!getToken())
 
+  const redirectHome = adaSeva === 'adaSEVAdiOTO' ? rootOTOUrl : rootUrl
+
   const handleClickCityIcon = () => {
     if (!isActive) {
       trackCitySelectorOpen({
@@ -169,8 +171,6 @@ export const HeaderMobile = ({
 
     window.location.href = redirectHome
   }
-
-  const redirectHome = adaSeva === 'adaSEVAdiOTO' ? rootOTOUrl : rootUrl
 
   return (
     <>
