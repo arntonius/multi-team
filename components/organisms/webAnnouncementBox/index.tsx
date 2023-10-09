@@ -21,6 +21,7 @@ import { SessionStorageKey } from 'utils/enum'
 import { useUtils } from 'services/context/utilsContext'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
 const CustomMobile = '/revamp/images/announcementBox/custom-mobile-right.webp'
 const ChristmasMobileRight =
@@ -106,7 +107,7 @@ export const WebAnnouncementBox = ({
     getToken(),
   ])
 
-  useEffect(() => {
+  useAfterInteractive(() => {
     if (isOpen && announcement) {
       window.dataLayer.push({
         event: 'view_promotion',
