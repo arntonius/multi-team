@@ -104,7 +104,7 @@ export const HeaderMobile = ({
             ? getPageName()
             : 'PDP - ' + valueMenuTabCategory(),
         USER_TYPE: valueForUserTypeProperty(),
-        SOURCE_BUTTON: 'Location Icon',
+        SOURCE_BUTTON: 'Location Icon (Navbar)',
       })
       emitClickCityIcon()
     }
@@ -113,7 +113,9 @@ export const HeaderMobile = ({
   const handleSearch = () => {
     if (!isActive) {
       trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_CLICK, {
-        PAGE_ORIGINATION: getPageName(),
+        PAGE_ORIGINATION: pageOrigination.includes('PDP')
+          ? 'PDP - ' + valueMenuTabCategory()
+          : pageOrigination,
       })
       setIsOpenSearchModal(true)
       trackSearchbarOpen({
@@ -284,6 +286,7 @@ export const HeaderMobile = ({
           isOpen={isOpenSearchModal}
           handleCloseModal={() => setIsOpenSearchModal(false)}
           isOTO={isOTO}
+          pageOrigination={pageOrigination}
         />
       </header>
       <Overlay
