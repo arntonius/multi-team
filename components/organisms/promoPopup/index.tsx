@@ -52,16 +52,6 @@ const PromoPopup = ({
 
   const loanRankcr = router.query.loanRankCVL ?? ''
 
-  const getCreditBadgeForCountly = () => {
-    let creditBadge = 'Null'
-    if (loanRankcr && loanRankcr.includes(LoanRank.Green)) {
-      creditBadge = 'Mudah disetujui'
-    } else if (loanRankcr && loanRankcr.includes(LoanRank.Red)) {
-      creditBadge = 'Sulit disetujui'
-    }
-    return creditBadge
-  }
-
   const getDataForAmplitude = () => {
     return {
       Car_Brand: carModelDetails?.brand,
