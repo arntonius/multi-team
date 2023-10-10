@@ -1135,11 +1135,11 @@ export const CreditTab = () => {
       }
 
       patchFinancialQuery(dataFinancial)
-      patchFunnelQuery({
-        age: forms.age,
-        monthlyIncome: forms.monthlyIncome,
-        downPaymentAmount: forms.downPaymentAmount,
-      })
+      // patchFunnelQuery({
+      //   age: forms.age,
+      //   monthlyIncome: forms.monthlyIncome,
+      //   downPaymentAmount: forms.downPaymentAmount,
+      // })
 
       fetchCarRecommendations()
 
