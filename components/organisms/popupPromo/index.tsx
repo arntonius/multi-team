@@ -65,6 +65,12 @@ export const PopupPromo = (props: PopupPromo) => {
   const [promoList, setPromoList] = useState(initPromoList)
   const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
 
+  const dataCar: trackDataCarType | null = getSessionStorage(
+    SessionStorageKey.PreviousCarDataBeforeLogin,
+  )
+  const IsShowBadgeCreditOpportunity = getSessionStorage(
+    SessionStorageKey.IsShowBadgeCreditOpportunity,
+  )
   const isUsingFilterFinancial =
     !!filterStorage?.age &&
     !!filterStorage?.downPaymentAmount &&
@@ -88,15 +94,16 @@ export const PopupPromo = (props: PopupPromo) => {
       return creditBadge
     }
     trackEventCountly(CountlyEventNames.WEB_PROMO_SK_CLICK, {
-      CAR_BRAND: props.carData.brand,
-      CAR_MODEL: props.carData.model,
-      CAR_ORDER: props.carData.carOder,
+      CAR_BRAND: getBrandAndModelValue(props.carData.brand),
+      CAR_MODEL: getBrandAndModelValue(props.carData.model),
+      CAR_ORDER: props.carData.carOrder,
       PROMO_DETAILS: promoDetail,
       PROMO_ORDER: promoOrder + 1,
-      PELUANG_KREDIT_BADGE: isUsingFilterFinancial
-        ? getCreditBadgeForCountly()
-        : 'Null',
-      PAGE_ORIGINATION: 'PDP',
+      PELUANG_KREDIT_BADGE:
+        isUsingFilterFinancial && IsShowBadgeCreditOpportunity
+          ? dataCar?.PELUANG_KREDIT_BADGE
+          : 'Null',
+      PAGE_ORIGINATION: 'PLP',
     })
   }
   useEffect(() => {
