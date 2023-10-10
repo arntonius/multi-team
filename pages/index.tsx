@@ -55,15 +55,9 @@ export default function WithTracker({
   dataTypeCar,
   dataCarofTheMonth,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [isMobile, setIsMobile] = useState(useIsMobileSSr())
   const { saveTypeCar, saveCarOfTheMonth, saveRecommendationToyota } = useCar()
   const { saveArticles, saveDesktopWebTopMenu, saveMobileWebTopMenus } =
     useUtils()
-  const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
-
-  useEffect(() => {
-    setIsMobile(isClientMobile)
-  }, [isClientMobile])
 
   useEffect(() => {
     saveDesktopWebTopMenu(dataDesktopMenu)
