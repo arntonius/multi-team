@@ -71,6 +71,7 @@ import {
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getPageName } from 'utils/pageName'
+import { useFinancialQueryData } from 'services/context/finnancialQueryContext'
 
 interface PLPProps {
   carRecommendation: CarRecommendationResponse
@@ -110,6 +111,7 @@ export const PLP = ({
     resultMaxPrice: 0,
   })
   const { funnelQuery, patchFunnelQuery } = useFunnelQueryData()
+  const { financialQuery } = useFinancialQueryData()
   const [isButtonClick, setIsButtonClick] = useState(false)
   const [isResetFilter, setIsResetFilter] = useState(false)
   const [isFilter, setIsFilter] = useState(false)
@@ -408,13 +410,15 @@ export const PLP = ({
 
             const queryParam: any = {
               downPaymentType: 'amount',
-              downPaymentAmount: downPaymentAmount || '',
+              downPaymentAmount:
+                downPaymentAmount || financialQuery.downPaymentAmount || '',
               brand: brand?.split(',') || '',
               bodyType: bodyType?.split(',') || '',
               priceRangeGroup: priceRangeGroup ? minTemp + '-' + maxTemp : '',
-              age: age || '',
-              tenure: Number(tenure) || 5,
-              monthlyIncome: monthlyIncome || '',
+              age: age || financialQuery.age || '',
+              tenure: tenure ? Number(tenure) : financialQuery.tenure || 5,
+              monthlyIncome:
+                monthlyIncome || financialQuery.monthlyIncome || '',
               sortBy: sortBy || 'lowToHigh',
             }
 
@@ -452,13 +456,14 @@ export const PLP = ({
     } else {
       saveRecommendation(carRecommendation.carRecommendations)
       const queryParam: any = {
-        downPaymentAmount: downPaymentAmount || '',
+        downPaymentAmount:
+          downPaymentAmount || financialQuery.downPaymentAmount || '',
         brand: brand?.split(',') || '',
         bodyType: bodyType?.split(',') || '',
         priceRangeGroup: priceRangeGroup,
-        age: age || '',
-        tenure: Number(tenure) || 5,
-        monthlyIncome: monthlyIncome || '',
+        age: age || financialQuery.age || '',
+        tenure: tenure ? Number(tenure) : financialQuery.tenure || 5,
+        monthlyIncome: monthlyIncome || financialQuery.monthlyIncome || '',
         sortBy: sortBy || 'lowToHigh',
       }
       patchFunnelQuery(queryParam)
