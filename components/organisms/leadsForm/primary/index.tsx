@@ -19,14 +19,21 @@ import {
   trackLeadsFormAction,
 } from 'helpers/amplitude/seva20Tracking'
 import { TrackingEventName } from 'helpers/amplitude/eventTypes'
-import { useMediaQuery } from 'react-responsive'
-import { createUnverifiedLeadNew } from 'services/lead'
 import { onlyLettersAndSpaces } from 'utils/handler/regex'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { OTP } from 'components/organisms/otp'
 import Image from 'next/image'
 import { CityOtrOption } from 'utils/types'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
+import {
+  trackEventCountly,
+  valueForUserTypeProperty,
+  valueMenuTabCategory,
+} from 'helpers/countly/countly'
+import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { getToken } from 'utils/handler/auth'
+import { createUnverifiedLeadNew } from 'utils/handler/lead'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
 
 const SupergraphicSecondarySmall =
   '/revamp/illustration/supergraphic-secondary-small.webp'
@@ -57,7 +64,6 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
     'leads-form' | 'otp' | 'success-toast' | 'none'
   >('leads-form')
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false)
-  const isMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -102,6 +108,20 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
     sendUnverifiedLeads()
   }
 
+  const trackCountlySendLeads = async (verifiedPhone: string) => {
+    let pageOrigination = 'Homepage - Car of The Month'
+
+    if (onPage !== 'LP') {
+      pageOrigination = 'PLP'
+    }
+    trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SEND_CLICK, {
+      PAGE_ORIGINATION: pageOrigination,
+      LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
+      PHONE_VERIFICATION_STATUS: verifiedPhone,
+      PHONE_NUMBER: '+62' + phone,
+    })
+  }
+
   const sendOtpCode = async () => {
     setIsLoading(true)
     if (trackerProperties)
@@ -110,16 +130,35 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
         trackerProperties,
       )
     const dataLeads = checkDataFlagLeads()
+    let pageOrigination = 'Homepage - Car of The Month'
+
+    if (onPage !== 'LP') {
+      pageOrigination = 'PLP'
+    }
     if (dataLeads) {
       if (phone === dataLeads.phone && name === dataLeads.name) {
+        trackCountlySendLeads('Yes')
         sendUnverifiedLeads()
       } else if (phone === dataLeads.phone && name !== dataLeads.name) {
+        trackCountlySendLeads('Yes')
         sendUnverifiedLeads()
         updateFlagLeadsName(name)
-      } else setModalOpened('otp')
+      } else {
+        trackCountlySendLeads('No')
+        trackEventCountly(CountlyEventNames.WEB_OTP_VIEW, {
+          PAGE_ORIGINATION: pageOrigination,
+        })
+        setModalOpened('otp')
+      }
     } else if (isUserLoggedIn) {
       sendUnverifiedLeads()
-    } else setModalOpened('otp')
+    } else {
+      trackCountlySendLeads('No')
+      trackEventCountly(CountlyEventNames.WEB_OTP_VIEW, {
+        PAGE_ORIGINATION: pageOrigination,
+      })
+      setModalOpened('otp')
+    }
   }
 
   const saveFlagLeads = (payload: any) => {
@@ -149,6 +188,23 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
 
   const sendUnverifiedLeads = async () => {
     let data
+    let temanSevaStatus = 'No'
+    let pageOrigination = 'PLP'
+    const referralCodeFromUrl: string | null = getLocalStorage(
+      LocalStorageKey.referralTemanSeva,
+    )
+
+    if (onPage === 'LP') {
+      pageOrigination = 'PLP'
+    }
+    if (referralCodeFromUrl) {
+      temanSevaStatus = 'Yes'
+    } else if (!!getToken()) {
+      const response = await getCustomerInfoSeva()
+      if (response[0]?.temanSevaTrxCode) {
+        temanSevaStatus = 'Yes'
+      }
+    }
     if (onPage === 'LP') {
       data = {
         origination: UnverifiedLeadSubCategory.SEVA_NEW_CAR_CAR_OF_THE_MONTH,
@@ -173,6 +229,12 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
           TrackingEventName.WEB_LEADS_FORM_SUCCESS,
           trackerProperties,
         )
+      trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
+        PAGE_ORIGINATION: pageOrigination,
+        LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
+        TEMAN_SEVA_STATUS: temanSevaStatus,
+        PHONE_NUMBER: '+62' + phone,
+      })
       setIsLoading(false)
       setModalOpened('success-toast')
       setTimeout(() => {
@@ -216,6 +278,33 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
     }
   }
 
+  const onClickNameField = () => {
+    if (onPage === 'LP') {
+      trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_NAME_CLICK, {
+        PAGE_ORIGINATION: 'Homepage - Car of The Month',
+        USER_TYPE: valueForUserTypeProperty(),
+      })
+    } else {
+      trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_NAME_CLICK, {
+        PAGE_ORIGINATION: 'PLP',
+        USER_TYPE: valueForUserTypeProperty(),
+      })
+    }
+  }
+
+  const onClickPhoneField = () => {
+    if (onPage === 'LP') {
+      trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_PHONE_NUMBER_CLICK, {
+        PAGE_ORIGINATION: 'Homepage - Car of The Month',
+        USER_TYPE: valueForUserTypeProperty(),
+      })
+    } else {
+      trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_PHONE_NUMBER_CLICK, {
+        PAGE_ORIGINATION: 'PLP',
+        USER_TYPE: valueForUserTypeProperty(),
+      })
+    }
+  }
   return (
     <>
       {modalOpened === 'leads-form' && (
@@ -255,15 +344,17 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
                   title="Nama Lengkap"
                   value={name}
                   onChange={(e: any) => handleInputName(e.target.value)}
+                  onFocus={onClickNameField}
                 />
                 <Gap height={24} />
                 <InputPhone
                   dataTestId={elementId.PLP.LeadsForm.PhoneNumber}
                   disabled={isUserLoggedIn}
                   placeholder="Masukkan nomor HP"
-                  title="Nomor Handphone"
+                  title="Nomor HP"
                   value={phone}
                   onChange={(e: any) => handleInputPhone(e.target.value)}
+                  onFocus={onClickPhoneField}
                 />
                 <Gap height={32} />
                 <Button
@@ -296,11 +387,14 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
           phoneNumber={phone}
           closeModal={onCancel}
           isOtpVerified={() => verified()}
+          pageOrigination={
+            onPage === 'LP' ? 'PLP' : 'PDP - ' + valueMenuTabCategory()
+          }
         />
       )}
       <Toast
         text={toastSuccessInfo}
-        width={isMobile ? 339 : 428}
+        width={343}
         open={modalOpened === 'success-toast'}
         data-testid={elementId.PLP.Text.SuccessToastMessageLeads}
       />

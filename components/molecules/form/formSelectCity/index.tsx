@@ -1,12 +1,12 @@
 import Fuse from 'fuse.js'
 import elementId from 'helpers/elementIds'
 import React, { useEffect, useRef, useState } from 'react'
-import { getCities } from 'services/cities'
 import { IconChevronDown, IconRemove, InputSelect } from 'components/atoms'
 import { LabelWithTooltip } from 'components/molecules'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { FormControlValue, Location, Option } from 'utils/types'
 import { LocalStorageKey } from 'utils/enum'
+import { api } from 'services/api'
 
 const searchOption = {
   keys: ['label'],
@@ -26,6 +26,8 @@ type FormSelectCityProps = {
   handleChange: (name: string, value: any) => void
   isError?: boolean
   datatestid?: TestID
+  onOpenTooltip?: () => void
+  onShowDropdown?: () => void
 }
 
 export default function FormSelectCity({
@@ -33,6 +35,8 @@ export default function FormSelectCity({
   handleChange,
   name,
   isError = false,
+  onOpenTooltip,
+  onShowDropdown,
 }: FormSelectCityProps) {
   const [cityListApi, setCityListApi] = useState<Array<Location>>([])
   const [defaultCity, setDefaultCity] = useState<Location | null>(null)
@@ -54,7 +58,7 @@ export default function FormSelectCity({
   const inputRef = useRef() as React.MutableRefObject<HTMLInputElement>
 
   const fetchCities = async () => {
-    const response = await getCities()
+    const response = await api.getCities()
     setCityListApi(response)
   }
 
@@ -86,8 +90,8 @@ export default function FormSelectCity({
         label: '',
         value: '',
       }
-      tempObj.value = item.cityName
-      tempObj.label = item.cityName
+      tempObj.value = item?.cityName
+      tempObj.label = item?.cityName
       tempArray.push(tempObj)
     }
     return tempArray
@@ -210,6 +214,7 @@ export default function FormSelectCity({
             berbeda di setiap kota."
         name={name}
         datatestid={elementId.LoanCalculator.Info.OTRIcon}
+        onOpenTooltip={onOpenTooltip}
       />
       <InputSelect
         ref={inputRef}
@@ -240,13 +245,19 @@ export default function FormSelectCity({
                 onClick={onClickArrowHandler}
                 style={{ cursor: 'pointer' }}
               >
-                <IconChevronDown width={25} height={25} color={'#13131B'} />
+                <IconChevronDown
+                  width={25}
+                  height={25}
+                  color={'#13131B'}
+                  alt="SEVA Dropdown Icon"
+                />
               </div>
             )
           }
         }}
         isError={isError}
         datatestid={elementId.PDP.Drowpdown.PilihKota}
+        onShowDropdown={onShowDropdown}
       />
     </>
   )

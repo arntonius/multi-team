@@ -3,7 +3,6 @@ import styles from 'styles/components/organisms/carOverView.module.scss'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import {
   IconEdit,
-  IconInfo,
   Button,
   TextButton,
   IconDownload,
@@ -36,21 +35,30 @@ import {
   trackEventCountly,
   valueMenuTabCategory,
 } from 'helpers/countly/countly'
-import { getPageName } from 'utils/pageName'
+import {
+  PreviousButton,
+  saveDataForCountlyTrackerPageViewLC,
+} from 'utils/navigate'
+import { PdpDataOTOLocalContext } from 'pages/adaSEVAdiOTO/mobil-baru/[brand]/[model]/[[...slug]]'
+import { AdaOTOdiSEVALeadsForm } from 'components/organisms/leadsForm/adaOTOdiSEVA/popUp'
 
 interface Props {
   onClickCityOtrCarOverview: () => void
   onClickShareButton: () => void
   currentTabMenu: string
+  isOTO?: boolean
 }
 
 export const CarOverview = ({
   onClickCityOtrCarOverview,
   onClickShareButton,
   currentTabMenu,
+  isOTO = false,
 }: Props) => {
-  const { carModelDetailsResDefaultCity, carVariantDetailsResDefaultCity } =
-    useContext(PdpDataLocalContext)
+  const {
+    dataCombinationOfCarRecomAndModelDetailDefaultCity,
+    carVariantDetailsResDefaultCity,
+  } = useContext(isOTO ? PdpDataOTOLocalContext : PdpDataLocalContext)
 
   const { carModelDetails, carVariantDetails } = useCar()
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
@@ -58,7 +66,10 @@ export const CarOverview = ({
     null,
   )
 
-  const modelDetail = carModelDetails || carModelDetailsResDefaultCity
+  const [isModalOpenend, setIsModalOpened] = useState<boolean>(false)
+
+  const modelDetail =
+    carModelDetails || dataCombinationOfCarRecomAndModelDetailDefaultCity
   const variantDetail = carVariantDetails || carVariantDetailsResDefaultCity
 
   const [isShowTooltip, setIsShowTooltip] = useState(false)
@@ -73,7 +84,8 @@ export const CarOverview = ({
   const router = useRouter()
   const brand = router.query.brand as string
   const model = router.query.model as string
-  const tab = router.query.tab as string
+  const upperTab = router.query.tab as string
+  const loanRankcr = router.query.loanRankCVL ?? ''
 
   const sortedCarModelVariant = useMemo(() => {
     return (
@@ -83,28 +95,20 @@ export const CarOverview = ({
     )
   }, [modelDetail])
 
-  const onClickToolTipIcon = () => {
-    setIsShowTooltip(true)
-    trackEventCountly(CountlyEventNames.WEB_CITY_SELECTOR_TOOLTIP_CLICK, {
-      PAGE_ORIGINATION: getPageName(),
-    })
+  const closeLeadsForm = () => {
+    setIsModalOpened(false)
   }
 
-  const closeTooltip = () => {
-    // need to use timeout, if not it wont work
-    setTimeout(() => {
-      setIsShowTooltip(false)
-    }, 100)
+  const showLeadsForm = () => {
+    setIsModalOpened(true)
   }
 
   const onClickOtrCity = () => {
-    modelDetail?.brand !== 'Daihatsu' && onClickCityOtrCarOverview()
+    onClickCityOtrCarOverview()
   }
 
   const getCity = () => {
-    if (modelDetail?.brand === 'Daihatsu') {
-      return 'Jakarta Pusat'
-    } else if (cityOtr && cityOtr.cityName) {
+    if (cityOtr && cityOtr.cityName) {
       return cityOtr.cityName
     } else {
       return 'Jakarta Pusat'
@@ -251,26 +255,37 @@ export const CarOverview = ({
     trackClickBrochureCountly()
   }
 
+  const queryParamForPDP = () => {
+    const params = new URLSearchParams({
+      ...(upperTab && { tab: `${upperTab}` }),
+      ...(loanRankcr &&
+        typeof loanRankcr === 'string' && { loanRankCVL: loanRankcr }),
+    })
+
+    return params
+  }
+
   const onClickCalculateCta = () => {
     trackHitungKemampuan()
     trackClickCtaCountly()
+    saveDataForCountlyTrackerPageViewLC(PreviousButton.MainTopCta)
     window.location.href =
       variantListUrl
         .replace(':brand', brand)
         .replace(':model', model)
-        .replace(':tab', 'kredit') + `${tab && `tab=${tab}`}`
+        .replace(':tab', 'kredit') + queryParamForPDP()
   }
 
   if (!modelDetail || !variantDetail) return <></>
 
   return (
     <div className={styles.container}>
-      <h2
+      <h1
         className={styles.carBrandModelText}
         data-testid={elementId.Text + 'car-brand-model'}
       >
         {modelDetail?.brand + ' ' + modelDetail?.model}
-      </h2>
+      </h1>
       <p
         className={styles.carDescriptionText}
         data-testid={elementId.Text + 'car-description'}
@@ -306,8 +321,7 @@ export const CarOverview = ({
             Harga OTR{' '}
             <span
               style={{
-                color:
-                  modelDetail?.brand === 'Daihatsu' ? '#878D98' : '#246ED4',
+                color: '#246ED4',
               }}
               onClick={onClickOtrCity}
               data-testid={elementId.PDP.CarOverview.CityOtr}
@@ -315,42 +329,18 @@ export const CarOverview = ({
               {getCity()}
             </span>
           </span>
-          {modelDetail?.brand === 'Daihatsu' ? (
-            <div
-              className={styles.tooltipWrapper}
-              ref={tooltipRef}
-              onClick={onClickToolTipIcon}
-              data-testid={elementId.PDP.CarOverview.CityToolTip}
-            >
-              <div className={styles.tooltipIcon}>
-                <IconInfo width={11} height={11} color="#878D98" />
-              </div>
-              {isShowTooltip ? (
-                <div className={styles.tooltipCard}>
-                  <IconInfo width={24} height={24} color="#FFFFFF" />
-                  <div className={styles.tooltipContent}>
-                    <span className={styles.tooltipDesc}>
-                      Harga OTR Daihatsu menggunakan harga OTR Jakarta Pusat
-                    </span>
-                    <button
-                      className={styles.tooltipCloseButton}
-                      onClick={closeTooltip}
-                    >
-                      OK, Saya Mengerti
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          ) : (
-            <button
-              className={styles.otrCityButton}
-              onClick={onClickOtrCity}
-              data-testid={elementId.PDP.CarOverview.CityOtr}
-            >
-              <IconEdit width={16} height={16} color="#246ED4" />
-            </button>
-          )}
+          <button
+            className={styles.otrCityButton}
+            onClick={onClickOtrCity}
+            data-testid={elementId.PDP.CarOverview.CityOtr}
+          >
+            <IconEdit
+              width={16}
+              height={16}
+              color="#246ED4"
+              alt="SEVA pen Icon"
+            />
+          </button>
         </div>
         <h3
           className={styles.carOtrPriceText}
@@ -403,7 +393,12 @@ export const CarOverview = ({
         >
           <TextButton
             leftIcon={() => (
-              <IconDownload width={16} height={16} color="#246ED4" />
+              <IconDownload
+                width={16}
+                height={16}
+                color="#246ED4"
+                alt="SEVA download Icon"
+              />
             )}
             data-testid={elementId.PDP.CTA.UnduhBrosur}
           >
@@ -417,10 +412,10 @@ export const CarOverview = ({
           <Button
             version={ButtonVersion.PrimaryDarkBlue}
             size={ButtonSize.Big}
-            onClick={onClickCalculateCta}
+            onClick={isOTO ? showLeadsForm : onClickCalculateCta}
             data-testid={elementId.PDP.Button.HitungKemampuan}
           >
-            Hitung Kemampuan
+            {isOTO ? 'Saya Tertarik' : 'Hitung Kemampuan'}
           </Button>
         </div>
 
@@ -429,9 +424,15 @@ export const CarOverview = ({
           onClick={onClickShareButtonHandler}
           data-testid={elementId.PDP.Button.Share}
         >
-          <IconShare width={32} height={32} color="#05256E" />
+          <IconShare
+            width={32}
+            height={32}
+            color="#05256E"
+            alt="SEVA Share Icon"
+          />
         </button>
       </div>
+      {isModalOpenend && <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} />}
     </div>
   )
 }

@@ -17,6 +17,7 @@ import { SessionStorageKey } from 'utils/enum'
 import { LoanRank } from 'utils/types/models'
 import { saveSessionStorage } from 'utils/handler/sessionStorage'
 import { navigateToKK } from 'utils/navigate'
+import Image from 'next/image'
 
 const MainImage = '/revamp/illustration/loan-calculator.webp'
 
@@ -25,11 +26,12 @@ interface QualificationCreditModalProps {
   isOpen: boolean
   formData: FormLCState
   selectedLoan: SpecialRateList | null
+  onClickCta?: () => void
 }
 
 export const QualificationCreditModal: React.FC<
   QualificationCreditModalProps
-> = ({ onClickCloseButton, isOpen, formData, selectedLoan }) => {
+> = ({ onClickCloseButton, isOpen, formData, selectedLoan, onClickCta }) => {
   const [isLogin] = React.useState(!!getToken())
 
   const getLoanRank = (rank: string) => {
@@ -75,9 +77,15 @@ export const QualificationCreditModal: React.FC<
       SessionStorageKey.KalkulatorKreditForm,
       JSON.stringify(formData),
     )
+    saveSessionStorage(SessionStorageKey.PreviousSourceSectionLogin, 'Null')
+    onClickCta && onClickCta()
     if (isLogin) {
-      navigateToKK()
+      navigateToKK(true)
     } else {
+      saveSessionStorage(
+        SessionStorageKey.PageReferrerLoginPage,
+        'PDP - Kredit',
+      )
       savePageBeforeLogin(creditQualificationUrl)
       window.location.href = LoginSevaUrl
     }
@@ -102,10 +110,12 @@ export const QualificationCreditModal: React.FC<
       data-testid={elementId.LoanCalculator.Popup.KualifikasiKredit}
     >
       <div>
-        <img
+        <Image
           src={MainImage}
           alt="Banner Qualification Kredit"
           className={styles.modalBanner}
+          width="200"
+          height="200"
         />
       </div>
 

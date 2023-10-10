@@ -16,24 +16,28 @@ import { Info, VideoItemCard } from 'components/molecules'
 import { Gap, IconPlay } from 'components/atoms'
 // import promoBannerTradeIn from '/public/revamp/illustration/PromoTradeIn.webp'
 import Variants from '../variants'
-import PopupVariantDetail from 'components/organisms/popupVariantDetail/index'
 import { Faq } from 'components/molecules/section/faq'
 import { TrackVariantList } from 'utils/types/tracker'
 import { CityOtrOption } from 'utils/types/utils'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { trackNewVariantListPageView } from 'helpers/amplitude/seva20Tracking'
-import { Modal } from 'antd'
 import { LeadsFormSecondary } from 'components/organisms'
 import { setTrackEventMoEngage } from 'helpers/moengage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import PromoSection from 'components/organisms/promoSection/index'
-import { getNewFunnelLoanSpecialRate } from 'services/newFunnel'
 import elementId from 'helpers/elementIds'
 import { PdpDataLocalContext } from 'pages/mobil-baru/[brand]/[model]/[[...slug]]'
 import { useRouter } from 'next/router'
 import { useCar } from 'services/context/carContext'
 import { LanguageCode, LocalStorageKey } from 'utils/enum'
 import { TrackerFlag, InstallmentTypeOptions } from 'utils/types/models'
+import dynamic from 'next/dynamic'
+import { getNewFunnelLoanSpecialRate } from 'utils/handler/funnel'
+
+const Modal = dynamic(() => import('antd').then((mod) => mod.Modal))
+const PopupVariantDetail = dynamic(
+  () => import('components/organisms/popupVariantDetail/index'),
+)
 
 type RingkasanProps = {
   setPromoName: (value: string) => void
@@ -42,9 +46,10 @@ type RingkasanProps = {
   setSelectedTabValue: (value: string) => void
   setVariantIdFuelRatio: (value: string) => void
   variantFuelRatio: string | undefined
+  isOTO?: boolean
 }
 
-const formatShortPrice = (price: number) => {
+export const formatShortPrice = (price: number) => {
   return formatNumberByLocalization(price, LanguageCode.id, million, ten)
 }
 
@@ -55,23 +60,25 @@ export const SummaryTab = ({
   setSelectedTabValue,
   setVariantIdFuelRatio,
   variantFuelRatio,
+  isOTO = false,
 }: RingkasanProps) => {
   const { carModelDetails, carVariantDetails, recommendation } = useCar()
 
   const {
-    carModelDetailsResDefaultCity,
+    dataCombinationOfCarRecomAndModelDetailDefaultCity,
     carVariantDetailsResDefaultCity,
     carRecommendationsResDefaultCity,
   } = useContext(PdpDataLocalContext)
 
   const router = useRouter()
 
-  const modelDetail = carModelDetails || carModelDetailsResDefaultCity
+  const modelDetail =
+    carModelDetails || dataCombinationOfCarRecomAndModelDetailDefaultCity
   const variantDetail = carVariantDetails || carVariantDetailsResDefaultCity
   const carRecommendations =
     recommendation.length > 0
       ? recommendation
-      : carRecommendationsResDefaultCity.carRecommendations
+      : carRecommendationsResDefaultCity?.carRecommendations
 
   const [flag, setFlag] = useState<TrackerFlag>(TrackerFlag.Init)
   const { funnelQuery } = useFunnelQueryData()
@@ -115,7 +122,7 @@ export const SummaryTab = ({
       })
   }
   const cheapestVariantData = React.useMemo(() => {
-    const cheapestVariant = modelDetail.variants
+    const cheapestVariant = modelDetail?.variants
       .map((item: any) => item)
       .sort((a: any, b: any) => a.priceValue - b.priceValue)[0]
     return cheapestVariant
@@ -195,15 +202,17 @@ export const SummaryTab = ({
   }
 
   const getPriceRange = (payload: any) => {
-    const variantLength = payload.length
-    if (variantLength === 1) {
-      const price: string = rupiah(payload[0].priceValue)
-      return `yang tersedia dalam kisaran harga mulai dari ${price}`
-    } else {
-      const lowerPrice = rupiah(payload[0].priceValue)
-      const upperPrice = rupiah(payload[variantLength - 1].priceValue)
+    if (payload) {
+      const variantLength = payload?.length
+      if (variantLength === 1) {
+        const price: string = rupiah(payload[0].priceValue)
+        return `yang tersedia dalam kisaran harga mulai dari ${price}`
+      } else {
+        const lowerPrice = rupiah(payload[0].priceValue)
+        const upperPrice = rupiah(payload[variantLength - 1].priceValue)
 
-      return `yang tersedia dalam kisaran harga ${lowerPrice} - ${upperPrice} juta`
+        return `yang tersedia dalam kisaran harga ${lowerPrice} - ${upperPrice} juta`
+      }
     }
   }
 
@@ -212,25 +221,30 @@ export const SummaryTab = ({
   }
 
   const getTransmissionType = (payload: any) => {
-    const type: Array<string> = payload
-      .map((item: any) => item.transmission)
-      .filter(
-        (value: any, index: number, self: any) => self.indexOf(value) === index,
-      )
+    if (payload) {
+      const type: Array<string> = payload
+        .map((item: any) => item.transmission)
+        .filter(
+          (value: any, index: number, self: any) =>
+            self.indexOf(value) === index,
+        )
 
-    return type
+      return type
+    }
   }
 
   const getPriceRangeFaq = (payload: any) => {
-    const variantLength = payload.length
-    if (variantLength === 1) {
-      const price: string = rupiah(payload[0].priceValue)
-      return `${price}`
-    } else {
-      const lowerPrice = rupiah(payload[0].priceValue)
-      const upperPrice = rupiah(payload[variantLength - 1].priceValue)
+    if (payload) {
+      const variantLength = payload?.length
+      if (variantLength === 1) {
+        const price: string = rupiah(payload[0].priceValue)
+        return `${price}`
+      } else {
+        const lowerPrice = rupiah(payload[0].priceValue)
+        const upperPrice = rupiah(payload[variantLength - 1].priceValue)
 
-      return `${lowerPrice} - ${upperPrice}`
+        return `${lowerPrice} - ${upperPrice}`
+      }
     }
   }
 
@@ -253,9 +267,9 @@ export const SummaryTab = ({
     const color = getColorVariant()
     const dimenssion = getDimenssion(carRecommendations)
     const credit = getCreditPrice(modelDetail?.variants)
-    const month = modelDetail!.variants[0].tenure * 12
-    const transmissionType = getTransmissionType(modelDetail?.variants).length
-    const transmissionDetail = getTransmissionType(modelDetail?.variants).join(
+    const month = modelDetail!?.variants[0].tenure * 12
+    const transmissionType = getTransmissionType(modelDetail?.variants)?.length
+    const transmissionDetail = getTransmissionType(modelDetail?.variants)?.join(
       ' dan ',
     )
     const CarVariants = modelDetail?.variants
@@ -314,7 +328,9 @@ export const SummaryTab = ({
   const listFaq = [
     {
       question: `Berapa Cicilan / Kredit Bulanan ${summaryInfo.brand} ${summaryInfo.model} Terendah?`,
-      answer: ` Cicilan / kredit bulanan terendah untuk  dimulai dari Rp ${formatShortPrice(
+      answer: ` Cicilan / kredit bulanan terendah untuk ${summaryInfo.brand} ${
+        summaryInfo.model
+      } dimulai dari Rp ${formatShortPrice(
         summaryInfo.monthlyInstallment || 0,
       )} juta untuk  ${
         summaryInfo.carVariants && summaryInfo.carVariants.length > 0
@@ -332,6 +348,16 @@ export const SummaryTab = ({
       question: `Berapa Panjang Mobil ${modelDetail?.brand} ${modelDetail?.model}?`,
       answer: `Panjang dimensi ${modelDetail?.brand} ${modelDetail?.model} adalah ${summaryInfo.length} mm dan lebarnya ${summaryInfo.width} mm, dan tinggi ${summaryInfo.height}  mm.`,
       testid: elementId.PDP.FAQ.PanjangMobil,
+    },
+    {
+      question: `Berapa kapasitas penumpang dalam ${modelDetail?.brand} ${modelDetail?.model}?`,
+      answer: `${modelDetail?.brand} ${modelDetail?.model} biasanya hadir dalam opsi ${summaryInfo?.seats} kursi penumpang, dengan tempat duduk yang nyaman untuk penumpang di baris depan dan belakang.`,
+      testid: elementId.PDP.FAQ.KapasitasMobil,
+    },
+    {
+      question: `Apa jenis sistem transmisi yang digunakan oleh ${modelDetail?.brand} ${modelDetail?.model}?`,
+      answer: `${modelDetail?.brand} ${modelDetail?.model} umumnya dilengkapi dengan transmisi ${summaryInfo.transmissionDetail}.`,
+      testid: elementId.PDP.FAQ.TransmisiMobil,
     },
   ]
 
@@ -355,6 +381,7 @@ export const SummaryTab = ({
           info={summaryInfo}
           onPage={'VariantListPage'}
           setSelectedTabValue={setSelectedTabValue}
+          isOTO={isOTO}
         />
         {modelDetail && (
           <Variants
@@ -363,6 +390,7 @@ export const SummaryTab = ({
             setViewVariant={setVariantView}
             setSelectedTabValue={setSelectedTabValue}
             onCardClick={(value) => getMonthlyInstallment(value)}
+            isOTO={isOTO}
           />
         )}
         {variantView && (
@@ -388,7 +416,12 @@ export const SummaryTab = ({
           <>
             <div className={styles.videoSectionCard}>
               <div className={styles.videoSectionHeader}>
-                <IconPlay width={24} height={24} color="#B4231E" />
+                <IconPlay
+                  width={24}
+                  height={24}
+                  color="#B4231E"
+                  alt="SEVA Play Icon"
+                />
                 <h3
                   className={styles.videoSectionHeaderText}
                   data-testid={elementId.Text + 'video-ulasan'}

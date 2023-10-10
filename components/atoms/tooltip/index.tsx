@@ -10,6 +10,8 @@ interface Props {
   iconHeight?: number
   iconWidth?: number
   color?: string
+  onOpenTooltip?: () => void
+  additionalStyle?: string
 }
 
 export const Tooltip: React.FC<Props> = ({
@@ -17,10 +19,15 @@ export const Tooltip: React.FC<Props> = ({
   iconWidth = 18,
   color = '#878D98',
   content,
+  onOpenTooltip,
+  additionalStyle = '',
 }) => {
   const [isShowOverlay, setIsShowOverlay] = React.useState(false)
 
-  const handleOpenTooltip = () => setIsShowOverlay(true)
+  const handleOpenTooltip = () => {
+    setIsShowOverlay(true)
+    onOpenTooltip && onOpenTooltip()
+  }
 
   const handleCloseTooltip = () => setIsShowOverlay(false)
 
@@ -31,6 +38,7 @@ export const Tooltip: React.FC<Props> = ({
         height={iconHeight}
         color={color}
         onClick={handleOpenTooltip}
+        alt="SEVA Orientation Icon"
       />
 
       <>
@@ -39,6 +47,7 @@ export const Tooltip: React.FC<Props> = ({
             [styles.tooltipWrapper]: true,
             [styles.show]: isShowOverlay,
             [styles.close]: !isShowOverlay,
+            [additionalStyle]: true,
           })}
         >
           <p className={styles.tooltipContent}>{content}</p>
@@ -56,6 +65,7 @@ export const Tooltip: React.FC<Props> = ({
         isShow={isShowOverlay}
         onClick={handleCloseTooltip}
         zIndex={98}
+        additionalstyle={styles.overlayAdditionalStyle}
       />
     </>
   )

@@ -19,6 +19,11 @@ export enum InputVersion {
   Mobile = 'Mobile',
 }
 
+export enum InputVersionType {
+  Primary = 'Primary',
+  Secondary = 'Secondary',
+}
+
 export enum PaymentType {
   MonthlyInstallment = 'monthlyInstallment',
   DownPayment = 'downPayment',
@@ -96,6 +101,8 @@ export enum LocalStorageKey {
   FormKtp = 'formKtp',
   PreApprovalResult = 'preApprovalResult',
   LastHitTracker = 'lastHitTracker',
+  carModelLoanRank = 'carModelLoanRank', // loan rank on plp
+  LastTimeUpdateUtm = 'lastTimeUpdateUtm',
 }
 
 export enum SessionStorageKey {
@@ -140,6 +147,18 @@ export enum SessionStorageKey {
   HasOpenSevaBefore = 'hasOpenSevaBefore',
   PageReferrerPDP = 'pageReferrerPdp',
   PreviousSourceButtonPDP = 'previousSourceButtonPDP',
+  PageReferrerLC = 'pageReferrerLC',
+  PreviousSourceSectionLC = 'previousSourceSectionLC',
+  HasTrackedDpSliderLC = 'hasTrackedDpSliderLC',
+  PageReferrerHomepage = 'pageReferrerHomepage',
+  PreviousSourceButtonHomepage = 'previousSourceButtonHomepage',
+  HasTracked360Exterior = 'hasTracked360Exterior',
+  PreviousCarDataBeforeLogin = 'previousCarDataBeforeLogin',
+  PreviousSourceSectionLogin = 'previousSourceSectionLogin',
+  PageReferrerLoginPage = 'pageReferrerLoginPage',
+  IsShowBadgeCreditOpportunity = 'IsShowBadgeCreditOpportunity',
+  PageReferrerMultiKK = 'pageReferrerMultiKK',
+  PageReferrerProfilePage = 'pageReferrerProfilePage',
 }
 
 export enum HTTPResponseStatusCode {
@@ -222,4 +241,15 @@ export enum UploadDataKey {
   File = 'file',
   FileKey = 'fileKey',
   FileType = 'fileType',
+}
+
+export enum ZIndex {
+  'Overlay' = 10,
+  'Appbar' = 20,
+  'Menubar' = 30,
+  'PageHeader' = 30,
+  'WebAnnouncementBox' = 31,
+  'FloatingIcon' = 35,
+  'Modal' = 40,
+  'Notification' = 50,
 }

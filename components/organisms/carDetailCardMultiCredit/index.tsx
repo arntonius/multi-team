@@ -25,7 +25,6 @@ import {
   hundred,
   million,
 } from 'utils/helpers/const'
-import { postLoanPermutationIncludePromo } from 'services/newFunnel'
 import { getCity } from 'utils/hooks/useGetCity'
 import { InstallmentTypeOptions } from 'utils/types/models'
 import { getOptionValue } from 'utils/handler/optionLabel'
@@ -38,6 +37,8 @@ import LabelSedang from 'components/molecules/labelCard/sedang'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getPageName } from 'utils/pageName'
+import Image from 'next/image'
+import { api } from 'services/api'
 
 type CarDetailCardProps = {
   recommendation: MultKKCarRecommendation
@@ -156,17 +157,18 @@ const CarDetailCardMultiCredit = ({
 
   const navigateToInstantApproval = () => {
     setLoadSubmit(true)
-    postLoanPermutationIncludePromo({
-      brand: recommendation.brand,
-      model: recommendation.model,
-      angsuranType: 'ADDM',
-      city: getCity().cityCode,
-      discount: 0,
-      dp: getDpPercentageByMapping(Number(multiUnitQuery.downPaymentAmount)),
-      dpAmount: Number(multiUnitQuery.downPaymentAmount),
-      monthlyIncome: multiUnitQuery.monthlyIncome,
-      otr: recommendation.variants[0].priceValue,
-    })
+    api
+      .postLoanPermutationIncludePromo({
+        brand: recommendation.brand,
+        model: recommendation.model,
+        angsuranType: 'ADDM',
+        city: getCity().cityCode,
+        discount: 0,
+        dp: getDpPercentageByMapping(Number(multiUnitQuery.downPaymentAmount)),
+        dpAmount: Number(multiUnitQuery.downPaymentAmount),
+        monthlyIncome: multiUnitQuery.monthlyIncome,
+        otr: recommendation.variants[0].priceValue,
+      })
       .then((response) => {
         const resultByTenure = response.data.filter(
           (x: { tenure: string }) => String(x.tenure) === multiUnitQuery.tenure,
@@ -361,7 +363,7 @@ const CarDetailCardMultiCredit = ({
     <>
       <div className={styles.container} ref={showToolTip ? goToButton : null}>
         <CardShadow className={styles.cardWrapper}>
-          <img
+          <Image
             src={recommendation.images[0]}
             className={styles.heroImg}
             alt={`${recommendation.brand} ${recommendation.model}`}

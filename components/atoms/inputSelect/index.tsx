@@ -8,6 +8,7 @@ import {
 } from 'utils/types'
 import React, { ChangeEvent, ForwardedRef, forwardRef, useState } from 'react'
 import styles from '../../../styles/components/atoms/inputSelect.module.scss'
+import Image from 'next/image'
 
 interface Props<T extends FormControlValue> {
   value: string
@@ -115,7 +116,7 @@ const forwardedInputSelect = <T extends FormControlValue>(
     setIsFocused(false)
     if (
       !options.some(
-        (x) => x.label.toLowerCase() === currentValue.toLowerCase(),
+        (x) => x.label?.toLowerCase() === currentValue.toLowerCase(),
       ) ||
       !options.some((x) =>
         typeof x.value === 'string'
@@ -212,7 +213,12 @@ const forwardedInputSelect = <T extends FormControlValue>(
               rightIcon
             )
           ) : (
-            <IconSearch width={24} height={24} color={'#13131B'} />
+            <IconSearch
+              width={24}
+              height={24}
+              color={'#13131B'}
+              alt="SEVA Dropdown Icon"
+            />
           )}
         </div>
       </div>
@@ -255,10 +261,12 @@ const forwardedInputSelect = <T extends FormControlValue>(
                 )}
 
                 {showDropdownImage && (
-                  <img
-                    src={(item as OptionWithImage<string>)?.image}
+                  <Image
+                    src={(item as OptionWithImage<string>)?.image || ''}
                     alt={item.label}
                     className={styles.dropdownItemImage}
+                    width="67"
+                    height="48"
                   />
                 )}
 

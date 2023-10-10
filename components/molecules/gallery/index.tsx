@@ -38,6 +38,8 @@ import {
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { useRouter } from 'next/router'
 import { LoanRank } from 'utils/types/models'
+import { getLocalStorage } from 'utils/handler/localStorage'
+import Image from 'next/image'
 
 interface PropsGallery {
   items: Array<string>
@@ -66,9 +68,16 @@ export const Gallery: React.FC<PropsGallery> = ({
   )
   const [onClickSubPhoto, setOnClickSubPhoto] = useState(true)
   const [onClickMainArrowPhoto, setOnClickMainArrowPhoto] = useState(true)
+  const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
+
+  const isUsingFilterFinancial =
+    !!filterStorage?.age &&
+    !!filterStorage?.downPaymentAmount &&
+    !!filterStorage?.monthlyIncome &&
+    !!filterStorage?.tenure
 
   const router = useRouter()
-  const tab = router.query.tab as string
+  const upperTab = router.query.tab as string
   const loanRankcr = router.query.loanRankCVL ?? ''
 
   const getCreditBadgeForCountly = () => {
@@ -87,8 +96,10 @@ export const Gallery: React.FC<PropsGallery> = ({
       CAR_MODEL: carModelDetails?.model ?? '',
       MENU_TAB_CATEGORY: valueMenuTabCategory(),
       CAR_PHOTO_ORDER: flagIndex + 1,
-      VISUAL_TAB_CATEGORY: tab ? tab : '',
-      PELUANG_KREDIT_BADGE: getCreditBadgeForCountly(),
+      VISUAL_TAB_CATEGORY: upperTab ? upperTab : 'Warna',
+      PELUANG_KREDIT_BADGE: isUsingFilterFinancial
+        ? getCreditBadgeForCountly()
+        : 'Null',
     })
   }
 
@@ -96,18 +107,24 @@ export const Gallery: React.FC<PropsGallery> = ({
     trackEventCountly(CountlyEventNames.WEB_PDP_CAROUSEL_PHOTO_CLICK, {
       CAR_BRAND: carModelDetails?.brand ?? '',
       CAR_MODEL: carModelDetails?.model ?? '',
-      PELUANG_KREDIT_BADGE: getCreditBadgeForCountly(),
+      PELUANG_KREDIT_BADGE: isUsingFilterFinancial
+        ? getCreditBadgeForCountly()
+        : 'Null',
       CAR_PHOTO_ORDER: index + 1,
-      VISUAL_TAB_CATEGORY: tab ? tab : '',
+      VISUAL_TAB_CATEGORY: upperTab ? upperTab : 'Warna',
       MENU_TAB_CATEGORY: valueMenuTabCategory(),
     })
   }
 
   const MainImage: React.FC<PropsGalleryMainImage> = ({ url }): JSX.Element => (
-    <img
+    <Image
       width={274}
       height={207}
-      alt="car"
+      alt={`Tampilan ${onTab === 'Exterior' ? 'Eksterior' : 'Interior'} ${
+        carModelDetails?.brand
+      } ${carModelDetails?.model.replace('-', ' ')} ${
+        url.match(/_(\d+)\.\w+$/)?.[1] ?? 'main'
+      }`}
       className={styles.mainImage}
       src={url}
       onClick={() => {
@@ -129,10 +146,14 @@ export const Gallery: React.FC<PropsGallery> = ({
     return (
       <div className={styles.subImageWrapper}>
         {!isActive && <div className={styles.coverSubImage} />}
-        <img
+        <Image
           width={61}
           height={46}
-          alt="car"
+          alt={`Tampilan ${onTab === 'Exterior' ? 'Eksterior' : 'Interior'} ${
+            carModelDetails?.brand
+          } ${carModelDetails?.model.replace('-', ' ')} ${
+            url.match(/_(\d+)\.\w+$/)?.[1] ?? 'main'
+          }`}
           className={`${isActive && styles.active} ${styles.subImage}`}
           src={url}
         />

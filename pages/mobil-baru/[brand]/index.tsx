@@ -1,33 +1,55 @@
 import { PLP } from 'components/organisms'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import Head from 'next/head'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { useRouter } from 'next/router'
 import { saveLocalStorage } from 'utils/handler/localStorage'
 import { LocalStorageKey } from 'utils/enum'
-import { getMinMaxPrice, getNewFunnelRecommendations } from 'services/newFunnel'
+import { CarRecommendationResponse, MinMaxPrice } from 'utils/types/context'
 import {
-  CarRecommendation,
-  CarRecommendationResponse,
-  MinMaxPrice,
-} from 'utils/types/context'
-import { getIsSsrMobile } from 'utils/getIsSsrMobile'
-import { FooterSEOAttributes } from 'utils/types/utils'
-import PLPDesktop from 'components/organisms/PLPDesktop'
-import { useMediaQuery } from 'react-responsive'
+  CityOtrOption,
+  FooterSEOAttributes,
+  MobileWebTopMenuType,
+  NavbarItemResponse,
+} from 'utils/types/utils'
+import { defaultSeoImage } from 'utils/helpers/const'
+import { useUtils } from 'services/context/utilsContext'
+import { MobileWebFooterMenuType } from 'utils/types/props'
+import { api } from 'services/api'
+import Seo from 'components/atoms/seo'
+import { monthId } from 'utils/handler/date'
+import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
 import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
+import { useMediaQuery } from 'react-responsive'
+import { CarProvider } from 'services/context'
+import { getIsSsrMobile } from 'utils/getIsSsrMobile'
+import { getCity } from 'utils/hooks/useGetCity'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 
 const NewCarResultPage = ({
   meta,
-  isSsrMobile,
+  dataDesktopMenu,
+  dataMobileMenu,
+  dataFooter,
+  dataCities,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter()
   const id = router.query.brand
+  const {
+    saveDesktopWebTopMenu,
+    saveMobileWebTopMenus,
+    saveMobileWebFooterMenus,
+    saveCities,
+  } = useUtils()
   const [isMobile, setIsMobile] = useState(useIsMobileSSr())
   const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
 
   useEffect(() => {
+    saveDesktopWebTopMenu(dataDesktopMenu)
+    saveMobileWebTopMenus(dataMobileMenu)
+    saveMobileWebFooterMenus(dataFooter)
+    saveCities(dataCities)
+
     if (id && typeof id === 'string' && id.includes('SEVA')) {
       saveLocalStorage(LocalStorageKey.referralTemanSeva, id)
     }
@@ -37,26 +59,31 @@ const NewCarResultPage = ({
     setIsMobile(isClientMobile)
   }, [isClientMobile])
 
+  const todayDate = new Date()
+
+  const getUrlBrand = router.query.brand?.toString() ?? ''
+  const carBrand = getUrlBrand.charAt(0).toUpperCase() + getUrlBrand.slice(1)
+
+  const metaTitle = `Harga OTR ${carBrand} ${todayDate.getFullYear()} - Promo Cicilan bulan ${monthId(
+    todayDate.getMonth(),
+  )} | SEVA `
+  const metaDesc = `Beli mobil ${carBrand} ${todayDate.getFullYear()} terbaru secara kredit dengan Instant Approval*. Cari tau spesifikasi, harga, promo, dan kredit di SEVA`
+
   return (
     <>
-      <Head>
-        <title>{meta.title}</title>
-        <meta name="title" content={meta.title} />
-        <meta name="description" content={meta.description} />
-        <link rel="icon" href="/favicon.png" />
-      </Head>
-      {isMobile ? (
-        <PLP
-          carRecommendation={meta.carRecommendations}
-          minmaxPrice={meta.MinMaxPrice}
-          alternativeRecommendation={meta.alternativeCarRecommendation}
-        />
-      ) : (
-        <PLPDesktop
-          carRecommendation={meta.carRecommendations}
-          footer={meta.footer}
-        />
-      )}
+      <Seo title={metaTitle} description={metaDesc} image={defaultSeoImage} />
+      <CarProvider
+        car={null}
+        carOfTheMonth={[]}
+        typeCar={null}
+        carModel={null}
+        carModelDetails={null}
+        carVariantDetails={null}
+        recommendation={meta.carRecommendations.carRecommendations}
+        recommendationToyota={[]}
+      >
+        <PLP minmaxPrice={meta.MinMaxPrice} />
+      </CarProvider>
     </>
   )
 }
@@ -69,7 +96,6 @@ type PLPProps = {
   footer: FooterSEOAttributes
   MinMaxPrice: MinMaxPrice
   carRecommendations: CarRecommendationResponse
-  alternativeCarRecommendation: CarRecommendation[]
 }
 
 const getBrand = (brand: string | string[] | undefined) => {
@@ -86,8 +112,15 @@ const getBrand = (brand: string | string[] | undefined) => {
 
 export const getServerSideProps: GetServerSideProps<{
   meta: PLPProps
-  isSsrMobile: boolean
+  dataDesktopMenu: NavbarItemResponse[]
+  dataMobileMenu: MobileWebTopMenuType[]
+  dataFooter: MobileWebFooterMenuType[]
+  dataCities: CityOtrOption[]
 }> = async (ctx) => {
+  ctx.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=59, stale-while-revalidate=3000',
+  )
   const metabrand = getBrand(ctx.query.brand)
   const metaTagBaseApi =
     'https://api.sslpots.com/api/meta-seos/?filters[location_page3][$eq]=CarSearchResult'
@@ -115,7 +148,6 @@ export const getServerSideProps: GetServerSideProps<{
       lowestCarPrice: 0,
       highestCarPrice: 0,
     },
-    alternativeCarRecommendation: [],
   }
 
   const {
@@ -130,16 +162,30 @@ export const getServerSideProps: GetServerSideProps<{
   } = ctx.query
 
   try {
-    const [fetchMeta, fetchFooter] = await Promise.all([
+    const [
+      fetchMeta,
+      fetchFooter,
+      menuDesktopRes,
+      menuMobileRes,
+      footerRes,
+      cityRes,
+    ] = await Promise.all([
       axios.get(metaTagBaseApi + metabrand),
       axios.get(footerTagBaseApi + metabrand),
+      api.getMenu(),
+      api.getMobileHeaderMenu(),
+      api.getMobileFooterMenu(),
+      api.getCities(),
     ])
 
     const metaData = fetchMeta.data.data
     const footerData = fetchFooter.data.data
 
     if (!priceRangeGroup) {
-      const minmaxPriceData = await getMinMaxPrice()
+      const params = new URLSearchParams()
+      getCity().cityCode && params.append('city', getCity().cityCode as string)
+
+      const minmaxPriceData = await api.getMinMaxPrice('', { params })
       meta.MinMaxPrice = {
         minPriceValue: minmaxPriceData.minPriceValue,
         maxPriceValue: minmaxPriceData.maxPriceValue,
@@ -149,7 +195,11 @@ export const getServerSideProps: GetServerSideProps<{
     const queryParam: any = {
       ...(downPaymentAmount && { downPaymentType: 'amount' }),
       ...(downPaymentAmount && { downPaymentAmount }),
-      ...(brand && { brand: String(brand)?.split(',') }),
+      ...(brand && {
+        brand: String(brand)
+          ?.split(',')
+          .map((item) => getCarBrand(item)),
+      }),
       ...(bodyType && { bodyType: String(bodyType)?.split(',') }),
       ...(priceRangeGroup
         ? { priceRangeGroup }
@@ -162,13 +212,11 @@ export const getServerSideProps: GetServerSideProps<{
       ...(sortBy && { sortBy }),
     }
 
-    const [funnel, alternative] = await Promise.all([
+    const [funnel] = await Promise.all([
       getNewFunnelRecommendations({ ...queryParam }),
-      getNewFunnelRecommendations({ ...queryParam, brand: [] }),
     ])
 
     const recommendation = funnel
-    const alternativeData = alternative
 
     if (metaData && metaData.length > 0) {
       meta.title = metaData[0].attributes.meta_title
@@ -180,10 +228,26 @@ export const getServerSideProps: GetServerSideProps<{
     }
 
     if (recommendation) meta.carRecommendations = recommendation
-    meta.alternativeCarRecommendation = alternativeData.carRecommendations
 
-    return { props: { meta, isSsrMobile: getIsSsrMobile(ctx) } }
+    return {
+      props: {
+        meta,
+        dataDesktopMenu: menuDesktopRes.data,
+        dataMobileMenu: menuMobileRes.data,
+        dataFooter: footerRes.data,
+        dataCities: cityRes,
+        isSsrMobile: getIsSsrMobile(ctx),
+      },
+    }
   } catch (e) {
-    return { props: { meta, isSsrMobile: getIsSsrMobile(ctx) } }
+    return {
+      props: {
+        meta,
+        dataDesktopMenu: [],
+        dataMobileMenu: [],
+        dataFooter: [],
+        dataCities: [],
+      },
+    }
   }
 }

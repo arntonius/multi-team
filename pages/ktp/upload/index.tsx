@@ -7,13 +7,11 @@ import React, {
 } from 'react'
 import Webcam from 'react-webcam'
 import styled from 'styled-components'
-import { useTranslation } from 'react-i18next'
-import { ZIndex } from 'styles/zIndex'
 import elementId from 'helpers/elementIds'
 import { useAmplitudePageView } from 'utils/hooks/useAmplitudePageView'
 import { trackViewPreapprovalKTPUploadCamera } from 'helpers/amplitude/preApprovalEventTracking'
 import { getFrameSize, getImageBase64ByFile } from 'utils/handler/image'
-import { DocumentType, FrameType } from 'utils/enum'
+import { DocumentType, FrameType, ZIndex } from 'utils/enum'
 import { useRouter } from 'next/router'
 import { useQuery } from 'utils/hooks/useQuery'
 import { useToast } from 'components/atoms/OldToast/Toast'
@@ -35,6 +33,7 @@ import { maxPageWidth, screenHeight } from 'styles/globalStyle'
 import { CameraSelect } from 'components/molecules/cameraSelect'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
+import Image from 'next/image'
 
 const ChevronLeft = '/revamp/icon/chevron-left.webp'
 
@@ -54,7 +53,6 @@ export default function CameraKtp() {
   } = getFrameSize(DocumentType.KTP, FrameType.Capture)
   const inputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
-  const { t } = useTranslation()
   const router = useRouter()
   const { ktpType }: { ktpType: string } = useQuery(['ktpType'])
   const [imageData, setImageData] = useState<string>()
@@ -228,7 +226,7 @@ export default function CameraKtp() {
         image={defaultSeoImage}
       />
       <StyledWrapper padding={horizontalMargin}>
-        <img
+        <Image
           src={ChevronLeft}
           alt="back"
           onClick={() => router.back()}
@@ -325,7 +323,10 @@ export default function CameraKtp() {
           </StyledFooterWrapper>
         )}
       </StyledWrapper>
-      <RenderToast type={ToastType.Error} message={t(errorMessage)} />
+      <RenderToast
+        type={ToastType.Error}
+        message="Oops.. Sepertinya terjadi kesalahan. Coba lagi nanti"
+      />
     </>
   )
 }
@@ -405,7 +406,7 @@ const StyledGuidlineWrapper = styled.div`
 `
 
 const StyledGuidlineText = styled.span`
-  font-family: 'OpenSans';
+  font-family: var(--open-sans);
   font-size: 12px;
   line-height: 18px;
   color: ${colors.white};

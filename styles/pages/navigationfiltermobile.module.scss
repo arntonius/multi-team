@@ -1,4 +1,5 @@
 @import '../abstract/colors';
+@import '../abstract/mixins';
 
 .filterWrapper {
   width: 100%;
@@ -12,6 +13,9 @@
   transition: top 700ms;
   padding: 0 16px;
   box-shadow: 0px 4px 4px 1px rgba(108, 112, 133, 0.2);
+  @include centeredWithMaxWidth;
+  left: 0;
+  right: 0;
 
   &.showHeader {
     top: 53px;
@@ -48,6 +52,7 @@
 }
 
 .bottomSection {
+  position: relative;
   width: 100%;
   height: 18px;
   flex: none;
@@ -64,14 +69,14 @@
   gap: 4px;
   position: absolute;
   height: 18px;
-  font-family: 'OpenSans';
+  font-family: var(--open-sans);
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
   line-height: 18px;
   color: $primary-black;
   p {
-    font-family: 'OpenSansSemiBold';
+    font-family: var(--open-sans-semi-bold);
     font-weight: 600;
     font-size: 12px;
     line-height: 18px;
@@ -83,7 +88,7 @@
   width: 81px;
   height: 18px;
   right: 16px;
-  font-family: 'OpenSansSemiBold';
+  font-family: var(--open-sans-semi-bold);
   font-style: normal;
   font-weight: 600;
   font-size: 12px;
@@ -102,7 +107,7 @@
 }
 
 .informDaihatsuText {
-  font-family: 'OpenSans';
+  font-family: var(--open-sans);
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
@@ -142,7 +147,7 @@
 
 .filterResultText {
   width: 90%;
-  font-family: 'OpenSans';
+  font-family: var(--open-sans);
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -155,7 +160,7 @@
 
 .filterResultPrice {
   width: 90%;
-  font-family: 'OpenSansSemiBold';
+  font-family: var(--open-sans-semi-bold);
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -178,8 +183,7 @@
   background: white;
   flex: none;
   order: 0;
-  margin-left: 70px; // space left for width filter and icon
-  padding-right: 65px;
+  position: relative;
 }
 
 .filterActiveWrapper::-webkit-scrollbar {
@@ -197,7 +201,7 @@
   flex: none;
   order: 0;
   flex-grow: 0;
-  font-family: 'OpenSans';
+  font-family: var(--open-sans);
   font-style: normal;
   font-weight: 600;
   font-size: 12px;
@@ -205,8 +209,6 @@
   text-align: right;
   color: #{$secondary-blue};
   cursor: pointer;
-  position: absolute;
-  left: 16px;
 }
 
 .verticalLine {
@@ -253,7 +255,7 @@
 
 .text {
   height: 18px;
-  font-family: 'OpenSansSemiBold';
+  font-family: var(--open-sans-semi-bold);
   font-style: normal;
   font-weight: 600;
   font-size: 12px;

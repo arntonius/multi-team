@@ -15,10 +15,12 @@ import { ProgressBar } from 'components/atoms/progressBar'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { IconLockFill } from 'components/atoms/icon/LockFill'
 import PopupError from 'components/organisms/popupError'
-import { DocumentType } from 'utils/enum'
-import { buildFileKTPData, uploadKTPFile } from 'services/upload'
+import { DocumentType, UploadDataKey } from 'utils/enum'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
+import Image from 'next/image'
+import { api } from 'services/api'
+import { getToken } from 'utils/handler/auth'
 
 const LogoPrimary = '/revamp/icon/logo-primary.webp'
 
@@ -54,11 +56,22 @@ const VerifyKtp = () => {
     }
   }
 
+  const buildFileKTPData = (file: File, fileType: DocumentType) => {
+    const formData = new FormData()
+    formData.append(UploadDataKey.File, file)
+    formData.append(UploadDataKey.FileType, fileType)
+    return formData
+  }
+
   const detectText = () => {
     if (file) {
-      uploadKTPFile({
-        data: buildFileKTPData(file, DocumentType.KTP),
-      })
+      api
+        .postUploadKTPFile(buildFileKTPData(file, DocumentType.KTP), {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: getToken()?.idToken,
+          },
+        })
         .then((response) => {
           localStorage.setItem('formKtp', JSON.stringify(response.data))
           if (ktpType && ktpType.toLowerCase() === 'spouse') {
@@ -92,7 +105,7 @@ const VerifyKtp = () => {
           <IconChevronLeft width={24} height={24} color="#13131B" />
         </div>
         <div className={styles.logo}>
-          <img
+          <Image
             src={LogoPrimary}
             alt="back"
             style={{ width: '58px', height: '34px', objectFit: 'contain' }}
@@ -107,8 +120,8 @@ const VerifyKtp = () => {
               </h2>
               <span className={styles.light__text}>{getSubtitleText()}</span>
             </div>
-            <img
-              src={galleryFile}
+            <Image
+              src={galleryFile || ''}
               alt="KTP Image"
               className={styles.ktp__preview__image}
             />

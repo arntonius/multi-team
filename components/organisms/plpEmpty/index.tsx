@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { CitySelectorModal } from 'components/molecules'
-import { getCities } from 'services/cities'
+
 import styles from '../../../styles/components/organisms/plpEmpty.module.scss'
 import elementId from 'helpers/elementIds'
 import { CarRecommendation } from 'utils/types/context'
 import { Location } from 'utils/types'
 import { FooterMobile } from '../footerMobile'
 import { AlternativeCarCard } from '../alternativeCarCard'
+import Image from 'next/image'
+import { api } from 'services/api'
 // import { LoanRank } from 'models/models'
 
 const PLPEmptyImage = '/revamp/illustration/plp-empty.webp'
@@ -22,7 +24,7 @@ export const PLPEmpty = ({ alternativeCars, onClickLabel }: PLPEmptyProps) => {
 
   const checkCitiesData = () => {
     if (cityListApi.length === 0) {
-      getCities().then((res) => {
+      api.getCities().then((res) => {
         setCityListApi(res)
       })
     }
@@ -34,10 +36,12 @@ export const PLPEmpty = ({ alternativeCars, onClickLabel }: PLPEmptyProps) => {
   return (
     <>
       <div className={styles.wrapperEmpty}>
-        <img
+        <Image
           src={PLPEmptyImage}
           className={styles.imageStyle}
           alt={'car empty'}
+          width={250}
+          height={131}
         />
         <div
           className={styles.copy}

@@ -7,19 +7,32 @@ import { IconChevronDown } from '../icon'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { navigateToPLP, PreviousButton } from 'utils/navigate'
-import { getPageName } from 'utils/pageName'
+import { OTONewCarUrl } from 'utils/helpers/routes'
 
 type MenuItemProps = {
   item?: MobileWebTopMenuType
+  isOTO?: boolean
+  pageOrigination?: string
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ item }): JSX.Element => {
+const MenuItem: React.FC<MenuItemProps> = ({
+  item,
+  isOTO = false,
+  pageOrigination,
+}): JSX.Element => {
   const [state, setState] = React.useState(false)
 
   const handleClickMenu = (menuUrl: string, menuName: string) => {
     if (menuName === 'Mobil Baru') {
-      return navigateToPLP(PreviousButton.HamburgerMenu)
+      return navigateToPLP(
+        PreviousButton.HamburgerMenu,
+        {},
+        true,
+        false,
+        isOTO ? OTONewCarUrl : menuUrl,
+      )
     }
+
     sendAmplitudeData(AmplitudeEventName.WEB_BURGER_MENU_CLICK, {
       Page_Origination_URL: window.location.href,
       Menu: menuName,
@@ -33,7 +46,6 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }): JSX.Element => {
         className={styles.parentMenu}
         onClick={() => {
           setState(() => !state)
-          console.log('asdf', item)
           if (state) {
             trackEventCountly(CountlyEventNames.WEB_HAMBURGER_MENU_EXPAND, {
               MENU: item?.menuName,
@@ -61,8 +73,10 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }): JSX.Element => {
           <div
             onClick={() => {
               trackEventCountly(CountlyEventNames.WEB_HAMBURGER_MENU_CLICK, {
-                PAGE_ORIGINATION: getPageName(),
-                PAGE_DIRECTION_URL: window.location.hostname + item?.subMenu,
+                PAGE_ORIGINATION: pageOrigination,
+                PAGE_DIRECTION_URL: item?.subMenu[0].menuUrl?.includes('www')
+                  ? item?.subMenu[0].menuUrl
+                  : window.location.hostname + item?.subMenu[0].menuUrl,
               })
               handleClickMenu(child.menuUrl as string, child.menuName)
             }}

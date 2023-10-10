@@ -29,17 +29,24 @@ import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import {
   PreviousButton,
   navigateToPLP,
+  saveDataForCountlyTrackerPageViewLC,
   saveDataForCountlyTrackerPageViewPDP,
 } from 'utils/navigate'
+import { AdaOTOdiSEVALeadsForm } from '../leadsForm/adaOTOdiSEVA/popUp'
+import { it } from 'node:test'
+import { trackEventCountly } from 'helpers/countly/countly'
+import { CountlyEventNames } from 'helpers/countly/eventNames'
 
 type LPCarRecommendationsProps = {
   dataReccomendation: any
   onClickOpenCityModal: () => void
+  isOTO?: boolean
 }
 
 const LpCarRecommendations = ({
   dataReccomendation,
   onClickOpenCityModal,
+  isOTO,
 }: LPCarRecommendationsProps) => {
   const router = useRouter()
   const swiperRef = useRef<SwiperType>()
@@ -51,8 +58,16 @@ const LpCarRecommendations = ({
   const [openPromo, setOpenPromo] = useState(false)
   const [selectedBrand, setSelectedBrand] = useState('')
   const [load, setLoad] = useState(false)
+  const [isModalOpenend, setIsModalOpened] = useState<boolean>(false)
 
-  const handleCalculateAbility = (item: CarRecommendation) => {
+  const handleCalculateAbility = (item: CarRecommendation, index: number) => {
+    trackEventCountly(CountlyEventNames.WEB_HOMEPAGE_LOAN_CALCULATOR_CLICK, {
+      SOURCE_SECTION: 'Car Recommendation',
+      CAR_BRAND: item.brand,
+      CAR_MODEL: item.model,
+      CAR_ORDER: index + 1,
+    })
+    saveDataForCountlyTrackerPageViewLC(PreviousButton.CarRecommendationCta)
     const selectedCity = city ? city.cityName : 'Jakarta Pusat'
     const path = urls.internalUrls.loanCalculatorWithCityBrandModelUrl
       .replace(
@@ -65,11 +80,23 @@ const LpCarRecommendations = ({
           '/',
       )
       .toLocaleLowerCase()
+    trackEventCountly(CountlyEventNames.WEB_CAR_RECOMMENDATION_CTA_CLICK, {
+      PAGE_ORIGINATION: 'Homepage',
+      CAR_BRAND: 'Null',
+      CAR_MODEL: 'Null',
+      CAR_BRAND_RECOMMENDATION: item.brand,
+      CAR_MODEL_RECOMMENDATION: item.model,
+      CTA_BUTTON: 'Hitung Kemampuan',
+      PAGE_DIRECTION_URL: 'https://' + window.location.hostname + path,
+      TENOR_OPTION: 'Null',
+      TENOR_RESULT: 'Null',
+    })
     router.push(path)
   }
 
   const handleClickDetailCar = (item: CarRecommendation) => {
     saveDataForCountlyTrackerPageViewPDP(PreviousButton.CarRecommendation)
+
     const path = urls.internalUrls.variantListUrl
       .replace(
         ':brand/:model/:tab?',
@@ -80,7 +107,21 @@ const LpCarRecommendations = ({
       )
       .toLocaleLowerCase()
 
-    router.push(path)
+    trackEventCountly(CountlyEventNames.WEB_CAR_RECOMMENDATION_CLICK, {
+      PAGE_ORIGINATION: 'Homepage',
+      PELUANG_KREDIT_BADGE: 'Null',
+      CAR_BRAND: 'Null',
+      CAR_MODEL: 'Null',
+      CAR_BRAND_RECOMMENDATION: item.brand,
+      CAR_MODEL_RECOMMENDATION: item.model,
+      PAGE_DIRECTION_URL: window.location.hostname + path,
+      TENOR_OPTION: 'Null',
+      TENOR_RESULT: 'Null',
+    })
+
+    const newPath = window.location.pathname + path
+
+    window.location.href = isOTO ? newPath : path
   }
 
   const handleClickLabel = () => {
@@ -111,15 +152,42 @@ const LpCarRecommendations = ({
     setLoad(false)
   }
 
+  const closeLeadsForm = () => {
+    setIsModalOpened(false)
+  }
+
   const lihatSemuaMobil = () => {
     sendAmplitudeData(
       AmplitudeEventName.WEB_LP_BRANDRECOMMENDATION_CAR_SEE_ALL_CLICK,
       { Car_Brand: selectedBrand || 'Semua' },
     )
-    if (!selectedBrand) return navigateToPLP(PreviousButton.undefined)
+    trackEventCountly(CountlyEventNames.WEB_CAR_RECOMMENDATION_ALL_CLICK, {
+      CAR_BRAND: selectedBrand || 'Semua',
+    })
+    if (!selectedBrand)
+      return isOTO
+        ? navigateToPLP(
+            PreviousButton.undefined,
+            '',
+            true,
+            false,
+            urls.internalUrls.duplicatedCarResultsUrl,
+          )
+        : navigateToPLP(PreviousButton.undefined)
+
+    const path = router.asPath.split('/')[1]
+    if (path === 'adaSEVAdiOTO') {
+      return router.push(`/adaSEVAdiOTO/mobil-baru/${selectedBrand}`)
+    }
 
     navigateToPLP(PreviousButton.undefined, {
       search: new URLSearchParams({ brand: selectedBrand }).toString(),
+    })
+  }
+
+  const trackCountlyClickTab = (brand: string) => {
+    trackEventCountly(CountlyEventNames.WEB_CAR_RECOMMENDATION_TAB_CLICK, {
+      CAR_BRAND_TAB: brand.length !== 0 ? brand : 'Semua',
     })
   }
 
@@ -149,6 +217,7 @@ const LpCarRecommendations = ({
             )
             setSelectedBrand(value)
             swiperRef.current?.slideTo(0)
+            trackCountlyClickTab(value)
           }}
           isShowAnnouncementBox={false}
           className={stylep.tab}
@@ -177,6 +246,7 @@ const LpCarRecommendations = ({
                   <AlternativeCarCard
                     recommendation={item}
                     onClickLabel={handleClickLabel}
+                    isOTO={isOTO}
                     label={
                       <LabelPromo
                         className={stylec.labelCard}
@@ -211,11 +281,13 @@ const LpCarRecommendations = ({
                             Car_Model: item.model,
                           },
                         )
-                        handleCalculateAbility(item)
+                        isOTO
+                          ? setIsModalOpened(true)
+                          : handleCalculateAbility(item, index)
                       }}
                       data-testid={elementId.PLP.Button.HitungKemampuan}
                     >
-                      Hitung Kemampuan
+                      {isOTO ? 'Saya Tertarik' : 'Hitung Kemampuan'}
                     </Button>
                   </AlternativeCarCard>
                 </SwiperSlide>
@@ -239,6 +311,7 @@ const LpCarRecommendations = ({
             </Swiper>
           )}
         </div>
+        {isModalOpenend && <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} />}
       </div>
       <PopupPromo open={openPromo} onCancel={() => setOpenPromo(false)} />
     </>

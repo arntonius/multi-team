@@ -9,7 +9,7 @@ import {
 import { carResultsUrl, creditQualificationUrl } from 'utils/helpers/routes'
 import urls from 'utils/helpers/url'
 
-enum RouteName {
+export enum RouteName {
   Homepage = 'Homepage',
   PLP = 'PLP',
   PDPRingkasan = 'PDP - Ringkasan',
@@ -19,13 +19,17 @@ enum RouteName {
   LoanCalculator = 'Loan Calculator',
   KualifikasiKredit = 'Loan Calculator - Kualifikasi Kredit',
   KKResult = 'Kualifikasi Kredit - Result',
+  KKForm = 'Kualifikasi Kredit - Form Page',
+  KKReview = 'Kualifikasi Kredit - Review Page',
+  IAReview = 'Instant Approval - Review Page',
   IAWaitingForResult = 'Instant Approval - Waiting For Result',
   IAAPProved = 'Instant Approval - Approved',
   IARejected = 'Instant Approval - Rejected',
-  MultiUnitForm = 'Multi unit - Form',
-  MultiUnitResult = 'Multi unit - Result',
+  MultiUnitForm = 'Multi Unit - Form',
+  MultiUnitResult = 'Multi Unit - Result',
   ProfilePage = 'Profile Page',
   FasilitasDanaLanding = 'Fasilitas Dana - Landing',
+  FasilitasDanaForm = 'Fasilitas Dana - Form',
   SalesDashboard = 'Sales Dashboard',
   TSDashboard = 'Teman SEVA - Dashboard',
   TSAcitivity = 'Teman SEVA - Activity',
@@ -48,10 +52,47 @@ export enum PreviousButton {
   CarRecommendation = 'Car recommendation',
   CarOfTheMonth = 'Car of the month',
   ProductCard = 'Product card',
+  CarRecommendationCta = 'Rekomendasi - Hitung Kemampuan',
+  SevaStepsCalculate = 'SEVA steps - Hitung Kemampuan',
+  SevaStepsQualification = 'SEVA steps - Kualifikasi Kredit',
+  SevaBelowSectionCalculate = 'SEVA below section - Hitung Kemampuan',
+  ProductCardCalculate = 'Product card - Hitung Kemampuan',
+  MainTopCta = 'Main Top CTA',
+  VariantPriceList = 'Variant pricelist',
+  LeadsForm = 'Leads form',
+  PopUpUbahData = 'Pop Up Ubah Data',
+  SevaLogo = 'SEVA logo',
+  ButtonBackToHomepage = 'Button Back to Homepage',
 }
 
 export const defineRouteName = (pathname: string) => {
+  if (pathname.includes('teman-seva')) {
+    if (pathname.includes('aktivitas-akun')) {
+      return RouteName.TSAcitivity
+    }
+    if (pathname.includes('dashboard')) {
+      if (pathname.includes('skema-1')) {
+        return RouteName.TSSkema1
+      }
+      if (pathname.includes('skema-2')) {
+        return RouteName.TSSkema2
+      }
+      if (pathname.includes('skema-3')) {
+        return RouteName.TSSkema3
+      }
+      if (pathname.includes('skema-4')) {
+        return RouteName.TSSkema4
+      }
+      return RouteName.TSDashboard
+    }
+    if (pathname.includes('referral-code')) {
+      return RouteName.TSReferralCode
+    }
+  }
   if (pathname.includes('mobil-baru')) {
+    if (pathname.toLowerCase().includes('/seva')) {
+      return RouteName.PLP
+    }
     if (pathname.length > 12) {
       if (pathname.includes('spesifikasi')) {
         return RouteName.PDPSpesifikasi
@@ -68,12 +109,25 @@ export const defineRouteName = (pathname: string) => {
   }
 
   if (pathname.includes('kalkulator-kredit')) {
+    if (pathname.includes('homepageKualifikasi')) {
+      return RouteName.KualifikasiKredit
+    }
     return RouteName.LoanCalculator
+  }
+
+  if (pathname.includes('kualifikasi-kredit/multi')) {
+    if (pathname.includes('result')) {
+      return RouteName.MultiUnitResult
+    }
+    return RouteName.MultiUnitForm
   }
 
   if (pathname.includes('kualifikasi-kredit')) {
     if (pathname.includes('result')) {
       return RouteName.KKResult
+    }
+    if (pathname.includes('review')) {
+      return RouteName.KKReview
     }
     return RouteName.KualifikasiKredit
   }
@@ -88,13 +142,12 @@ export const defineRouteName = (pathname: string) => {
     if (pathname.includes('rejected')) {
       return RouteName.IARejected
     }
-  }
-
-  if (pathname.includes('multi-unit')) {
-    if ('result') {
-      return RouteName.MultiUnitResult
+    if (pathname.includes('review')) {
+      return RouteName.IAReview
     }
-    return RouteName.MultiUnitForm
+    if (pathname.includes('result')) {
+      return RouteName.IARejected
+    }
   }
 
   if (pathname.includes('akun/profil')) {
@@ -102,35 +155,14 @@ export const defineRouteName = (pathname: string) => {
   }
 
   if (pathname.includes('fasilitas-dana')) {
+    if (pathname.includes('form')) {
+      return RouteName.FasilitasDanaForm
+    }
     return RouteName.FasilitasDanaLanding
   }
 
-  if (pathname.includes('sales-dahsboard')) {
+  if (pathname.includes('sales-dashboard')) {
     return RouteName.SalesDashboard
-  }
-
-  if (pathname.includes('teman-seva')) {
-    if (pathname.includes('dashboard')) {
-      if (pathname.includes('skema-1')) {
-        return RouteName.TSSkema1
-      }
-      if (pathname.includes('skema-2')) {
-        return RouteName.TSSkema2
-      }
-      if (pathname.includes('skema-3')) {
-        return RouteName.TSSkema3
-      }
-      if (pathname.includes('skema-4')) {
-        return RouteName.TSSkema4
-      }
-      return RouteName.TSDashboard
-    }
-    if (pathname.includes('aktivitas-akun')) {
-      return RouteName.TSAcitivity
-    }
-    if (pathname.includes('referral-code')) {
-      return RouteName.TSReferralCode
-    }
   }
 
   return RouteName.Homepage
@@ -140,8 +172,11 @@ export const navigateToPLP = (
   source: PreviousButton = PreviousButton.undefined,
   option?: any,
   navigate: boolean = true,
+  replace = false,
+  customUrl?: string,
 ) => {
-  let refer = defineRouteName(Router.pathname)
+  const origin = window.location.origin
+  const refer = defineRouteName(window.location.href.replace(origin, ''))
 
   const dataPrevPage = { refer, source }
   saveSessionStorage(
@@ -150,10 +185,21 @@ export const navigateToPLP = (
   )
 
   if (!navigate) return
-  return Router.push({ pathname: urls.internalUrls.carResultsUrl, ...option })
+  if (replace)
+    return Router.replace({
+      pathname: urls.internalUrls.carResultsUrl,
+      ...option,
+    })
+  return Router.push({
+    pathname: customUrl || urls.internalUrls.carResultsUrl,
+    ...option,
+  })
 }
 
-export const navigateToKK = (option?: any) => {
+export const navigateToKK = (
+  navigateWithWindowLocation?: boolean,
+  option?: any,
+) => {
   const source = ''
   const refer = defineRouteName(location.pathname)
 
@@ -163,15 +209,47 @@ export const navigateToKK = (option?: any) => {
     JSON.stringify(dataPrevPage),
   )
 
-  return Router.push({ pathname: creditQualificationUrl, ...option })
+  if (navigateWithWindowLocation) {
+    return (window.location.href = creditQualificationUrl)
+  } else {
+    return Router.push({ pathname: creditQualificationUrl, ...option })
+  }
 }
 
 export const saveDataForCountlyTrackerPageViewPDP = (
   previousButton: PreviousButton,
+  pageReferrer?: string,
+) => {
+  const referrer = pageReferrer
+    ? pageReferrer
+    : defineRouteName(window.location.pathname)
+
+  saveSessionStorage(SessionStorageKey.PageReferrerPDP, referrer)
+  saveSessionStorage(SessionStorageKey.PreviousSourceButtonPDP, previousButton)
+}
+
+export const saveDataForCountlyTrackerPageViewLC = (
+  previousButton: PreviousButton,
 ) => {
   saveSessionStorage(
-    SessionStorageKey.PageReferrerPDP,
-    defineRouteName(window.location.pathname),
+    SessionStorageKey.PageReferrerLC,
+    defineRouteName(window.location.pathname + window.location.search),
   )
-  saveSessionStorage(SessionStorageKey.PreviousSourceButtonPDP, previousButton)
+  saveSessionStorage(SessionStorageKey.PreviousSourceSectionLC, previousButton)
+}
+
+export const saveDataForCountlyTrackerPageViewHomepage = (
+  previousButton: PreviousButton,
+  pageReferrer?: string,
+) => {
+  const origin = window.location.origin
+  const referrer = pageReferrer
+    ? pageReferrer
+    : defineRouteName(window.location.href.replace(origin, ''))
+  saveSessionStorage(SessionStorageKey.PageReferrerHomepage, referrer)
+
+  saveSessionStorage(
+    SessionStorageKey.PreviousSourceButtonHomepage,
+    previousButton,
+  )
 }

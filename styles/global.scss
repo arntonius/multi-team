@@ -7,12 +7,12 @@
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box; /* Firefox, other Gecko */
   box-sizing: border-box; /* Opera/IE 8+ */
-  font-family: 'OpenSans';
+  font-family: var(--open-sans);
 }
 
 body {
   color: #{$primary-black};
-  font-family: var(--openSans-regular);
+  font-family: var(--open-sans);
   font-size: 16px;
 }
 
@@ -111,6 +111,7 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
+  @include centeredWithMaxWidth(343px);
 }
 
 .jumpa-pay-modal .ant-modal-content {
@@ -193,6 +194,15 @@ button {
   }
 }
 
+.csa-button-homepage {
+  @media (min-width: 570px) {
+    &.ant-float-btn {
+      left: calc(50% + 240px);
+      transform: translateX(-50%);
+    }
+  }
+}
+
 .whatsapp-floating-button {
   z-index: 5;
   &.ant-float-btn {
@@ -214,6 +224,13 @@ button {
 
   .ant-float-btn-icon {
     width: 100% !important;
+  }
+
+  @media (min-width: 570px) {
+    &.ant-float-btn {
+      left: calc(50% + 240px);
+      transform: translateX(-50%);
+    }
   }
 }
 
@@ -295,16 +312,80 @@ button {
 }
 
 .search-custom-modal {
-  width: 100vw;
-  max-width: unset;
+  width: 100vw !important;
   top: 0;
+  @include centeredWithMaxWidth;
 }
 
 .search-custom-modal .ant-modal-content {
   width: 100vw;
-  height: 100vh;
+  // height: 100vh;
   margin: 0;
   top: 0;
   border-radius: 0;
   padding: 0;
+  @include centeredWithMaxWidth;
+}
+
+.adm-picker {
+  height: 200px !important;
+}
+.adm-picker-view-column-item-label {
+  height: 18px !important;
+}
+
+.adm-mask {
+  right: 0;
+  @include centeredWithMaxWidth;
+}
+
+.adm-popup-body-position-bottom {
+  right: 0;
+  @include centeredWithMaxWidth;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shake-animation-X {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(8px);
+  }
+  75% {
+    transform: translateX(-8px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.rotateAnimation {
+  animation: rotate 1s linear infinite;
+}
+
+.shake-animation-X {
+  animation: shake-animation-X 0.2s ease-in-out 0s 2;
+}
+
+.shake-animation-X-2 {
+  animation: shake-animation-X 0.2s ease-in-out 0s 5;
+}
+
+.multiKKSliderError {
+  .ant-slider-handle:focus::after {
+    box-shadow: 0 0 0 2px #{$primary-red};
+  }
+  .ant-slider-handle::after {
+    box-shadow: 0 0 0 2px #{$primary-red};
+  }
 }

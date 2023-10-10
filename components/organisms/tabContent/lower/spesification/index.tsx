@@ -12,7 +12,7 @@ import { getMinimumMonthlyInstallment } from 'utils/carModelUtils/carModelUtils'
 import { availableList, availableListColors } from 'config/AvailableListColors'
 import { setTrackEventMoEngage } from 'helpers/moengage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import { CityOtrOption } from 'utils/types/utils'
+import { CarRecommendation, CityOtrOption } from 'utils/types/utils'
 import { PropsField, PropsFieldDetail } from 'utils/types/props'
 import { useCar } from 'services/context/carContext'
 import { LocalStorageKey, LanguageCode } from 'utils/enum'
@@ -30,8 +30,15 @@ export const SpecificationTab = () => {
   )
   const { funnelQuery } = useFunnelQueryData()
 
-  const getDimenssion = (payload: any) => {
-    return payload.filter((car: any) => car.id === carModelDetails?.id)[0]
+  const getDimenssion = (payload: CarRecommendation[]) => {
+    const defaultPayload = { width: 0, height: 0, length: 0 }
+    if (payload.length === 0) return defaultPayload
+    const modelPayload = payload.filter(
+      (car: CarRecommendation) => car.id === carModelDetails?.id,
+    )
+
+    if (modelPayload.length === 0) return defaultPayload
+    return modelPayload[0]
   }
 
   const sortedCarModelVariant = useMemo(() => {
@@ -66,7 +73,7 @@ export const SpecificationTab = () => {
   }
 
   useEffect(() => {
-    if (carVariantDetails) {
+    if (carVariantDetails && carModelDetails) {
       const fuelType = carVariantDetails?.variantDetail.fuelType
       const engineCapacity = carVariantDetails?.variantDetail.engineCapacity
       const transmission = carVariantDetails?.variantDetail.transmission
@@ -254,7 +261,7 @@ export const SpecificationTab = () => {
     <div className={styles.spesification}>
       <div className={styles.heading}>
         <div className={styles.iconInfo}>
-          <IconCar width={24} height={24} color="#B4231E" />
+          <IconCar width={24} height={24} color="#B4231E" alt="SEVA Car Icon" />
         </div>
         <h3 className={styles.textHeading}>{headingText}</h3>
       </div>

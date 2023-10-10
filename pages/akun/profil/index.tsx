@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react'
 import styles from '/styles/pages/account-profile.module.scss'
 import inputStyles from '/styles/components/atoms/inputDate.module.scss'
 import { useFormik } from 'formik'
-import * as Yup from 'yup'
+import { object, string, InferType } from 'yup'
 import dayjs from 'dayjs'
 import { fetchCustomerDetails } from 'utils/httpUtils/customerUtils'
-import { useTranslation } from 'react-i18next'
 import {
   MoengageEventName,
   setTrackEventMoEngageWithoutValue,
@@ -21,7 +20,6 @@ import elementId from 'helpers/elementIds'
 import { useRouter } from 'next/router'
 import { useAmplitudePageView } from 'utils/hooks/useAmplitudePageView'
 import { CustomerInfoSeva } from 'utils/types/utils'
-import { updateProfile } from 'services/customer'
 import { separatePhoneNumber } from 'utils/handler/separatePhoneNumber'
 import {
   getPageBeforeProfile,
@@ -52,15 +50,15 @@ import Link from 'next/link'
 import { ToastV2 } from 'components/atoms/toastV2'
 import PopupError from 'components/organisms/popupError'
 import LabelAccount from 'components/molecules/labelAccount'
+import Image from 'next/image'
+import { updateProfile } from 'utils/handler/customer'
 
 const PromotionBanner = '/revamp/images/profile/card_promotion-banner.webp'
-
 const lostConnectionMessage =
   'Oops, koneksi Anda terputus. Silahkan coba kembali.'
 
 const Profile = () => {
   const history = useRouter()
-  const { t } = useTranslation()
   useAmplitudePageView(trackProfilePageView)
   const [customerDetail, setCustomerDetail] = React.useState<CustomerInfoSeva>()
   const [toast, setToast] = useState('')
@@ -75,9 +73,9 @@ const Profile = () => {
     getCurrentEnvironment.featureToggles.enableDeleteAccount
   const enableUploadKtp = getCurrentEnvironment.featureToggles.enableUploadKtp
 
-  const userSchema = Yup.object().shape({
-    fullName: Yup.string().required('Wajib diisi.'),
-    email: Yup.string()
+  const userSchema = object().shape({
+    fullName: string().required('Wajib diisi.'),
+    email: string()
       .matches(
         /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         {
@@ -85,11 +83,11 @@ const Profile = () => {
         },
       )
       .required('Wajib diisi.'),
-    dob: Yup.string().required('Wajib diisi.'),
-    gender: Yup.string(),
+    dob: string().required('Wajib diisi.'),
+    gender: string(),
   })
 
-  type UserForm = Yup.InferType<typeof userSchema>
+  type UserForm = InferType<typeof userSchema>
 
   const {
     values,
@@ -127,7 +125,7 @@ const Profile = () => {
         })
         .catch(() => {
           setIsLoadingSubmit(false)
-          setErrorMessage(t('common.errorMessage'))
+          setErrorMessage(lostConnectionMessage)
           throw new Error('Gagal menyimpan perubahan akun')
         })
     },
@@ -391,7 +389,7 @@ const Profile = () => {
                       }}
                     >
                       <div className={styles.banner__img}>
-                        <img
+                        <Image
                           src={PromotionBanner}
                           alt="Promotion Banner"
                           data-testid={elementId.Profil.PromoWidget.Image}
@@ -431,7 +429,7 @@ const Profile = () => {
                       }}
                     >
                       <div className={styles.banner__img}>
-                        <img src={PromotionBanner} alt="Promotion Banner" />
+                        <Image src={PromotionBanner} alt="Promotion Banner" />
                       </div>
                       <div className={styles.banner__text}>
                         <span className={styles.body}>

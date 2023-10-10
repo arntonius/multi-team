@@ -10,6 +10,13 @@ import { getLocalStorage } from 'utils/handler/localStorage'
 import { UTMTagsData } from 'utils/types/utils'
 import { LocalStorageKey } from 'utils/enum'
 import { api } from 'services/api'
+import { useUtils } from 'services/context/utilsContext'
+import Link from 'next/link'
+import {
+  trackEventCountly,
+  valueMenuTabCategory,
+} from 'helpers/countly/countly'
+import { CountlyEventNames } from 'helpers/countly/eventNames'
 
 const SevaLogo = '/revamp/icon/logo-on-dark.webp'
 const ISOIcon = '/revamp/icon/iso.webp'
@@ -27,17 +34,12 @@ export interface FooterMenu {
   menuType: string
 }
 
-export const FooterMobile = () => {
+export interface FooterProps {
+  pageOrigination?: string
+}
+export const FooterMobile = ({ pageOrigination }: FooterProps) => {
   const UTMTags = getLocalStorage<UTMTagsData>(LocalStorageKey.UtmTags)
-  const [menu, setMenu] = useState<FooterMenu[]>([])
-
-  useEffect(() => {
-    api
-      .getMobileFooterMenu()
-      .then((result: { data: React.SetStateAction<FooterMenu[]> }) => {
-        setMenu(result.data) // result.data.data undefined
-      })
-  }, [])
+  const { mobileWebFooterMenus } = useUtils()
 
   const dataTestId = (code: string) => {
     switch (code) {
@@ -59,12 +61,22 @@ export const FooterMobile = () => {
 
     return url
   }
-
-  const handleClickMenu = (menuName: string) => {
+  const trackCountlyFooter = (menuUrl: string) => {
+    if (pageOrigination && pageOrigination.length !== 0) {
+      trackEventCountly(CountlyEventNames.WEB_FOOTER_CLICK, {
+        PAGE_ORIGINATION: pageOrigination.includes('PDP')
+          ? pageOrigination + valueMenuTabCategory()
+          : pageOrigination,
+        PAGE_DIRECTION_URL: formatMenuUrl(menuUrl),
+      })
+    }
+  }
+  const handleClickMenu = (menuName: string, menuUrl: string) => {
     trackFooterClick({
       Page_Origination_URL: window.location.href,
       Menu: menuName,
     })
+    trackCountlyFooter(menuUrl)
   }
 
   return (
@@ -74,7 +86,7 @@ export const FooterMobile = () => {
           src={SevaLogo}
           width={61}
           height={31}
-          alt="seva"
+          alt="Logo SEVA Footer"
           className={styles.sevaLogo}
           loading="lazy"
         />
@@ -84,47 +96,79 @@ export const FooterMobile = () => {
           pembiayaan dan dealer resmi dari Astra Group
         </span>
         <div className={styles.linkedTextWrapper}>
-          {menu?.length > 0 &&
-            menu?.map((item, index) => (
-              <a
-                href={formatMenuUrl(item.menuUrl)}
-                key={index}
-                rel="noreferrer noopener"
-                target="_blank"
-                onClick={() => handleClickMenu(item.menuName)}
-                data-testid={dataTestId(item.menuCode)}
-              >
-                {item.menuName}
-              </a>
-            ))}
+          <span className={styles.gap}>
+            <Link
+              href={urls.about}
+              onClick={() => {
+                trackCountlyFooter(urls.about)
+              }}
+            >
+              Tentang Kami
+            </Link>
+            <Link
+              href={urls.termsAndConditionsSeva}
+              onClick={() => trackCountlyFooter(urls.termsAndConditionsSeva)}
+            >
+              Syarat & Ketentuan
+            </Link>
+          </span>
+          <span className={styles.gap}>
+            <Link
+              href={urls.privacyPolicySeva}
+              onClick={() => trackCountlyFooter(urls.privacyPolicySeva)}
+            >
+              Kebijakan Privasi
+            </Link>
+            <Link
+              href={urls.contactUs}
+              onClick={() => trackCountlyFooter(urls.contactUs)}
+            >
+              Hubungi Kami
+            </Link>
+          </span>
         </div>
         <div className={styles.socialWrapper}>
           <a
             href={urls.instagram}
-            onClick={() => handleClickMenu('Instagram')}
+            onClick={() => handleClickMenu('Instagram', urls.instagram)}
             rel="noreferrer noopener"
             target="_blank"
             datatest-id={elementId.Footer.LogoInstagram}
           >
-            <IconInstagram width={32} height={32} color={colors.white} />
+            <IconInstagram
+              width={32}
+              height={32}
+              color={colors.white}
+              alt="SEVA Instagram Icon"
+            />
           </a>
           <a
             href={urls.twitter}
-            onClick={() => handleClickMenu('Twitter')}
+            onClick={() => handleClickMenu('Twitter', urls.twitter)}
             rel="noreferrer noopener"
             target="_blank"
             datatest-id={elementId.Footer.LogoTwitter}
           >
-            <IconTwitterOutlined width={32} height={32} color={colors.white} />
+            <IconTwitterOutlined
+              width={32}
+              height={32}
+              color={colors.white}
+              alt="SEVA Twitter Icon"
+            />
           </a>
           <a
             href={urls.facebook}
-            onClick={() => handleClickMenu('Facebook')}
+            onClick={() => handleClickMenu('Facebook', urls.facebook)}
             rel="noreferrer noopener"
             target="_blank"
             datatest-id={elementId.Footer.LogoFacebook}
           >
-            <img src={FacebookLogo} width={25} alt="facebook outline" />
+            <Image
+              src={FacebookLogo}
+              width={25}
+              height={25}
+              alt="SEVA Facebook Icon"
+            />
           </a>
         </div>
         <div className={styles.isoWrapper}>

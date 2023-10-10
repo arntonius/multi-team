@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styles from 'styles/pages/delete-account-success.module.scss'
-import { getCities } from 'services/cities'
+
 import { AxiosResponse } from 'axios'
 import clsx from 'clsx'
 import {
@@ -19,6 +19,7 @@ import { HeaderMobile } from 'components/organisms'
 import { Button } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { CitySelectorModal } from 'components/molecules'
+import Image from 'next/image'
 
 const MainImage = '/revamp/illustration/approved.webp'
 
@@ -67,7 +68,7 @@ export default function index() {
 
   const checkCitiesData = () => {
     if (cityListApi.length === 0) {
-      getCities().then((res) => {
+      api.getCities().then((res) => {
         setCityListApi(res)
       })
     }
@@ -116,7 +117,7 @@ export default function index() {
           [styles.contentWithSpace]: showAnnouncementBox,
         })}
       >
-        <img
+        <Image
           src={MainImage}
           alt="delete-account-success-main-image"
           width="224"

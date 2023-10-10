@@ -15,6 +15,12 @@ import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { LoanRank } from 'utils/types/models'
 import { useCar } from 'services/context/carContext'
+import {
+  PreviousButton,
+  saveDataForCountlyTrackerPageViewLC,
+} from 'utils/navigate'
+import { getLocalStorage } from 'utils/handler/localStorage'
+import { LocalStorageKey } from 'utils/enum'
 
 type pdpLowerSectionProps = {
   onButtonClick: (value: boolean) => void
@@ -23,6 +29,7 @@ type pdpLowerSectionProps = {
   showAnnouncementBox: boolean | null
   setVariantIdFuelRatio: (value: string) => void
   variantFuelRatio: string | undefined
+  isOTO?: boolean
 }
 
 export const PdpLowerSection = ({
@@ -32,15 +39,26 @@ export const PdpLowerSection = ({
   showAnnouncementBox,
   setVariantIdFuelRatio,
   variantFuelRatio,
+  isOTO = false,
 }: pdpLowerSectionProps) => {
+  const router = useRouter()
+  const lowerTab = router.query.slug as string
+  const path = lowerTab ? capitalizeFirstLetter(lowerTab[0]) : ''
   const [selectedTabValue, setSelectedTabValue] = useState(
-    lowerSectionNavigationTab[0].value,
+    path ||
+      lowerSectionNavigationTab.filter((item) => item.label !== 'Kredit')[0]
+        .value,
   )
   const { carModelDetails } = useCar()
+  const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
 
-  const router = useRouter()
+  const isUsingFilterFinancial =
+    !!filterStorage?.age &&
+    !!filterStorage?.downPaymentAmount &&
+    !!filterStorage?.monthlyIncome &&
+    !!filterStorage?.tenure
   const loanRankcr = router.query.loanRankCVL ?? ''
-  const tab = router.query.tab as string
+  const upperTab = router.query.tab as string
 
   const trackClickLowerTabCountly = (value: string) => {
     let creditBadge = 'Null'
@@ -52,14 +70,20 @@ export const PdpLowerSection = ({
 
     trackEventCountly(CountlyEventNames.WEB_PDP_TAB_CONTENT_CLICK, {
       MENU_TAB_CATEGORY: value,
-      PELUANG_KREDIT_BADGE: creditBadge,
+      PELUANG_KREDIT_BADGE: isUsingFilterFinancial ? creditBadge : 'Null',
       CAR_BRAND: carModelDetails?.brand ?? '',
       CAR_MODEL: carModelDetails?.model ?? '',
-      VISUAL_TAB_CATEGORY: tab ? tab : 'Warna',
+      VISUAL_TAB_CATEGORY: upperTab ? upperTab : 'Warna',
     })
   }
 
-  const onSelectLowerTab = (value: string) => {
+  const onSelectLowerTab = (
+    value: string,
+    isExecuteFromClickingTab?: boolean,
+  ) => {
+    if (value.toLowerCase() === 'kredit' && isExecuteFromClickingTab) {
+      saveDataForCountlyTrackerPageViewLC(PreviousButton.undefined)
+    }
     trackClickLowerTabCountly(value)
     setSelectedTabValue(value)
     const destinationElm = document.getElementById('pdp-lower-content')
@@ -117,20 +141,24 @@ export const PdpLowerSection = ({
             setSelectedTabValue={onSelectLowerTab}
             setVariantIdFuelRatio={setVariantIdFuelRatio}
             variantFuelRatio={variantFuelRatio}
+            isOTO={isOTO}
           />
         )
       case 'Spesifikasi':
         return <SpecificationTab />
+
       case 'Harga':
         return (
           <PriceTab
             setSelectedTabValue={onSelectLowerTab}
             setVariantIdFuelRatio={setVariantIdFuelRatio}
             variantFuelRatio={variantFuelRatio}
+            isOTO={isOTO}
           />
         )
       case 'Kredit':
         return <CreditTab />
+
       default:
         return (
           <SummaryTab
@@ -148,8 +176,14 @@ export const PdpLowerSection = ({
   return (
     <div>
       <NavigationTabV1
-        itemList={lowerSectionNavigationTab}
-        onSelectTab={onSelectLowerTab}
+        itemList={
+          isOTO
+            ? lowerSectionNavigationTab.filter(
+                (item) => item.label !== 'Kredit',
+              )
+            : lowerSectionNavigationTab
+        }
+        onSelectTab={(value) => onSelectLowerTab(value, true)}
         selectedTabValueProps={selectedTabValue}
         showAnnouncementBox={showAnnouncementBox}
       />

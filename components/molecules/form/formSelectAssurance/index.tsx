@@ -3,7 +3,6 @@ import styles from 'styles/components/molecules/form/formSelectAssurance.module.
 import { IconInfo } from '../../../atoms'
 import clsx from 'clsx'
 import { getLocalStorage } from 'utils/handler/localStorage'
-import { getCustomerInfoSeva } from 'services/customer'
 import { getToken } from 'utils/handler/auth'
 import {
   getInstallmentAffectedByPromo,
@@ -16,14 +15,13 @@ import {
   PromoItemType,
   SpecialRateListWithPromoType,
 } from 'utils/types/utils'
-import { useContextCalculator } from 'services/context/calculatorContext'
 import { LocalStorageKey } from 'utils/enum'
-import {
-  postLoanPermutationAsuransiKombinasi,
-  postLoanPermutationIncludePromo,
-} from 'services/newFunnel'
 import { IconRadioButtonActive } from 'components/atoms/icon/RadioButtonActive'
 import { IconRadioButtonInactive } from 'components/atoms/icon/RadioButtonInactive'
+import { trackEventCountly } from 'helpers/countly/countly'
+import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { api } from 'services/api'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
 
 interface Props {
   selectedTenure: number
@@ -34,6 +32,7 @@ interface Props {
   promoInsuranceTemp: LoanCalculatorInsuranceAndPromoType[]
   setPromoInsuranceTemp: (value: LoanCalculatorInsuranceAndPromoType[]) => void
   onOpenInsuranceTooltip: () => void
+  pageOrigination?: string
 }
 
 const FormSelectAssurance = ({
@@ -45,6 +44,7 @@ const FormSelectAssurance = ({
   promoInsuranceTemp,
   setPromoInsuranceTemp,
   onOpenInsuranceTooltip,
+  pageOrigination,
 }: Props) => {
   const indexForSelectedTenure = promoInsuranceTemp.findIndex(
     (obj: LoanCalculatorInsuranceAndPromoType) => {
@@ -145,9 +145,12 @@ const FormSelectAssurance = ({
       return
     }
 
+    trackCountlyOptionClick(item)
+
     if (item.value === 'FC') {
       setIsLoadingApiPromoList(true)
-      postLoanPermutationIncludePromo(calculationApiPayload)
+      api
+        .postLoanPermutationIncludePromo(calculationApiPayload)
         .then((response) => {
           const resultForCurrentTenure = response.data.filter(
             (item: SpecialRateListWithPromoType) =>
@@ -166,20 +169,21 @@ const FormSelectAssurance = ({
     } else {
       if (calculationApiPayload) {
         setIsLoadingApiPromoList(true)
-        postLoanPermutationAsuransiKombinasi({
-          brand: calculationApiPayload.brand,
-          model: calculationApiPayload.model,
-          age: calculationApiPayload.age,
-          angsuranType: calculationApiPayload.angsuranType,
-          city: calculationApiPayload.city,
-          discount: calculationApiPayload.discount,
-          dp: calculationApiPayload.dp,
-          dpAmount: calculationApiPayload.dpAmount,
-          monthlyIncome: calculationApiPayload.monthlyIncome,
-          otr: calculationApiPayload.otr,
-          tenure: selectedTenure,
-          asuransiKombinasi: item.value,
-        })
+        api
+          .postLoanPermutationAsuransiKombinasi({
+            brand: calculationApiPayload.brand,
+            model: calculationApiPayload.model,
+            age: calculationApiPayload.age,
+            angsuranType: calculationApiPayload.angsuranType,
+            city: calculationApiPayload.city,
+            discount: calculationApiPayload.discount,
+            dp: calculationApiPayload.dp,
+            dpAmount: calculationApiPayload.dpAmount,
+            monthlyIncome: calculationApiPayload.monthlyIncome,
+            otr: calculationApiPayload.otr,
+            tenure: selectedTenure,
+            asuransiKombinasi: item.value,
+          })
           .then((response) => {
             updateDataInsuranceAndPromo(response.data[0], item)
           })
@@ -240,6 +244,27 @@ const FormSelectAssurance = ({
     )
   }
 
+  const trackCountlyTooltipClick = () => {
+    trackEventCountly(
+      CountlyEventNames.WEB_LOAN_CALCULATOR_PAGE_PROMO_BOTTOMSHEET_INSURANCE_TOOLTIP_CLICK,
+      {
+        TENOR_OPTION: `${selectedTenure} tahun`,
+        PAGE_ORIGINATION: pageOrigination,
+      },
+    )
+  }
+
+  const trackCountlyOptionClick = (item: any) => {
+    trackEventCountly(
+      CountlyEventNames.WEB_LOAN_CALCULATOR_PAGE_PROMO_BOTTOMSHEET_INSURANCE_OPTION_CLICK,
+      {
+        TENOR_OPTION: `${selectedTenure} tahun`,
+        PAGE_ORIGINATION: pageOrigination,
+        INSURANCE: item.label,
+      },
+    )
+  }
+
   return (
     <>
       <div className={styles.container}>
@@ -250,7 +275,10 @@ const FormSelectAssurance = ({
               width={16}
               height={16}
               color="#AFB3BA"
-              onClick={onOpenInsuranceTooltip}
+              onClick={() => {
+                trackCountlyTooltipClick()
+                onOpenInsuranceTooltip()
+              }}
             />
           </div>
         </div>

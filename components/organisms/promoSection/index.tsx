@@ -20,11 +20,22 @@ import {
   IconTransmission,
   IconCar,
 } from 'components/atoms'
-import { CarVariantRecommendation } from 'utils/types/utils'
-import { variantListUrl } from 'utils/helpers/routes'
+import { CarVariantRecommendation, trackDataCarType } from 'utils/types/utils'
+import {
+  OTOCarResultsUrl,
+  OTOVariantListUrl,
+  variantListUrl,
+} from 'utils/helpers/routes'
 import elementId from 'helpers/elementIds'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
+import { trackEventCountly } from 'helpers/countly/countly'
+import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { getLocalStorage } from 'utils/handler/localStorage'
+import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
+import { LoanRank } from 'utils/types/models'
+import { getBrandAndModelValue } from 'utils/handler/getBrandAndModel'
+import { getSessionStorage } from 'utils/handler/sessionStorage'
 
 type PromoSectionProps = {
   setPromoName?: (value: string) => void
@@ -34,6 +45,7 @@ type PromoSectionProps = {
   info?: any
   onPage?: string
   setSelectedTabValue?: (value: string) => void
+  isOTO?: boolean
 }
 
 const PromoSection = ({
@@ -44,20 +56,75 @@ const PromoSection = ({
   info,
   onPage,
   setSelectedTabValue,
+  isOTO = false,
 }: PromoSectionProps) => {
   const router = useRouter()
-
   const brand = router.query.brand as string
   const model = router.query.model as string
+  const enablePromoCumaDiSeva = false
+
+  const IsShowBadgeCreditOpportunity = getSessionStorage(
+    SessionStorageKey.IsShowBadgeCreditOpportunity,
+  )
+  const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
+  const dataCar: trackDataCarType | null = getSessionStorage(
+    SessionStorageKey.PreviousCarDataBeforeLogin,
+  )
+  const isUsingFilterFinancial =
+    !!filterStorage?.age &&
+    !!filterStorage?.downPaymentAmount &&
+    !!filterStorage?.monthlyIncome &&
+    !!filterStorage?.tenure
+
+  const loanRankcr = router.query.loanRankCVL ?? ''
+
+  const getCreditBadgeForCountly = () => {
+    let creditBadge = 'Null'
+    if (loanRankcr && loanRankcr.includes(LoanRank.Green)) {
+      creditBadge = 'Mudah disetujui'
+    } else if (loanRankcr && loanRankcr.includes(LoanRank.Red)) {
+      creditBadge = 'Sulit disetujui'
+    }
+    return creditBadge
+  }
 
   const navigateToSpecificationTab = () => {
     setSelectedTabValue && setSelectedTabValue('Spesifikasi')
-    router.push(
-      variantListUrl
-        .replace(':brand', brand)
-        .replace(':model', model)
-        .replace(':tab?', 'spesifikasi'),
-    )
+    window.location.href = (isOTO ? OTOVariantListUrl : variantListUrl)
+      .replace(':brand', brand)
+      .replace(':model', model)
+      .replace(':tab?', 'spesifikasi')
+  }
+  const trackCountlyClickSeeAll = () => {
+    trackEventCountly(CountlyEventNames.WEB_HOMEPAGE_PROMO_BANNER_ALL_CLICK)
+  }
+  const trackCountlyClicPromo = (promoUrl: string, promoOrder: number) => {
+    trackEventCountly(CountlyEventNames.WEB_HOMEPAGE_PROMO_BANNER_CLICK, {
+      PAGE_DIRECTION_URL: promoUrl,
+      PROMO_ORDER: promoOrder,
+    })
+  }
+
+  const getValueBrandAndModel = (value: string) => {
+    return value
+      .replaceAll('-', ' ')
+      .toLowerCase()
+      .split(' ')
+      .map((s: any) => s.charAt(0).toUpperCase() + s.substring(1))
+      .join(' ')
+  }
+  const trackCountlePromoCLick = (promoDetail: string, promoOrder: number) => {
+    trackEventCountly(CountlyEventNames.WEB_PROMO_CLICK, {
+      CAR_BRAND: getBrandAndModelValue(brand),
+      CAR_MODEL: getBrandAndModelValue(model),
+      PROMO_DETAILS: promoDetail,
+      PROMO_ORDER: promoOrder,
+      PELUANG_KREDIT_BADGE:
+        isUsingFilterFinancial && IsShowBadgeCreditOpportunity
+          ? dataCar?.PELUANG_KREDIT_BADGE
+          : 'Null',
+      PAGE_ORIGINATION: 'PDP',
+    })
   }
   return (
     <div>
@@ -65,8 +132,13 @@ const PromoSection = ({
         <div className={styles.cardInfoDetail} style={{ padding: '16px' }}>
           <div className={styles.row}>
             <div className={styles.rowWithGap}>
-              <IconCar width={24} height={24} color={'#B4231E'} />
-              <p className={styles.kanyonMedium}>Detail</p>
+              <IconCar
+                width={24}
+                height={24}
+                color={'#B4231E'}
+                alt="SEVA Car Icon"
+              />
+              <h3 className={styles.kanyonMedium}>Detail</h3>
             </div>
             <div
               className={styles.rowWithGap}
@@ -81,13 +153,23 @@ const PromoSection = ({
           </div>
           <div className={styles.row}>
             <div className={styles.rowWithGap}>
-              <IconSeat width={24} height={24} color={'#246ED4'} />
+              <IconSeat
+                width={24}
+                height={24}
+                color={'#246ED4'}
+                alt="SEVA Chair Icon"
+              />
               <p className={styles.openSans} style={{ color: '#13131B' }}>
                 {info.seats + ' Kursi'}
               </p>
             </div>
             <div className={styles.rowWithGap}>
-              <IconTransmission width={24} height={24} color={'#246ED4'} />
+              <IconTransmission
+                width={24}
+                height={24}
+                color={'#246ED4'}
+                alt="SEVA Transmition gear Icon"
+              />
               <p className={styles.openSans} style={{ color: '#13131B' }}>
                 {cheapestVariantData?.transmission}
               </p>
@@ -95,13 +177,23 @@ const PromoSection = ({
           </div>
           <div className={styles.row}>
             <div className={styles.rowWithGap}>
-              <IconEngine width={24} height={24} color={'#246ED4'} />
+              <IconEngine
+                width={24}
+                height={24}
+                color={'#246ED4'}
+                alt="SEVA Engine Icon"
+              />
               <p className={styles.openSans} style={{ color: '#13131B' }}>
                 {'Mesin ' + cheapestVariantData?.engineCapacity + ' cc'}
               </p>
             </div>
             <div className={styles.rowWithGap}>
-              <IconFuel width={24} height={24} color={'#246ED4'} />
+              <IconFuel
+                width={24}
+                height={24}
+                color={'#246ED4'}
+                alt="SEVA Gas Station icon"
+              />
               <p className={styles.openSans} style={{ color: '#13131B' }}>
                 {cheapestVariantData?.fuelType}
               </p>
@@ -120,8 +212,13 @@ const PromoSection = ({
           <div className={styles.rowWithGap}>
             {onPage === 'VariantListPage' ? (
               <div className={styles.headerWrapper}>
-                <IconPromo width={19} height={19} color={'#B4231E'} />
-                <h2 className={styles.kanyonMedium}>Promo</h2>
+                <IconPromo
+                  width={19}
+                  height={19}
+                  color={'#B4231E'}
+                  alt="SEVA Price Tag icon"
+                />
+                <h3 className={styles.kanyonMedium}>Promo</h3>
               </div>
             ) : (
               <p
@@ -151,7 +248,10 @@ const PromoSection = ({
               rel="noopener noreferrer"
               className={styles.openSansMedium}
               style={{ color: '#246ED4', paddingRight: '16px' }}
-              onClick={() => trackPromoBannerSeeAllClick()}
+              onClick={() => {
+                trackPromoBannerSeeAllClick()
+                trackCountlyClickSeeAll()
+              }}
               data-testid={elementId.Homepage.Promo.LihatSemua}
             >
               Lihat semua
@@ -159,54 +259,64 @@ const PromoSection = ({
           )}
         </div>
         <div className={styles.rowScrollHorizontal}>
-          <div
-            className={styles.bannerPromo}
-            onClick={() => {
-              if (onPage === 'VariantListPage') {
-                onButtonClick && onButtonClick(true)
-                setPromoName && setPromoName('promo1')
-                trackCarVariantBannerPromoClick(dataForAmplitude)
-              } else {
-                const Page_Direction_URL =
-                  'https://www.seva.id/info/promo/cuma-di-seva/'
-                trackPromoBannerClick({ Page_Direction_URL })
-                window.open(Page_Direction_URL, '_blank')
+          {enablePromoCumaDiSeva ? (
+            <div
+              className={styles.bannerPromo}
+              onClick={() => {
+                if (onPage === 'VariantListPage') {
+                  onButtonClick && onButtonClick(true)
+                  setPromoName && setPromoName('promo1')
+                  trackCarVariantBannerPromoClick(dataForAmplitude)
+                  trackCountlePromoCLick('Promo Cuma di SEVA', 1)
+                } else {
+                  const Page_Direction_URL =
+                    'https://www.seva.id/info/promo/cuma-di-seva/'
+                  trackPromoBannerClick({ Page_Direction_URL })
+                  window.open(Page_Direction_URL, '_blank')
+                }
+              }}
+              data-testid={
+                onPage === 'VariantListPage'
+                  ? elementId.PDP.CTA.LihatDetail
+                  : elementId.Homepage.Promo.DetailPromo
               }
-            }}
-            data-testid={
-              onPage === 'VariantListPage'
-                ? elementId.PDP.CTA.LihatDetail
-                : elementId.Homepage.Promo.DetailPromo
-            }
-          >
-            <Image
-              src={promoBannerCumaDiSEVA}
-              className={styles.promoBannerSmall}
-              height={156}
-              width={208}
-              alt="promo seva"
-              loading="lazy"
-            />
-            <div>
-              <p className={styles.textPromoBanner}>
-                Lihat detail{' '}
-                <div className={styles.spacingChevronIcon}>
-                  <IconChevronRight width={16} height={16} color="#FFFFFF" />
-                </div>
-              </p>
+            >
+              <Image
+                src={promoBannerCumaDiSEVA}
+                className={styles.promoBannerSmall}
+                height={156}
+                width={208}
+                alt="Promo Cuma di SEVA dapat Asuransi Comprehensive dan Cashback"
+                loading="lazy"
+              />
+              <div>
+                <p className={styles.textPromoBanner}>
+                  Lihat detail{' '}
+                  <span className={styles.spacingChevronIcon}>
+                    <IconChevronRight width={16} height={16} color="#FFFFFF" />
+                  </span>
+                </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <></>
+          )}
           <div
             className={styles.bannerPromo}
             onClick={() => {
               if (onPage === 'VariantListPage') {
                 onButtonClick && onButtonClick(true)
                 setPromoName && setPromoName('promo2')
+                trackCountlePromoCLick(
+                  'Toyota Spektakuler',
+                  enablePromoCumaDiSeva ? 2 : 1,
+                )
                 trackCarVariantBannerPromoClick(dataForAmplitude)
               } else {
                 const Page_Direction_URL =
                   'https://www.seva.id/info/promo/toyota-spektakuler/'
                 trackPromoBannerClick({ Page_Direction_URL })
+                trackCountlyClicPromo(Page_Direction_URL, 1)
                 window.open(Page_Direction_URL, '_blank')
               }
             }}
@@ -217,20 +327,20 @@ const PromoSection = ({
               className={styles.promoBannerSmall}
               height={156}
               width={208}
-              alt="promo seva"
+              alt="Promo Toyota Spektakuler Hemat Puluhan Juta"
               loading="lazy"
             />
 
             <div
               style={{
-                backgroundImage: `linear-gradient(to bottom, rgba(255,0,0,0), black);`,
+                backgroundImage: `linear-gradient(to bottom, rgba(255,0,0,0), black)`,
               }}
             >
               <p className={styles.textPromoBanner}>
                 Lihat detail
-                <div className={styles.spacingChevronIcon}>
+                <span className={styles.spacingChevronIcon}>
                   <IconChevronRight width={16} height={16} color="#FFFFFF" />
-                </div>
+                </span>
               </p>
             </div>
           </div>
@@ -240,11 +350,16 @@ const PromoSection = ({
               if (onPage === 'VariantListPage') {
                 onButtonClick && onButtonClick(true)
                 setPromoName && setPromoName('promo3')
+                trackCountlePromoCLick(
+                  'Promo Trade-In Daihatsu',
+                  enablePromoCumaDiSeva ? 3 : 2,
+                )
                 trackCarVariantBannerPromoClick(dataForAmplitude)
               } else {
                 const Page_Direction_URL =
                   'https://www.seva.id/info/promo/promo-trade-in-daihatsu/'
                 trackPromoBannerClick({ Page_Direction_URL })
+                trackCountlyClicPromo(Page_Direction_URL, 1)
                 window.open(Page_Direction_URL, '_blank')
               }
             }}
@@ -255,20 +370,20 @@ const PromoSection = ({
               className={styles.promoBannerSmall}
               height={156}
               width={208}
-              alt="promo seva"
+              alt="Promo Daihatsu Tukar Mobil Kamu Dengan Mobil Daihatsu Baru"
               loading="lazy"
             />
 
             <div
               style={{
-                backgroundImage: `linear-gradient(to bottom, rgba(255,0,0,0), black);`,
+                backgroundImage: `linear-gradient(to bottom, rgba(255,0,0,0), black)`,
               }}
             >
               <p className={styles.textPromoBanner}>
                 Lihat detail
-                <div className={styles.spacingChevronIcon}>
+                <span className={styles.spacingChevronIcon}>
                   <IconChevronRight width={16} height={16} color="#FFFFFF" />
-                </div>
+                </span>
               </p>
             </div>
           </div>

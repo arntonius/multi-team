@@ -4,10 +4,11 @@ import { Link } from 'components/atoms'
 import { CitySelectorModal } from 'components/molecules'
 import { saveLocalStorage } from 'utils/handler/localStorage'
 import { LocalStorageKey } from 'utils/enum'
-import { getCities } from 'services/cities'
-import { getNewFunnelCityRecommendations } from 'services/newFunnel'
+
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { CityOtrOption } from 'utils/types/utils'
+import Image from 'next/image'
+import { api } from 'services/api'
 
 const EmptyCar = '/revamp/illustration/empty-car.webp'
 
@@ -58,7 +59,7 @@ export const ProductDetailEmptyState: React.FC<PropsPDPEmptyState> = ({
 
   const checkCitiesData = () => {
     if (cityListApi.length === 0) {
-      getCities().then((res) => {
+      api.getCities().then((res) => {
         setCityListApi(res)
       })
     }
@@ -70,7 +71,7 @@ export const ProductDetailEmptyState: React.FC<PropsPDPEmptyState> = ({
         modelName: model,
         city: cityOtr?.cityCode || 'jakarta',
       }
-      const data = await getNewFunnelCityRecommendations(payload)
+      const data = await api.postNewFunnelCityRecommendations(payload)
       setCityRecommendations(data)
     } catch (error) {}
   }
@@ -83,7 +84,7 @@ export const ProductDetailEmptyState: React.FC<PropsPDPEmptyState> = ({
   return (
     <>
       <div className={styles.wrapper}>
-        <img
+        <Image
           src={EmptyCar}
           width={250}
           height={130}

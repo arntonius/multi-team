@@ -5,13 +5,21 @@ interface OverlayProps {
   isShow: boolean
   onClick: () => void
   zIndex?: number
+  additionalstyle?: string
 }
 
-const Overlay = ({ isShow, onClick, zIndex }: OverlayProps) => {
+const Overlay = ({
+  isShow,
+  onClick,
+  zIndex,
+  additionalstyle,
+}: OverlayProps) => {
   return (
     <div
       style={{ zIndex }}
-      className={`${styles.overlay} ${isShow ? styles.showOverlay : ''}`}
+      className={`${styles.overlay} ${
+        isShow ? styles.showOverlay : ''
+      } ${additionalstyle}`}
       onClick={onClick}
     />
   )

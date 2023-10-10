@@ -87,7 +87,12 @@ export const Faq: React.FC<PropsInfo> = ({
       <div className={styles.heading}>
         {isWithIcon && (
           <div className={styles.iconInfo}>
-            <IconQuestion width={24} height={24} color="#B4231E" />
+            <IconQuestion
+              width={24}
+              height={24}
+              color="#B4231E"
+              alt="SEVA Tanda Tanya Icon"
+            />
           </div>
         )}
         <h3
@@ -119,10 +124,14 @@ export const Faq: React.FC<PropsInfo> = ({
                     style={{
                       transform: collIndex.includes(index)
                         ? 'rotate(180deg)'
-                        : '',
+                        : 'none',
                     }}
                   >
-                    <IconChevronDown width={16} height={16} />
+                    <IconChevronDown
+                      width={16}
+                      height={16}
+                      alt="SEVA Dropdown Icon"
+                    />
                   </div>
                 </div>
                 {/* <div ref={expandRef}> */}
@@ -155,10 +164,14 @@ export const Faq: React.FC<PropsInfo> = ({
                     style={{
                       transform: collIndex.includes(index)
                         ? 'rotate(180deg)'
-                        : '',
+                        : 'none',
                     }}
                   >
-                    <IconChevronDown width={16} height={16} />
+                    <IconChevronDown
+                      width={16}
+                      height={16}
+                      alt="SEVA Dropdown Icon"
+                    />
                   </div>
                 </div>
                 {/* <div ref={expandRef}> */}
@@ -180,9 +193,13 @@ export const Faq: React.FC<PropsInfo> = ({
           <span>{expandList ? 'Tutup' : 'Muat lebih banyak lagi'}</span>
           <div className={styles.spacingLeft}>
             {expandList ? (
-              <IconChevronUp width={16} height={16} />
+              <IconChevronUp width={16} height={16} alt="SEVA Dropdown Icon" />
             ) : (
-              <IconChevronDown width={16} height={16} />
+              <IconChevronDown
+                width={16}
+                height={16}
+                alt="SEVA Dropdown Icon"
+              />
             )}
           </div>
         </div>

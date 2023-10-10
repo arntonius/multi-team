@@ -11,9 +11,13 @@ import { LanguageCode, LocalStorageKey } from 'utils/enum'
 import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
 import { Currency } from 'utils/handler/calculation'
 import { useBadgePromo } from 'utils/hooks/usebadgePromo'
-import { trackEventCountly } from 'helpers/countly/countly'
+import {
+  trackEventCountly,
+  valueMenuTabCategory,
+} from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getPageName } from 'utils/pageName'
+import Image from 'next/image'
 
 type VariantsProps = {
   carVariant: any
@@ -40,9 +44,10 @@ const PopupCreditDetail = ({
   return (
     <div className={styles.container}>
       <div className={styles.wrapperCar}>
-        <img
+        <Image
           src={carVariant.variantDetail.images[0]}
-          width="188.39"
+          width="188"
+          height="141"
           alt="car-image"
         />
       </div>
@@ -88,7 +93,7 @@ const PopupCreditDetail = ({
                   trackEventCountly(
                     CountlyEventNames.WEB_CITY_SELECTOR_TOOLTIP_CLICK,
                     {
-                      PAGE_ORIGINATION: getPageName(),
+                      PAGE_ORIGINATION: 'PDP - ' + valueMenuTabCategory(),
                     },
                   )
                 }}

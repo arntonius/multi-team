@@ -24,9 +24,7 @@ import { TrackerFlag } from 'utils/types/models'
 import { useSessionStorageWithEncryption } from 'utils/hooks/useSessionStorage/useSessionStorage'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { FormControlValue, SimpleCarVariantDetail } from 'utils/types/utils'
-import { checkReferralCode, getCustomerInfoSeva } from 'services/customer'
 import { getToken } from 'utils/handler/auth'
-import { temanSevaUrlPath } from 'services/temanseva'
 import { isIsoDateFormat } from 'utils/handler/regex'
 import {
   CreditQualificationFlowParam,
@@ -43,13 +41,16 @@ import {
   creditQualificationReviewUrl,
   loanCalculatorDefaultUrl,
 } from 'utils/helpers/routes'
-import { getCarVariantDetailsById } from 'services/recommendations'
 import { filterNonDigitCharacters } from 'utils/stringUtils'
 import HeaderCreditClasificationMobile from 'components/organisms/headerCreditClasificationMobile'
 import { FormReferralCode } from 'components/molecules/form/formReferralCode'
 import PopupCreditDetail from 'components/organisms/popupCreditDetail'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
+import Image from 'next/image'
+import { checkReferralCode, getCustomerInfoSeva } from 'utils/handler/customer'
+import { temanSevaUrlPath } from 'utils/types/props'
+import { getCarVariantDetailsById } from 'utils/handler/carRecommendation'
 
 const searchOption = {
   keys: ['label'],
@@ -496,10 +497,11 @@ const CreditQualificationPage = () => {
         <div className={styles.paddingInfoCar} onClick={handleOpenModal}>
           <div className={styles.cardInfoCar}>
             <div className={styles.imageCar}>
-              <img
-                src={dataCar?.variantDetail?.images[0]}
+              <Image
+                src={dataCar?.variantDetail?.images[0] || ''}
                 alt="car-images"
                 width="82"
+                height="61"
               />
             </div>
             <div className={styles.frameTextInfoCar}>

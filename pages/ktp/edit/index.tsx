@@ -3,13 +3,13 @@ import styles from 'styles/pages/ktp-edit.module.scss'
 import inputDateStyles from 'styles/components/atoms/inputDate.module.scss'
 import elementId from 'helpers/elementIds'
 import dayjs from 'dayjs'
-import { getCities } from 'services/cities'
+
 import Fuse from 'fuse.js'
 import { useRouter } from 'next/router'
 import { useQuery } from 'utils/hooks/useQuery'
 import { CustomerKtpSeva } from 'utils/types/utils'
 import { useGalleryContext } from 'services/context/galleryContext'
-import * as Yup from 'yup'
+import { object, string, InferType } from 'yup'
 import { useFormik } from 'formik'
 import {
   getSessionStorage,
@@ -37,13 +37,15 @@ import { DatePicker } from 'components/atoms/inputDate'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { ToastV2 } from 'components/atoms/toastV2'
 import { ToastType } from 'utils/types/models'
-import { checkNIKAvailable } from 'services/customer'
 
 import { trackProfileSaveKtpChanges } from 'helpers/amplitude/seva20Tracking'
 import PopupError from 'components/organisms/popupError'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
+import Image from 'next/image'
+import { api } from 'services/api'
+import { checkNIKAvailable } from 'utils/handler/customer'
 
 const LogoPrimary = '/revamp/icon/logo-primary.webp'
 
@@ -86,30 +88,30 @@ const KtpForm = () => {
   const [isLoadingCustomer] = useState(false)
   const { galleryFile } = useGalleryContext()
 
-  const userSchema = Yup.object().shape({
-    nik: Yup.string()
+  const userSchema = object().shape({
+    nik: string()
       .matches(/^\d{16}$/, {
         message: 'NIK harus terdiri atas 16 digit.',
       })
       .required('Wajib diisi.'),
-    name: Yup.string().required('Wajib diisi.'),
-    address: Yup.string().required('Wajib diisi.'),
-    rtrw: Yup.string()
+    name: string().required('Wajib diisi.'),
+    address: string().required('Wajib diisi.'),
+    rtrw: string()
       .matches(/^.{7,}$/, { message: 'RT/RW harus terdiri atas 6 digit.' })
       .required('Wajib diisi.'),
-    kel: Yup.string().required('Wajib diisi.'),
-    kec: Yup.string().required('Wajib diisi.'),
-    marriage: Yup.string()
+    kel: string().required('Wajib diisi.'),
+    kec: string().required('Wajib diisi.'),
+    marriage: string()
       .required('Wajib diisi.')
       .oneOf(
         ['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati'],
         'Harap pilih opsi yang tersedia.',
       ),
-    birthdate: Yup.string().required('Wajib diisi.'),
-    city: Yup.string().required('Wajib diisi.'),
+    birthdate: string().required('Wajib diisi.'),
+    city: string().required('Wajib diisi.'),
   })
 
-  type UserForm = Yup.InferType<typeof userSchema>
+  type UserForm = InferType<typeof userSchema>
 
   const {
     values,
@@ -212,7 +214,7 @@ const KtpForm = () => {
 
   const checkCitiesData = (city: string) => {
     if (cityListFromApi.length === 0) {
-      getCities().then((res) => {
+      api.getCities().then((res) => {
         if (res) {
           const cityOptions = res.map((item: any) => ({
             label: item.cityName,
@@ -354,7 +356,7 @@ const KtpForm = () => {
           <IconChevronLeft width={24} height={24} color="#13131B" />
         </div>
         <div className={styles.logo}>
-          <img src={LogoPrimary} alt="back" />
+          <Image src={LogoPrimary} alt="back" />
         </div>
         <ProgressBar percentage={85} colorPrecentage="#51A8DB" />
         <main className={styles.wrapper}>
@@ -376,8 +378,8 @@ const KtpForm = () => {
                 </h2>
                 <span className={styles.light__text}>{getSubtitleText()}</span>
               </div>
-              <img
-                src={galleryFile}
+              <Image
+                src={galleryFile || ''}
                 alt="KTP Image"
                 className={styles.ktp__preview__image}
               />

@@ -19,10 +19,18 @@
   justify-content: space-between;
 
   p {
-    font-family: 'Kanyon';
+    font-family: var(--kanyon);
     font-weight: 400;
     font-size: 20px;
     line-height: 28px;
     color: #{$primary-black};
   }
+}
+
+.bottomSheet [data-rsbs-overlay] {
+  @include centeredWithMaxWidth;
+}
+
+.bottomSheet [data-rsbs-backdrop] {
+  @include centeredWithMaxWidth;
 }

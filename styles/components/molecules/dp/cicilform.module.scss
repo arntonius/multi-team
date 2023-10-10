@@ -20,10 +20,10 @@
 
 .buttonOption {
   background: #{$primary-white};
-  font-family: 'Kanyon';
+  font-family: var(--kanyon);
   margin: 5px 0;
-  width: 300px;
-  height: 64px;
+  width: 100%;
+  height: 56px;
   border-radius: 8px;
   text-align: left;
   border: 1.5px solid #{$shades-grey-10};
@@ -31,17 +31,10 @@
     background: #{$shades-sky-blue-5};
     border: 1.5px solid #{$secondary-sky-blue};
   }
-  @media (max-width: 1279px) {
-    height: 34px;
-  }
-  @media (max-width: 1024px) {
-    width: 100%;
-    height: 56px;
-  }
 }
 
 .buttonOptionText {
-  font-family: 'OpenSans';
+  font-family: var(--open-sans);
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -49,11 +42,8 @@
   color: #252525;
   text-align: left;
   &.is-clicked {
-    font-family: 'OpenSansSemiBold';
+    font-family: var(--open-sans-semi-bold);
     color: #{$secondary-sky-blue};
-  }
-  @media (max-width: 1024px) {
-    font-size: 14px;
   }
 }
 

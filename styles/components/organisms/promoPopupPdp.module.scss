@@ -38,7 +38,7 @@
   color: #ffffff !important;
 }
 .kanyonMedium {
-  font-family: 'KanyonMedium';
+  font-family: var(--kanyon-medium);
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
@@ -46,14 +46,14 @@
 }
 
 .openSansSemiBold {
-  font-family: 'OpenSansSemiBold';
+  font-family: var(--open-sans-semi-bold);
   font-weight: 600;
   font-size: 14px;
   line-height: 20px;
   color: #000000;
 }
 .openSans {
-  font-family: 'OpenSans';
+  font-family: var(--open-sans);
   font-weight: 400;
   font-size: 14px;
   line-height: 20px;
@@ -87,6 +87,7 @@
   height: 550px;
   display: flex;
   flex-direction: column;
+  -webkit-overflow-scrolling: touch;
   overflow-y: auto;
   &::-webkit-scrollbar {
     width: 4px;
@@ -104,6 +105,7 @@
   display: flex;
   flex-direction: column;
   overflow: scroll;
+  -webkit-overflow-scrolling: touch;
   padding: 0px 24px;
   padding-bottom: 20px;
   padding-top: 8px;
@@ -122,10 +124,11 @@
   display: flex;
   flex-direction: column;
 }
-@include lg {
-  .container {
-  }
 
-  .content {
-  }
+.bottomSheet [data-rsbs-overlay] {
+  @include centeredWithMaxWidth;
+}
+
+.bottomSheet [data-rsbs-backdrop] {
+  @include centeredWithMaxWidth;
 }

@@ -1,9 +1,7 @@
 /* eslint-disable react/no-children-prop */
 import React, { useEffect, useState } from 'react'
 import styles from 'styles/components/organisms/rejected.module.scss'
-import { getCustomerAssistantWhatsAppNumber } from 'services/lead'
 
-import { getCities } from 'services/cities'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
 import clsx from 'clsx'
 
@@ -13,7 +11,6 @@ import {
   trackKualifikasiKreditRejectResultPageView,
   trackKualifikasiKreditWaDirectClick,
 } from 'helpers/amplitude/seva20Tracking'
-import { getCustomerInfoSeva } from 'services/customer'
 import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { AxiosResponse } from 'axios'
 import { useRouter } from 'next/router'
@@ -34,6 +31,13 @@ import { getToken } from 'utils/handler/auth'
 import { formatNumberByLocalization } from 'utils/handler/rupiah'
 import { TrackerFlag } from 'utils/types/models'
 import { HeaderMobile } from 'components/organisms'
+import {
+  PreviousButton,
+  saveDataForCountlyTrackerPageViewHomepage,
+} from 'utils/navigate'
+import Image from 'next/image'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 
 const RejectedImage = '/revamp/illustration/rejected-approval.webp'
 
@@ -61,7 +65,7 @@ export const CreditQualificationRejected = () => {
 
   const checkCitiesData = () => {
     if (cityListApi.length === 0) {
-      getCities().then((res) => {
+      api.getCities().then((res) => {
         setCityListApi(res)
       })
     }
@@ -253,7 +257,7 @@ export const CreditQualificationRejected = () => {
       >
         <div className={styles.resultRejected}>
           <div className={styles.bundleImage}>
-            <img
+            <Image
               src={RejectedImage}
               alt="approval-image"
               className={styles.rejectedImage}
@@ -276,6 +280,9 @@ export const CreditQualificationRejected = () => {
               subTitle="Jelajahi lebih lanjut layanan lain dari SEVA."
               icon={<IconHome width={24} height={24} color="#B4231E" />}
               onClick={() => {
+                saveDataForCountlyTrackerPageViewHomepage(
+                  PreviousButton.ButtonBackToHomepage,
+                )
                 router.push('/')
               }}
             />

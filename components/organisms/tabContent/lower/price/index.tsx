@@ -2,7 +2,6 @@ import { formatNumberByLocalization, rupiah } from 'utils/handler/rupiah'
 import { TrackVariantList } from 'utils/types/tracker'
 import { trackWebPDPPriceTab } from 'helpers/amplitude/seva20Tracking'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-
 import React, { useEffect, useMemo, useState } from 'react'
 import { LeadsFormSecondary } from 'components/organisms'
 import Variants from '../variants'
@@ -11,8 +10,6 @@ import {
   CityOtrOption,
   SpecialRateListType,
 } from 'utils/types/utils'
-import { Modal } from 'antd'
-import PopupVariantDetail from 'components/organisms/popupVariantDetail/index'
 import styles from 'styles/components/organisms/price.module.scss'
 import { Info } from 'components/molecules'
 import { getMinimumMonthlyInstallment } from 'utils/carModelUtils/carModelUtils'
@@ -20,20 +17,28 @@ import { hundred, million } from 'utils/helpers/const'
 import { availableList, availableListColors } from 'config/AvailableListColors'
 import { setTrackEventMoEngage } from 'helpers/moengage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import { getNewFunnelLoanSpecialRate } from 'services/newFunnel'
 import { useCar } from 'services/context/carContext'
 import { LanguageCode, LocalStorageKey } from 'utils/enum'
 import { TrackerFlag, InstallmentTypeOptions } from 'utils/types/models'
+import dynamic from 'next/dynamic'
+import { getNewFunnelLoanSpecialRate } from 'utils/handler/funnel'
+
+const Modal = dynamic(() => import('antd').then((mod) => mod.Modal))
+const PopupVariantDetail = dynamic(
+  () => import('components/organisms/popupVariantDetail/index'),
+)
 
 type PriceTabProps = {
   setSelectedTabValue: (value: string) => void
   setVariantIdFuelRatio: (value: string) => void
   variantFuelRatio: string | undefined
+  isOTO?: boolean
 }
 export const PriceTab = ({
   setSelectedTabValue,
   setVariantIdFuelRatio,
   variantFuelRatio,
+  isOTO = false,
 }: PriceTabProps) => {
   const { carModelDetails, carVariantDetails, recommendation } = useCar()
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
@@ -71,11 +76,7 @@ export const PriceTab = ({
   }
 
   useEffect(() => {
-    if (
-      carModelDetails !== undefined &&
-      carVariantDetails !== undefined &&
-      recommendation !== undefined
-    ) {
+    if (carModelDetails && carVariantDetails && recommendation) {
       trackEventMoengage()
       getSummaryInfo()
     }
@@ -157,29 +158,26 @@ export const PriceTab = ({
       hundred,
     )
   }
-  const getMonthlyInstallment = () => {
-    if (variantView) {
-      getNewFunnelLoanSpecialRate({
-        otr: variantView?.priceValue - variantView?.discount,
-        dp: 20,
-        dpAmount: variantView?.priceValue * 0.2,
-        city: cityOtr?.cityCode,
-        discount: variantView?.discount,
-        rateType: 'REGULAR',
-        angsuranType: InstallmentTypeOptions.ADDM,
+  const getMonthlyInstallment = (carVariantTmp: CarVariantRecommendation) => {
+    getNewFunnelLoanSpecialRate({
+      otr: carVariantTmp?.priceValue - carVariantTmp?.discount,
+      dp: 20,
+      dpAmount: carVariantTmp?.priceValue * 0.2,
+      city: cityOtr?.cityCode,
+      discount: carVariantTmp?.discount,
+      rateType: 'REGULAR',
+      angsuranType: InstallmentTypeOptions.ADDM,
+    })
+      .then((res) => {
+        const result = res.data.reverse()
+        const selectedLoanInitialValue =
+          result.filter((item: SpecialRateListType) => item.tenure === 5)[0] ??
+          null
+        setMonthlyInstallment(selectedLoanInitialValue.installment)
       })
-        .then((res) => {
-          const result = res.data.reverse()
-          const selectedLoanInitialValue =
-            result.filter(
-              (item: SpecialRateListType) => item.tenure === 5,
-            )[0] ?? null
-          setMonthlyInstallment(selectedLoanInitialValue.installment)
-        })
-        .catch(() => {
-          // TODO add error toast
-        })
-    }
+      .catch(() => {
+        // TODO add error toast
+      })
   }
   const getPriceRange = (payload: any) => {
     const variantLength = payload.length
@@ -250,7 +248,8 @@ export const PriceTab = ({
             setOpenModal={setOpenModal}
             setViewVariant={setVariantView}
             setSelectedTabValue={setSelectedTabValue}
-            onCardClick={() => getMonthlyInstallment()}
+            onCardClick={(value) => getMonthlyInstallment(value)}
+            isOTO={isOTO}
           />
         )}
         {variantView && (
