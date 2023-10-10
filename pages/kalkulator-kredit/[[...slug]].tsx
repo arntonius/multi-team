@@ -32,7 +32,6 @@ import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { api } from 'services/api'
-
 import { useCar } from 'services/context/carContext'
 import { useFinancialQueryData } from 'services/context/finnancialQueryContext'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
@@ -90,9 +89,9 @@ import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { removeCarBrand } from 'utils/handler/removeCarBrand'
 import dynamic from 'next/dynamic'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
-import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -142,7 +141,7 @@ export interface FormLCState {
   leasingOption?: string
 }
 
-export const getSlug = (query: any, index: number) => {
+const getSlug = (query: any, index: number) => {
   return (
     query.slug && query.slug.length > index && (query.slug[index] as string)
   )
@@ -446,13 +445,15 @@ export default function LoanCalculatorPage() {
   }
 
   const fetchAllCarModels = async () => {
-    const params = new URLSearchParams()
-    params.append('cityId', defaultCity.id as string)
-    params.append('city', defaultCity.cityCode as string)
+    if (forms?.city?.id) {
+      const params = new URLSearchParams()
+      params.append('cityId', forms?.city?.id as string)
+      params.append('city', forms?.city?.cityCode as string)
 
-    const response = await api.getRecommendation('', { params })
+      const response = await api.getRecommendation('', { params })
 
-    setAllModalCarList(response.carRecommendations)
+      setAllModalCarList(response.carRecommendations)
+    }
   }
 
   const fetchCarVariant = async () => {
