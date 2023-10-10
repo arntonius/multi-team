@@ -51,7 +51,6 @@ import {
   valueForInitialPageProperty,
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
-import { getCustomerInfoSeva } from 'services/customer'
 import {
   getSessionStorage,
   removeSessionStorage,
@@ -60,6 +59,7 @@ import {
 import { RouteName } from 'utils/navigate'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useCar } from 'services/context/carContext'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
 
 const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
@@ -104,7 +104,10 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
 
   const getCarOfTheMonth = async () => {
     try {
-      const carofmonth: any = await api.getCarofTheMonth(getCity().cityCode)
+      const carofmonth: any = await api.getCarofTheMonth(
+        '?city=' + getCity().cityCode,
+      )
+
       setCarOfTheMonthData(carofmonth.data)
     } catch (e: any) {
       throw new Error(e)
@@ -357,7 +360,7 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
         {!isLeadsFormSectionVisible && (
           <CSAButton
             onClick={scrollToLeadsForm}
-            additionalStyle={'csa-button-homepage'}
+            additionalstyle={'csa-button-homepage'}
           />
         )}
 

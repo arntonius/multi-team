@@ -1,9 +1,12 @@
 import {
+  CreateProbeTrackRequest,
   CustomerKtpSeva,
   DeleteAccountRequestType,
   SendInstantApproval,
   UpdateProfileType,
-} from './../../utils/types/utils'
+  updateLeadFormCM,
+  updateLeadFormOTO,
+} from 'utils/types/utils'
 import get from './get'
 import post from './post'
 import { collections } from './collections'
@@ -16,7 +19,6 @@ import {
   SendMultiKualifikasiKredit,
   SpecialRateRequest,
 } from 'utils/types/utils'
-import { CreateProbeTrackRequest } from 'services/probe'
 import environments from 'helpers/environments'
 import { AES } from 'crypto-js'
 // import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -77,6 +79,7 @@ const getConfigToken = () => {
 // get request
 const getMenu = () => get(collections.utils.menu)
 const getCities = () => get(collections.utils.cities)
+const getAgent = () => get(collections.utils.salesAgent)
 const getTestimony = () => get(collections.utils.testimonials)
 const getRecommendation = (params?: string, config?: AxiosRequestConfig) =>
   get(collections.product.recommendation + params, config)
@@ -106,8 +109,8 @@ const getVariantCar = (params?: string, config?: AxiosRequestConfig) =>
 const getTypeCar = (params: string, config?: AxiosRequestConfig) =>
   get(collections.product.type + params, config)
 const getBanner = () => get(collections.utils.banner)
-const getCarofTheMonth = (city?: string) =>
-  get(collections.product.carofTheMonth + `?city=${city || 'jakarta'}`)
+const getCarofTheMonth = (params: string) =>
+  get(collections.product.carofTheMonth + params)
 const getCarVideoReview = () => get(collections.product.carVideoReview)
 const getAnnouncementBox = (config: AxiosRequestConfig) =>
   get(collections.utils.announcementBox, config)
@@ -152,8 +155,8 @@ const postUnverifiedLeadsNew = (body: any) => {
 }
 const postRefreshToken = (body: any, config?: AxiosRequestConfig) =>
   post(collections.auth.refresh, body, config)
-const postSendSMSGeneration = (recaptchaToken: string, phoneNumber: string) =>
-  post(collections.auth.otp, { recaptchaToken, phoneNumber })
+const postSendSMSGeneration = (phoneNumber: string) =>
+  post(collections.auth.otp, { phoneNumber })
 const postVerifyOTPGeneration = (code: string, phoneNumber: string) =>
   post(collections.auth.otpVerification, { code, phoneNumber })
 const postNewFunnelLoanSpecialRate = (
@@ -222,9 +225,23 @@ const postUpdateProfile = (
   config: AxiosRequestConfig,
 ) => post(collections.profile.updateProfile, body, config)
 
+const getLeadsDetail = (id: string) =>
+  get(collections.omnicom.check.replace(':id', id))
+
+const postUpdateLeadsOTO = (
+  body: updateLeadFormOTO,
+  config: AxiosRequestConfig,
+) => post(collections.omnicom.updateLeads, body, config)
+
+const postUpdateLeadsCM = (
+  body: updateLeadFormCM,
+  config: AxiosRequestConfig,
+) => post(collections.omnicom.updateLeadsCM, body, config)
+
 export const api = {
   getMenu,
   getCities,
+  getAgent,
   getTestimony,
   getRecommendation,
   getUsage,
@@ -250,6 +267,8 @@ export const api = {
   getCustomerKtpSeva,
   getCustomerSpouseKtpSeva,
   getAvailableNIK,
+  getLeadsDetail,
+  postUpdateLeadsOTO,
 
   postUnverifiedLeadsNew,
   postRefreshToken,
@@ -273,4 +292,5 @@ export const api = {
   postSaveKtpSpouse,
   postDeleteAccount,
   postUpdateProfile,
+  postUpdateLeadsCM,
 }
