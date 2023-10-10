@@ -61,7 +61,7 @@ import { RouteName } from 'utils/navigate'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useCar } from 'services/context/carContext'
 
-const HomepageMobile = ({ dataReccomendation }: any) => {
+const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
     HomePageDataLocalContext,
   )
@@ -242,7 +242,7 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
   }, [])
 
   useEffect(() => {
-    if (getCity().cityCode !== 'jakarta') {
+    if (getCity().cityCode !== 'jakarta' || ssr === 'failed') {
       loadCarRecommendation()
       getCarOfTheMonth()
       checkCitiesData()
