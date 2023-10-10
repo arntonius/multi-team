@@ -62,7 +62,7 @@ export const Tooltip: React.FC<Props> = ({
         isShow={isShowOverlay}
         onClick={handleCloseTooltip}
         zIndex={98}
-        additionalStyle={styles.overlayAdditionalStyle}
+        additionalstyle={styles.overlayAdditionalStyle}
       />
     </>
   )

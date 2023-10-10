@@ -93,7 +93,7 @@ export default function WithTracker({
 export async function getServerSideProps(context: any) {
   context.res.setHeader(
     'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=59',
+    'public, s-maxage=59, stale-while-revalidate=3000',
   )
   const params = `?city=jakarta&cityId=118`
   try {
@@ -121,7 +121,7 @@ export async function getServerSideProps(context: any) {
       api.getUsage(),
       api.getMainArticle('65'),
       api.getTypeCar('?city=jakarta'),
-      api.getCarofTheMonth(),
+      api.getCarofTheMonth('?city=' + getCity().cityCode),
       api.getMenu(),
     ])
     const [
