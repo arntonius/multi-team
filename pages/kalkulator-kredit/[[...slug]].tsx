@@ -142,7 +142,7 @@ export interface FormLCState {
   leasingOption?: string
 }
 
-const getSlug = (query: any, index: number) => {
+export const getSlug = (query: any, index: number) => {
   return (
     query.slug && query.slug.length > index && (query.slug[index] as string)
   )
