@@ -24,7 +24,6 @@ import {
 } from 'helpers/amplitude/seva20Tracking'
 import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import { useSessionStorage } from 'utils/hooks/useSessionStorage/useSessionStorage'
-import { useMediaQuery } from 'react-responsive'
 import { variantListUrl } from 'utils/helpers/routes'
 import { getConvertFilterIncome } from 'utils/filterUtils'
 import { useRouter } from 'next/router'
@@ -75,7 +74,6 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
   >('none')
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false)
   const { carModelDetails, carVariantDetails } = useCar()
-  const isMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -478,7 +476,7 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
         />
       )}
       <Toast
-        width={isMobile ? 339 : 428}
+        width={343}
         text={toastSuccessInfo}
         open={modalOpened === 'success-toast'}
       />
