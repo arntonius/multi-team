@@ -6,7 +6,7 @@ import { IconClose } from 'components/atoms'
 import { trackCarVariantBannerPromoPopupClose } from 'helpers/amplitude/seva20Tracking'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
-import { CityOtrOption } from 'utils/types/utils'
+import { CityOtrOption, trackDataCarType } from 'utils/types/utils'
 import { useCar } from 'services/context/carContext'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
@@ -38,7 +38,9 @@ const PromoPopup = ({
 
   const router = useRouter()
   const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
-
+  const dataCar: trackDataCarType | null = getSessionStorage(
+    SessionStorageKey.PreviousCarDataBeforeLogin,
+  )
   const IsShowBadgeCreditOpportunity = getSessionStorage(
     SessionStorageKey.IsShowBadgeCreditOpportunity,
   )
@@ -49,16 +51,6 @@ const PromoPopup = ({
     !!filterStorage?.tenure
 
   const loanRankcr = router.query.loanRankCVL ?? ''
-
-  const getCreditBadgeForCountly = () => {
-    let creditBadge = 'Null'
-    if (loanRankcr && loanRankcr.includes(LoanRank.Green)) {
-      creditBadge = 'Mudah disetujui'
-    } else if (loanRankcr && loanRankcr.includes(LoanRank.Red)) {
-      creditBadge = 'Sulit disetujui'
-    }
-    return creditBadge
-  }
 
   const getDataForAmplitude = () => {
     return {
