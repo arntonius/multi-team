@@ -19,7 +19,10 @@ import { api } from 'services/api'
 import { AnnouncementBoxDataType } from 'utils/types/utils'
 import { SessionStorageKey } from 'utils/enum'
 import { useUtils } from 'services/context/utilsContext'
-import { trackEventCountly } from 'helpers/countly/countly'
+import {
+  trackEventCountly,
+  valueMenuTabCategory,
+} from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
