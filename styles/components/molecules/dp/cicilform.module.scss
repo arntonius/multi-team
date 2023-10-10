@@ -24,10 +24,14 @@
   background: #{$primary-white} !important;
   padding: 12px 16px !important;
   width: 100%;
-  height: auto;
+  height: 56px;
   border-radius: 8px;
   text-align: left;
-  border: 1px solid #{$shades-grey-10};
+  border: 1.5px solid #{$shades-grey-10};
+  &.is-clicked {
+    background: #{$shades-sky-blue-5};
+    border: 1.5px solid #{$secondary-sky-blue};
+  }
 }
 
 .buttonOptionText {
@@ -38,6 +42,10 @@
   line-height: 20px;
   color: #{$primary-black};
   text-align: left;
+  &.is-clicked {
+    font-family: var(--open-sans-semi-bold);
+    color: #{$secondary-sky-blue};
+  }
 }
 
 .titleTextDP {
@@ -50,6 +58,6 @@
 }
 
 .selectedStyle {
-  background: rgba(243, 249, 253, 0.50) !important;
+  background: rgba(243, 249, 253, 0.5) !important;
   border: 2px solid #{$secondary-sky-blue};
 }
