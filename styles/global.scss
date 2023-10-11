@@ -411,3 +411,7 @@ button {
 [data-rsbs-backdrop] {
   z-index: 98;
 }
+
+.qualification-custom-modal .ant-modal-content {
+  @include centeredWithMaxWidth(343.33px);
+}
