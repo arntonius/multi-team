@@ -302,7 +302,6 @@ export async function getServerSideProps(context: any) {
     const salesRes: any = await Promise.all([api.getAgent()])
     const response = await getLeadsDetail(detailId)
     const data: DataResponse = response.data
-    console.log('qwe: ', data)
     const csaInput = data.csaInput
     const leadId = data.leadId
     const name = data.name
