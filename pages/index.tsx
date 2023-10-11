@@ -54,16 +54,11 @@ export default function WithTracker({
   dataMainArticle,
   dataTypeCar,
   dataCarofTheMonth,
+  ssr,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [isMobile, setIsMobile] = useState(useIsMobileSSr())
   const { saveTypeCar, saveCarOfTheMonth, saveRecommendationToyota } = useCar()
   const { saveArticles, saveDesktopWebTopMenu, saveMobileWebTopMenus } =
     useUtils()
-  const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
-
-  useEffect(() => {
-    setIsMobile(isClientMobile)
-  }, [isClientMobile])
 
   useEffect(() => {
     saveDesktopWebTopMenu(dataDesktopMenu)
@@ -90,7 +85,7 @@ export default function WithTracker({
         dataCarofTheMonth,
       }}
     >
-      <HomepageMobile dataReccomendation={dataReccomendation} />
+      <HomepageMobile dataReccomendation={dataReccomendation} ssr={ssr} />
     </HomePageDataLocalContext.Provider>
   )
 }
@@ -100,7 +95,7 @@ export async function getServerSideProps(context: any) {
     'Cache-Control',
     'public, s-maxage=59, stale-while-revalidate=3000',
   )
-  const params = `?city=${getCity().cityCode}&cityId=${getCity().id}`
+  const params = `?city=jakarta&cityId=118`
   try {
     const [
       recommendationRes,
@@ -171,9 +166,25 @@ export async function getServerSideProps(context: any) {
         dataCarofTheMonth,
         isSsrMobile: getIsSsrMobile(context),
         dataDesktopMenu,
+        ssr: 'success',
       },
     }
   } catch (error) {
-    throw error
+    return {
+      props: {
+        dataBanner: null,
+        dataDesktopMenu: [],
+        dataMobileMenu: [],
+        dataCities: null,
+        dataTestimony: null,
+        dataRecToyota: null,
+        dataRecMVP: null,
+        dataUsage: null,
+        dataMainArticle: null,
+        dataTypeCar: null,
+        dataCarofTheMonth: null,
+        ssr: 'failed',
+      },
+    }
   }
 }

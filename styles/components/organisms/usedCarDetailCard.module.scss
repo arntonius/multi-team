@@ -24,8 +24,6 @@
 
 .brandModelText {
   font-family: $font-kanyon-medium;
-  font-size: 20px;
-  line-height: 28px;
   margin-bottom: 16px;
 }
 
@@ -35,7 +33,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
 }
 
 .contentWrapper {
@@ -66,8 +63,6 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 5px;
-
   margin-bottom: 4px;
 }
 
@@ -85,12 +80,23 @@
   color: #{$shades-grey-75};
 }
 
+.locationSmallRegular {
+  font-family: var(--open-sans);
+  font-size: 12px;
+  line-height: 18px;
+  color: #{$shades-grey-75};
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
 .priceOtrRange {
   font-family: var(--kanyon);
   font-size: 16px;
   line-height: 24px;
   color: #{$primary-black};
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 }
 
 .infoWrapper {
@@ -106,6 +112,7 @@
 .detailInfoWrapper {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .bodyPriceText {
@@ -197,7 +204,6 @@
   color: #{$primary-white};
   cursor: pointer;
 }
-
 
 .overlayAdditionalStyle {
   background-color: transparent;

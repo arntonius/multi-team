@@ -28,14 +28,12 @@ import {
   ArticleWidget,
   SearchWidget,
   WebAnnouncementBox,
-  LpSkeleton,
   MainHeroLP,
   SubProduct,
   TestimonyWidget,
   LpCarRecommendations,
   CarOfTheMonth,
 } from 'components/organisms'
-import { CarContext, CarContextType } from 'services/context'
 import { getCity } from 'utils/hooks/useGetCity'
 import { HomePageDataLocalContext } from 'pages'
 import { trackLPKualifikasiKreditTopCtaClick } from 'helpers/amplitude/seva20Tracking'
@@ -59,13 +57,15 @@ import {
   saveSessionStorage,
 } from 'utils/handler/sessionStorage'
 import { RouteName } from 'utils/navigate'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
+import { useCar } from 'services/context/carContext'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 
-const HomepageMobile = ({ dataReccomendation }: any) => {
+const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
     HomePageDataLocalContext,
   )
-  const { saveRecommendation } = useContext(CarContext) as CarContextType
+  const { saveRecommendation } = useCar()
   const [openCitySelectorModal, setOpenCitySelectorModal] = useState(false)
   const [cityListApi, setCityListApi] =
     useState<Array<CityOtrOption>>(dataCities)
@@ -76,7 +76,7 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
   const [isLoginModalOpened, setIsLoginModalOpened] = useState(false)
   const [carOfTheMonthData, setCarOfTheMonthData] =
     useState<COMData[]>(dataCarofTheMonth)
-  const [articles, setArticles] = useState<Article[]>([])
+  const [articles, setArticles] = useState<Article[]>(dataMainArticle)
   const [articlesTabList, setArticlesTabList] =
     useState<Article[]>(dataMainArticle)
   const [isModalOpenend, setIsModalOpened] = useState<boolean>(false)
@@ -228,15 +228,10 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
     }
   }
 
-  useEffect(() => {
-    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
+  useAfterInteractive(() => {
     cityHandler()
+    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
     setTrackEventMoEngageWithoutValue(EventName.view_homepage)
-
-    loadCarRecommendation()
-    getCarOfTheMonth()
-    checkCitiesData()
-    getArticles()
 
     const timeoutCountlyTracker = setTimeout(() => {
       if (!isSentCountlyPageView) {
@@ -248,6 +243,16 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
       cleanEffect(timeoutCountlyTracker)
     }
   }, [])
+
+  useEffect(() => {
+    if (getCity().cityCode !== 'jakarta' || ssr === 'failed') {
+      loadCarRecommendation()
+      getCarOfTheMonth()
+      checkCitiesData()
+      getArticles()
+    }
+  }, [])
+
   const trackLeadsLPForm = (): LeadsActionParam => {
     return {
       Page_Origination: PageOriginationName.LPFloatingIcon,
