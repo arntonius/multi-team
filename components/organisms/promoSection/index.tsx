@@ -20,7 +20,7 @@ import {
   IconTransmission,
   IconCar,
 } from 'components/atoms'
-import { CarVariantRecommendation } from 'utils/types/utils'
+import { CarVariantRecommendation, trackDataCarType } from 'utils/types/utils'
 import {
   OTOCarResultsUrl,
   OTOVariantListUrl,
@@ -32,8 +32,10 @@ import Image from 'next/image'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getLocalStorage } from 'utils/handler/localStorage'
-import { LocalStorageKey } from 'utils/enum'
+import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { LoanRank } from 'utils/types/models'
+import { getBrandAndModelValue } from 'utils/handler/getBrandAndModel'
+import { getSessionStorage } from 'utils/handler/sessionStorage'
 
 type PromoSectionProps = {
   setPromoName?: (value: string) => void
@@ -61,8 +63,13 @@ const PromoSection = ({
   const model = router.query.model as string
   const enablePromoCumaDiSeva = false
 
+  const IsShowBadgeCreditOpportunity = getSessionStorage(
+    SessionStorageKey.IsShowBadgeCreditOpportunity,
+  )
   const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
-
+  const dataCar: trackDataCarType | null = getSessionStorage(
+    SessionStorageKey.PreviousCarDataBeforeLogin,
+  )
   const isUsingFilterFinancial =
     !!filterStorage?.age &&
     !!filterStorage?.downPaymentAmount &&
@@ -88,15 +95,34 @@ const PromoSection = ({
       .replace(':model', model)
       .replace(':tab?', 'spesifikasi')
   }
+  const trackCountlyClickSeeAll = () => {
+    trackEventCountly(CountlyEventNames.WEB_HOMEPAGE_PROMO_BANNER_ALL_CLICK)
+  }
+  const trackCountlyClicPromo = (promoUrl: string, promoOrder: number) => {
+    trackEventCountly(CountlyEventNames.WEB_HOMEPAGE_PROMO_BANNER_CLICK, {
+      PAGE_DIRECTION_URL: promoUrl,
+      PROMO_ORDER: promoOrder,
+    })
+  }
+
+  const getValueBrandAndModel = (value: string) => {
+    return value
+      .replaceAll('-', ' ')
+      .toLowerCase()
+      .split(' ')
+      .map((s: any) => s.charAt(0).toUpperCase() + s.substring(1))
+      .join(' ')
+  }
   const trackCountlePromoCLick = (promoDetail: string, promoOrder: number) => {
     trackEventCountly(CountlyEventNames.WEB_PROMO_CLICK, {
-      CAR_BRAND: brand,
-      CAR_MODEL: model,
+      CAR_BRAND: getBrandAndModelValue(brand),
+      CAR_MODEL: getBrandAndModelValue(model),
       PROMO_DETAILS: promoDetail,
       PROMO_ORDER: promoOrder,
-      PELUANG_KREDIT_BADGE: isUsingFilterFinancial
-        ? getCreditBadgeForCountly()
-        : 'Null',
+      PELUANG_KREDIT_BADGE:
+        isUsingFilterFinancial && IsShowBadgeCreditOpportunity
+          ? dataCar?.PELUANG_KREDIT_BADGE
+          : 'Null',
       PAGE_ORIGINATION: 'PDP',
     })
   }
@@ -222,7 +248,10 @@ const PromoSection = ({
               rel="noopener noreferrer"
               className={styles.openSansMedium}
               style={{ color: '#246ED4', paddingRight: '16px' }}
-              onClick={() => trackPromoBannerSeeAllClick()}
+              onClick={() => {
+                trackPromoBannerSeeAllClick()
+                trackCountlyClickSeeAll()
+              }}
               data-testid={elementId.Homepage.Promo.LihatSemua}
             >
               Lihat semua
@@ -263,9 +292,9 @@ const PromoSection = ({
               <div>
                 <p className={styles.textPromoBanner}>
                   Lihat detail{' '}
-                  <div className={styles.spacingChevronIcon}>
+                  <span className={styles.spacingChevronIcon}>
                     <IconChevronRight width={16} height={16} color="#FFFFFF" />
-                  </div>
+                  </span>
                 </p>
               </div>
             </div>
@@ -278,12 +307,16 @@ const PromoSection = ({
               if (onPage === 'VariantListPage') {
                 onButtonClick && onButtonClick(true)
                 setPromoName && setPromoName('promo2')
-                trackCountlePromoCLick('Toyota Spektakuler', 2)
+                trackCountlePromoCLick(
+                  'Toyota Spektakuler',
+                  enablePromoCumaDiSeva ? 2 : 1,
+                )
                 trackCarVariantBannerPromoClick(dataForAmplitude)
               } else {
                 const Page_Direction_URL =
                   'https://www.seva.id/info/promo/toyota-spektakuler/'
                 trackPromoBannerClick({ Page_Direction_URL })
+                trackCountlyClicPromo(Page_Direction_URL, 1)
                 window.open(Page_Direction_URL, '_blank')
               }
             }}
@@ -305,9 +338,9 @@ const PromoSection = ({
             >
               <p className={styles.textPromoBanner}>
                 Lihat detail
-                <div className={styles.spacingChevronIcon}>
+                <span className={styles.spacingChevronIcon}>
                   <IconChevronRight width={16} height={16} color="#FFFFFF" />
-                </div>
+                </span>
               </p>
             </div>
           </div>
@@ -317,12 +350,16 @@ const PromoSection = ({
               if (onPage === 'VariantListPage') {
                 onButtonClick && onButtonClick(true)
                 setPromoName && setPromoName('promo3')
-                trackCountlePromoCLick('Promo Trade-In Daihatsu', 3)
+                trackCountlePromoCLick(
+                  'Promo Trade-In Daihatsu',
+                  enablePromoCumaDiSeva ? 3 : 2,
+                )
                 trackCarVariantBannerPromoClick(dataForAmplitude)
               } else {
                 const Page_Direction_URL =
                   'https://www.seva.id/info/promo/promo-trade-in-daihatsu/'
                 trackPromoBannerClick({ Page_Direction_URL })
+                trackCountlyClicPromo(Page_Direction_URL, 1)
                 window.open(Page_Direction_URL, '_blank')
               }
             }}
@@ -344,9 +381,9 @@ const PromoSection = ({
             >
               <p className={styles.textPromoBanner}>
                 Lihat detail
-                <div className={styles.spacingChevronIcon}>
+                <span className={styles.spacingChevronIcon}>
                   <IconChevronRight width={16} height={16} color="#FFFFFF" />
-                </div>
+                </span>
               </p>
             </div>
           </div>

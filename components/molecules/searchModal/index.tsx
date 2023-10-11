@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import styles from 'styles/components/molecules/searchModal.module.scss'
 import HeaderVariant from '../headerVariant'
-import { useModal } from 'components/atoms/ModalOld/Modal'
 import { Forward } from 'components/atoms/icon/Forward'
 import { Modal } from 'antd'
 
@@ -9,12 +8,14 @@ interface Props {
   isOpen: boolean
   handleCloseModal: () => void
   isOTO?: boolean
+  pageOrigination?: string
 }
 
 export const SearchModal = ({
   isOpen,
   handleCloseModal,
   isOTO = false,
+  pageOrigination,
 }: Props) => {
   const closeModal = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation()
@@ -28,7 +29,12 @@ export const SearchModal = ({
         className="search-custom-modal"
         open={isOpen}
         footer={null}
-        maskStyle={{ background: 'rgba(19, 19, 27, 0.5)' }}
+        maskStyle={{
+          background: 'rgba(19, 19, 27, 0.5)',
+          maxWidth: '570px',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+        }}
       >
         <div className={styles.styledWrapper}>
           <div className={styles.styledContent}>
@@ -43,6 +49,7 @@ export const SearchModal = ({
                 closeModal={closeModal}
                 hideModal={handleCloseModal}
                 isOTO={isOTO}
+                pageOrigination={pageOrigination}
               />
             </div>
           </div>

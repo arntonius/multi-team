@@ -124,7 +124,7 @@ export const Faq: React.FC<PropsInfo> = ({
                     style={{
                       transform: collIndex.includes(index)
                         ? 'rotate(180deg)'
-                        : '',
+                        : 'none',
                     }}
                   >
                     <IconChevronDown
@@ -158,13 +158,13 @@ export const Faq: React.FC<PropsInfo> = ({
                 data-testid={item.testid}
               >
                 <div className={styles.QuestionRow}>
-                  <span>{item.question}</span>
+                  <h4>{item.question}</h4>
                   <div
                     className={styles.iconTransition}
                     style={{
                       transform: collIndex.includes(index)
                         ? 'rotate(180deg)'
-                        : '',
+                        : 'none',
                     }}
                   >
                     <IconChevronDown
