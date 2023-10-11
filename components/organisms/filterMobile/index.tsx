@@ -30,7 +30,6 @@ import elementId from 'helpers/elementIds'
 import urls from 'utils/helpers/url'
 import { useRouter } from 'next/router'
 import { CarRecommendationResponse, FunnelQuery } from 'utils/types/context'
-import { getNewFunnelRecommendations } from 'services/newFunnel'
 import { trackFilterCarResults } from 'helpers/amplitude/newFunnelEventTracking'
 import { useCar } from 'services/context/carContext'
 import { Currency } from 'utils/handler/calculation'
@@ -41,6 +40,7 @@ import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { CarModelResponse } from 'utils/types'
 import { SessionStorageKey } from 'utils/enum'
 import { saveSessionStorage } from 'utils/handler/sessionStorage'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 
 interface ParamsUrl {
   age?: string
@@ -337,6 +337,9 @@ const FilterMobile = ({
       brand: !resetTmp && isCheckedBrand.length > 0 ? isCheckedBrand : [],
       tenure: tenureFilter,
       sortBy: funnelQuery.sortBy || 'lowToHigh',
+      filterFincap: Boolean(
+        ageFilter && downPaymentAmount && incomeAmount && tenureFilter,
+      ),
     }
     const paramUrl: ParamsUrl = {
       // sortBy: sortBy,

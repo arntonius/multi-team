@@ -19,8 +19,6 @@ import {
   trackLeadsFormAction,
 } from 'helpers/amplitude/seva20Tracking'
 import { TrackingEventName } from 'helpers/amplitude/eventTypes'
-import { useMediaQuery } from 'react-responsive'
-import { createUnverifiedLeadNew } from 'services/lead'
 import { onlyLettersAndSpaces } from 'utils/handler/regex'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { OTP } from 'components/organisms/otp'
@@ -34,7 +32,8 @@ import {
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
-import { getCustomerInfoSeva } from 'services/customer'
+import { createUnverifiedLeadNew } from 'utils/handler/lead'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
 
 const SupergraphicSecondarySmall =
   '/revamp/illustration/supergraphic-secondary-small.webp'
@@ -65,7 +64,6 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
     'leads-form' | 'otp' | 'success-toast' | 'none'
   >('leads-form')
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false)
-  const isMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -396,7 +394,7 @@ export const LeadsFormPrimary: React.FC<PropsLeadsForm> = ({
       )}
       <Toast
         text={toastSuccessInfo}
-        width={isMobile ? 339 : 428}
+        width={343}
         open={modalOpened === 'success-toast'}
         data-testid={elementId.PLP.Text.SuccessToastMessageLeads}
       />

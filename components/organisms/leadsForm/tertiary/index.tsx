@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useMediaQuery } from 'react-responsive'
 import SupergraphicRight from '/public/revamp/illustration/supergraphic-secondary-small.webp'
 import styles from 'styles/components/organisms/leadsFormTertiary.module.scss'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
@@ -30,8 +29,8 @@ import {
   valueForUserTypeProperty,
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
-import { getCustomerInfoSeva } from 'services/customer'
 import { getToken } from 'utils/handler/auth'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
 
 interface PropsLeadsForm {
   otpStatus?: any
@@ -52,7 +51,6 @@ const LeadsFormTertiary: React.FC<PropsLeadsForm> = ({}: any) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isFilled, setIsFilled] = useState<boolean>(false)
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false)
-  const isMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -358,7 +356,7 @@ const LeadsFormTertiary: React.FC<PropsLeadsForm> = ({}: any) => {
         />
       )}
       <Toast
-        width={isMobile ? 339 : 428}
+        width={343}
         text={toastSuccessInfo}
         open={modalOpened === 'success-toast'}
       />

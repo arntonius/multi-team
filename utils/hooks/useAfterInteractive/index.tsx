@@ -26,5 +26,11 @@ export const useAfterInteractive = (
         window.removeEventListener(ev, onInteractive),
       )
     }
+  }, [interactive])
+
+  useEffect(() => {
+    if (interactive) {
+      executeFunc()
+    }
   }, [interactive, ...dependencies])
 }

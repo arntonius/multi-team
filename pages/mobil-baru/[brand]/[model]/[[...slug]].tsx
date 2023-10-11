@@ -12,10 +12,8 @@ import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import { useUtils } from 'services/context/utilsContext'
 import { getToken } from 'utils/handler/auth'
 import { useMediaQuery } from 'react-responsive'
-import { mergeModelDetailsWithLoanRecommendations } from 'services/recommendations'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
-import { formatShortPrice } from 'components/organisms/OldPdpSectionComponents/FAQ/FAQ'
 import { LanguageCode } from 'utils/enum'
 import {
   formatPriceNumber,
@@ -30,6 +28,8 @@ import { capitalizeFirstLetter } from 'utils/stringUtils'
 import { lowerSectionNavigationTab } from 'config/carVariantList.config'
 import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import Script from 'next/script'
+import { mergeModelDetailsWithLoanRecommendations } from 'utils/handler/carRecommendation'
+import { formatShortPrice } from 'components/organisms/tabContent/lower/summary'
 interface PdpDataLocalContextType {
   /**
    * this variable use "jakarta" as default payload, so that search engine could see page content.
@@ -148,9 +148,11 @@ export default function index({
   const currentYear = todayDate.getFullYear()
   const currentMonth = monthId(todayDate.getMonth())
 
-  const carOTRValue = dataCombinationOfCarRecomAndModelDetail?.variants[
-    dataCombinationOfCarRecomAndModelDetail?.variants.length - 1
-  ].priceValue as number
+  const carOTRValueArray =
+    dataCombinationOfCarRecomAndModelDetail?.variants.map((item) =>
+      Number(item.priceValue),
+    )
+  const carOTRValue = Math.min(...(carOTRValueArray as number[]))
   const carOTR = `Rp ${carOTRValue / 1000000} juta`
 
   const getMetaTitle = () => {
@@ -291,7 +293,7 @@ export default function index({
 export async function getServerSideProps(context: any) {
   context.res.setHeader(
     'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=59',
+    'public, s-maxage=59, stale-while-revalidate=3000',
   )
   try {
     if (context.query.slug?.length > 1) {
@@ -459,7 +461,14 @@ const jsonLD = (
     carModel?.variants[0].priceValue ?? 0,
   )
   const selectedCar = getSelectedCar(recommendationsDetailData, carVariant)
-
+  const filterImageBasedOnType = (
+    data: Array<string> | undefined,
+    type: string,
+  ): Array<string> | undefined => {
+    return data?.filter((item: string) => {
+      return item.toLowerCase().includes(type)
+    })
+  }
   const priceRange =
     carModel?.variants[carModel?.variants.length - 1].priceValue ===
     carModel?.variants[0].priceValue
@@ -649,8 +658,11 @@ const jsonLD = (
     ImageObject: [
       {
         '@type': 'ImageObject',
-        contentUrl:
-          'https://images.prod.seva.id/Toyota/All%20New%20Rush/gallery/main_galery_toyota_all_new_rush_eksterior_1.jpg',
+        contentUrl: (
+          filterImageBasedOnType(carModel?.images, 'eksterior') as string[]
+        )?.length
+          ? filterImageBasedOnType(carModel?.images, 'eksterior')?.[0]
+          : carModel?.images?.[0],
         mainEntityOfPage: `https://www.seva.id/mobil-baru/${carModel?.brand}/${carModel?.model}?tab=Eksterior`,
         representativeOfPage: 'https://schema.org/True',
         isFamilyFriendly: 'https://schema.org/True',
@@ -658,8 +670,11 @@ const jsonLD = (
       },
       {
         '@type': 'ImageObject',
-        contentUrl:
-          'https://images.prod.seva.id/Toyota/All%20New%20Rush/gallery/main_galery_toyota_all_new_rush_interior_1.jpg',
+        contentUrl: (
+          filterImageBasedOnType(carModel?.images, 'eksterior') as string[]
+        )?.length
+          ? filterImageBasedOnType(carModel?.images, 'interior')?.[0]
+          : carModel?.images?.[0],
         mainEntityOfPage: `https://www.seva.id/mobil-baru/${carModel?.brand}/${carModel?.model}?tab=Interior`,
         representativeOfPage: 'https://schema.org/True',
         isFamilyFriendly: 'https://schema.org/True',

@@ -18,19 +18,11 @@ import {
 } from 'utils/types/utils'
 import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-import { getNewFunnelRecommendations } from 'services/newFunnel'
 import { savePreviouslyViewed } from 'utils/carUtils'
-import {
-  getCarModelDetailsById,
-  getCarVariantDetailsById,
-  handleRecommendationsAndCarModelDetailsUpdate,
-} from 'services/recommendations'
-import { getCities } from 'services/cities'
+
 import { decryptValue } from 'utils/encryptionUtils'
 import { CSAButton, WhatsappButton } from 'components/atoms'
-import { getCustomerAssistantWhatsAppNumber } from 'services/lead'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import { getCustomerInfoSeva } from 'services/customer'
 import elementId from 'helpers/elementIds'
 import {
   CarSearchPageMintaPenawaranParam,
@@ -69,6 +61,14 @@ import { defaultCity, getCity } from 'utils/hooks/useGetCity'
 import dynamic from 'next/dynamic'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { Currency } from 'utils/handler/calculation'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
+import {
+  getCarModelDetailsById,
+  getCarVariantDetailsById,
+  handleRecommendationsAndCarModelDetailsUpdate,
+} from 'utils/handler/carRecommendation'
+import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 
 const OverlayGallery = dynamic(() =>
   import('components/molecules').then((mod) => mod.OverlayGallery),
@@ -112,6 +112,15 @@ export default function NewCarVariantList({
 
   const [isOpenCitySelectorOTRPrice, setIsOpenCitySelectorOTRPrice] =
     useState(false)
+
+  const IsShowBadgeCreditOpportunity = getSessionStorage(
+    SessionStorageKey.IsShowBadgeCreditOpportunity,
+  )
+  const isUsingFilterFinancial =
+    !!filterStorage?.age &&
+    !!filterStorage?.downPaymentAmount &&
+    !!filterStorage?.monthlyIncome &&
+    !!filterStorage?.tenure
 
   const closeLeadsForm = () => {
     setIsModalOpened(false)
@@ -355,12 +364,8 @@ export default function NewCarVariantList({
       CAR_MODEL: carModelDetails?.model,
       CAR_VARIANT: dataCar?.CAR_VARIANT ? dataCar?.CAR_VARIANT : 'Null',
       PELUANG_KREDIT_BADGE:
-        dataCar?.PELUANG_KREDIT_BADGE &&
-        dataCar?.PELUANG_KREDIT_BADGE === 'Green'
-          ? 'Mudah disetujui'
-          : dataCar?.PELUANG_KREDIT_BADGE &&
-            dataCar?.PELUANG_KREDIT_BADGE === 'Red'
-          ? 'Sulit disetujui'
+        isUsingFilterFinancial && IsShowBadgeCreditOpportunity
+          ? dataCar?.PELUANG_KREDIT_BADGE
           : 'Null',
       TENOR_OPTION:
         window.location.href.includes('kredit') &&
@@ -691,6 +696,7 @@ export default function NewCarVariantList({
               setVariantIdFuelRatio={setVariantIdFuelRatio}
               variantFuelRatio={variantFuelRatio}
               isOTO={isOTO}
+              isShowAnnouncementBox={showAnnouncementBox}
             />
             <PromoPopup
               onButtonClick={setIsButtonClick}
@@ -759,7 +765,9 @@ export default function NewCarVariantList({
         pageOrigination="PDP"
         sourceButton={isOpenCitySelectorOTRPrice ? 'OTR Price (PDP)' : ''}
       />
-      {isModalOpenend && <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} />}
+      {isModalOpenend && (
+        <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} onPage="PDP" />
+      )}
       <ShareModal
         open={isOpenShareModal}
         onCancel={() => setIsOpenShareModal(false)}

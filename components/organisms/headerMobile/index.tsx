@@ -42,8 +42,9 @@ const SearchModal = dynamic(() =>
 const WebAnnouncementBox = dynamic(() =>
   import('components/organisms').then((mod) => mod.WebAnnouncementBox),
 )
-const SidebarMobile = dynamic(() =>
-  import('components/organisms').then((mod) => mod.SidebarMobile),
+const SidebarMobile = dynamic(
+  () => import('components/organisms').then((mod) => mod.SidebarMobile),
+  { ssr: false },
 )
 const LogoPrimary = '/revamp/icon/logo-primary.webp'
 
@@ -76,22 +77,18 @@ export const HeaderMobile = ({
   pageOrigination,
   isOTO = false,
   transparent = false,
-  isRegular = true,
   passCountlyTrackerPageView,
 }: HeaderMobileProps): JSX.Element => {
   const enableAnnouncementBoxAleph =
     getCurrentEnvironment.featureToggles.enableAnnouncementBoxAleph
-
   const [isOpenSearchModal, setIsOpenSearchModal] = useState(false)
 
   const router = useRouter()
 
   const adaSeva = router.asPath.split('/')[1]
-
   const [isLogin] = useState(!!getToken())
 
   const redirectHome = adaSeva === 'adaSEVAdiOTO' ? rootOTOUrl : rootUrl
-
 
   const handleClickCityIcon = () => {
     if (!isActive) {
@@ -104,7 +101,7 @@ export const HeaderMobile = ({
             ? getPageName()
             : 'PDP - ' + valueMenuTabCategory(),
         USER_TYPE: valueForUserTypeProperty(),
-        SOURCE_BUTTON: 'Location Icon',
+        SOURCE_BUTTON: 'Location Icon (Navbar)',
       })
       emitClickCityIcon()
     }
@@ -112,13 +109,17 @@ export const HeaderMobile = ({
 
   const handleSearch = () => {
     if (!isActive) {
-      trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_CLICK, {
-        PAGE_ORIGINATION: getPageName(),
-      })
       setIsOpenSearchModal(true)
       trackSearchbarOpen({
         Page_Origination_URL: window.location.href,
       })
+      if (pageOrigination && pageOrigination.length !== 0) {
+        trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_CLICK, {
+          PAGE_ORIGINATION: pageOrigination.includes('PDP')
+            ? 'PDP - ' + valueMenuTabCategory()
+            : pageOrigination,
+        })
+      }
     }
   }
 
@@ -168,8 +169,9 @@ export const HeaderMobile = ({
     } else {
       saveDataForCountlyTrackerPageViewHomepage(PreviousButton.SevaLogo)
     }
-
-    window.location.href = redirectHome
+    setTimeout(() => {
+      window.location.href = redirectHome
+    }, 1000)
   }
 
   return (
@@ -284,12 +286,13 @@ export const HeaderMobile = ({
           isOpen={isOpenSearchModal}
           handleCloseModal={() => setIsOpenSearchModal(false)}
           isOTO={isOTO}
+          pageOrigination={pageOrigination}
         />
       </header>
       <Overlay
         isShow={isActive}
         onClick={() => setIsActive(false)}
-        additionalStyle={styles.overlayAdditionalStyle}
+        additionalstyle={styles.overlayAdditionalStyle}
       />
     </>
   )

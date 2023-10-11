@@ -78,7 +78,12 @@ export const MenuList: React.FC<MenuListProps> = ({
       Page_Origination_URL: window.location.href,
       Menu: menuName,
     })
-
+    trackEventCountly(CountlyEventNames.WEB_HAMBURGER_MENU_CLICK, {
+      PAGE_ORIGINATION: pageOrigination,
+      PAGE_DIRECTION_URL: menuUrl.includes('www')
+        ? menuUrl
+        : 'https://' + window.location.hostname + menuUrl,
+    })
     if (menuName === 'Teman SEVA') {
       handleTemanSeva()
     } else {
@@ -120,7 +125,14 @@ export const MenuList: React.FC<MenuListProps> = ({
               {menuItem.subMenu.length > 0 &&
                 menuItem.subMenu.map((sub: any, key: any) => {
                   if (sub.subMenu.length > 0) {
-                    return <MenuItem key={key} item={sub} isOTO={isOTO} />
+                    return (
+                      <MenuItem
+                        key={key}
+                        item={sub}
+                        isOTO={isOTO}
+                        pageOrigination={pageOrigination}
+                      />
+                    )
                   } else {
                     const icon = renderIcon(sub.menuName)
                     return (
@@ -128,15 +140,6 @@ export const MenuList: React.FC<MenuListProps> = ({
                         key={key}
                         className={styles.parentMenu}
                         onClick={() => {
-                          if (sub.menuName === 'Akun Saya') {
-                            trackEventCountly(
-                              CountlyEventNames.WEB_HAMBURGER_ACCOUNT_CLICK,
-                              {
-                                PAGE_ORIGINATION: getPageName(),
-                                SOURCE_SECTION: 'Bottom',
-                              },
-                            )
-                          }
                           handleClickMenu(sub.menuUrl as string, sub.menuName)
                         }}
                       >
