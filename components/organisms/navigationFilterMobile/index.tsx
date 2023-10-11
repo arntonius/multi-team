@@ -12,13 +12,13 @@ import clsx from 'clsx'
 import urls from 'utils/helpers/url'
 import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
 import { filterNonDigitCharacters } from 'utils/stringUtils'
-import { getNewFunnelRecommendations } from 'services/newFunnel'
 import elementId from 'helpers/elementIds'
 import { LanguageCode } from 'utils/enum'
 import { sortOptions } from 'utils/config/funnel.config'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { PreviousButton, navigateToPLP } from 'utils/navigate'
 import { useRouter } from 'next/router'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 
 type NavFilterMobileProps = {
   carlist?: any
@@ -32,6 +32,7 @@ type NavFilterMobileProps = {
   setRecommendations: any
   isShowAnnouncementBox?: boolean | null
   isOTO?: boolean
+  isUsed?: boolean
 }
 export const NavigationFilterMobile = ({
   carlist,
@@ -44,6 +45,7 @@ export const NavigationFilterMobile = ({
   setRecommendations,
   isShowAnnouncementBox,
   isOTO,
+  isUsed,
 }: NavFilterMobileProps) => {
   const { funnelQuery, patchFunnelQuery } = useFunnelQueryData()
   const { sortBy } = funnelQuery
@@ -277,7 +279,7 @@ export const NavigationFilterMobile = ({
                 className={styles.carSummaryLabel}
                 data-testid={elementId.PLP.Text.JumlahMobil}
               >
-                {summaryCar} Mobil Baru
+                {summaryCar} {isUsed ? 'Mobil Bekas' : 'Mobil Baru'}
               </div>
             </div>
           </>
