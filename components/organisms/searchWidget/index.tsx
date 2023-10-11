@@ -52,6 +52,7 @@ import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { navigateToPLP, PreviousButton } from 'utils/navigate'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
 export const initDataWidget = {
   downPaymentAmount: '',
@@ -351,8 +352,11 @@ const SearchWidget = () => {
       currentFinancial.downPaymentAmount = storedFilter.downPaymentAmount
 
     saveFunnelWidget({ ...funnelWidget, ...currentFinancial })
-
     fetchMinMaxPrice()
+  }, [])
+
+  useAfterInteractive(() => {
+    patchFunnelQuery({ filterFincap: false })
   }, [])
 
   useEffect(() => {
