@@ -1,11 +1,11 @@
-import { Modal } from 'antd'
+import Modal from 'antd/lib/modal'
 import React, {
   TextareaHTMLAttributes,
   useEffect,
   useMemo,
   useState,
 } from 'react'
-import type { ModalProps } from 'antd'
+import type { ModalProps } from 'antd/lib/modal'
 import { colors } from 'styles/colors'
 import { IconClose } from 'components/atoms'
 import styles from '../../../styles/components/organisms/popupPromo.module.scss'

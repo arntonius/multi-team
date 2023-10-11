@@ -22,8 +22,8 @@ import { LanguageCode, LocalStorageKey } from 'utils/enum'
 import { TrackerFlag, InstallmentTypeOptions } from 'utils/types/models'
 import dynamic from 'next/dynamic'
 import { getNewFunnelLoanSpecialRate } from 'utils/handler/funnel'
+import Modal from 'antd/lib/modal'
 
-const Modal = dynamic(() => import('antd').then((mod) => mod.Modal))
 const PopupVariantDetail = dynamic(
   () => import('components/organisms/popupVariantDetail/index'),
 )

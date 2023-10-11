@@ -32,8 +32,8 @@ import {
 import { trackDataCarType } from 'utils/types/utils'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
 import { RouteName } from 'utils/navigate'
+import Modal from 'antd/lib/modal'
 import { removeCarBrand } from 'utils/handler/removeCarBrand'
-import dynamic from 'next/dynamic'
 
 const searchOption = {
   keys: ['label'],
@@ -51,10 +51,6 @@ interface Props {
   modelName?: string
   brandName?: string
 }
-
-const Modal = dynamic(() => import('antd').then((mod) => mod.Modal), {
-  ssr: false,
-})
 
 const CitySelectorModal = ({
   onClickCloseButton,

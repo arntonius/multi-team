@@ -1,5 +1,6 @@
 import Capsule from './capsule'
 import {
+  IconLockFill,
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
@@ -101,6 +102,7 @@ import CustomModal from './modal/custom'
 import BottomSheet from './bottomSheet'
 import { SearchInput } from './searchInput'
 export {
+  IconLockFill,
   Button,
   Capsule,
   IconBackButton,

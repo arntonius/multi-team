@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import styles from 'styles/components/molecules/searchModal.module.scss'
 import HeaderVariant from '../headerVariant'
 import { Forward } from 'components/atoms/icon/Forward'
-import { Modal } from 'antd'
+import Modal from 'antd/lib/modal'
 
 interface Props {
   isOpen: boolean

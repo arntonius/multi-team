@@ -1,7 +1,7 @@
 import { FormControlValue, Location } from './utils'
 import { HTMLAttributes } from 'react'
 import { LoanRank, ToastType } from './models'
-import type { ModalProps } from 'antd'
+import type { ModalProps } from 'antd/lib/modal'
 import { InputVersionType } from 'utils/enum'
 
 import getCurrentEnvironment from 'helpers/environments'

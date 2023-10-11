@@ -1,7 +1,8 @@
 import React, { ChangeEvent, useContext, useEffect, useState } from 'react'
 import styles from '/styles/components/molecules/form/formPrice.module.scss'
 import stylec from '/styles/components/molecules/searchWidget/priceRangeWidget.module.scss'
-import { Input, Slider } from 'antd'
+import Input from 'antd/lib/input'
+import Slider from 'antd/lib/slider'
 import { Currency } from 'utils/handler/calculation'
 import { filterNonDigitCharacters } from 'utils/handler/stringManipulation'
 import { Button } from 'components/atoms'
@@ -243,7 +244,7 @@ const PriceRangeWidget = ({
             min={limitPrice.min}
             max={limitPrice.max}
             step={1000000}
-            onChange={onChangeSlider}
+            onChange={(e) => onChangeSlider}
             defaultValue={[
               rawPrice.min || limitPrice.min,
               rawPrice.max || limitPrice.max,

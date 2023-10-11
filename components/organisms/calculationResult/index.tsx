@@ -12,7 +12,7 @@ import { CalculationResultItem } from 'components/molecules'
 import { Button, IconWhatsapp, Overlay } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { InstallmentTypeOptions, LoanRank } from 'utils/types/models'
-import { Tooltip } from 'antd'
+import Tooltip from 'antd/lib/tooltip'
 import TooltipContentQualifacation from 'components/molecules/tooltipContent'
 import {
   trackLCKualifikasiKreditTooltipCTAClick,

@@ -1,4 +1,4 @@
-import { Modal } from 'antd'
+import Modal from 'antd/lib/modal'
 import React, { useEffect } from 'react'
 import styles from 'styles/components/molecules/qualifacationModal.module.scss'
 import { Button } from 'components/atoms'

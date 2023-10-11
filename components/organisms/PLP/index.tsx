@@ -1,4 +1,4 @@
-import { Spin } from 'antd'
+import Spin from 'antd/lib/spin'
 import axios from 'axios'
 import clsx from 'clsx'
 import { CSAButton } from 'components/atoms'

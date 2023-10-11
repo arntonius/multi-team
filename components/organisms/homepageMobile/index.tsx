@@ -16,7 +16,6 @@ import { alephArticleCategoryList } from 'utils/config/articles.config'
 import { api } from 'services/api'
 import { countDaysDifference } from 'utils/handler/date'
 import {
-  CitySelectorModal,
   CtaWidget,
   FooterMobile,
   HowToUse,
@@ -60,6 +59,12 @@ import { RouteName } from 'utils/navigate'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useCar } from 'services/context/carContext'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
+import dynamic from 'next/dynamic'
+
+const CitySelectorModal = dynamic(
+  () => import('components/molecules').then((mod) => mod.CitySelectorModal),
+  { ssr: false },
+)
 
 const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(

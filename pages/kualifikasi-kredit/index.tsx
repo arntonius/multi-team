@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styles from 'styles/pages/kualifikasi-kredit.module.scss'
-import { Modal, Progress } from 'antd'
+import Modal from 'antd/lib/modal'
+import Progress from 'antd/lib/progress'
 import {
   IconChevronDown,
   InputSelect,

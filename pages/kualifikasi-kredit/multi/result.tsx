@@ -1,4 +1,4 @@
-import { Spin } from 'antd'
+import Spin from 'antd/lib/spin'
 import { AxiosResponse } from 'axios'
 import clsx from 'clsx'
 import { CSAButton, IconChevronDown, IconStrawberry } from 'components/atoms'
@@ -32,13 +32,18 @@ import {
   PromoItemType,
 } from 'utils/types/utils'
 import styles from 'styles/pages/multi-kk-result.module.scss'
-import CarDetailCardMultiCredit from 'components/organisms/carDetailCardMultiCredit'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
+import dynamic from 'next/dynamic'
 
 const discountedDp = undefined // for current promo, it will not affect DP
+
+const CarDetailCardMultiCredit = dynamic(
+  () => import('components/organisms/carDetailCardMultiCredit'),
+  { ssr: false },
+)
 
 const sortHighToLowList = (recommendationTmp: MultKKCarRecommendation[]) => {
   if (!recommendationTmp) {

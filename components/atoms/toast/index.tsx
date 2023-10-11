@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from 'styles/components/atoms/toast.module.scss'
-import { Modal } from 'antd'
+import Modal from 'antd/lib/modal'
 import { IconChecked, IconWarningCircle } from '../icon'
 import { colors } from 'utils/helpers/style/colors'
 import { PropsToast } from 'utils/types/props'

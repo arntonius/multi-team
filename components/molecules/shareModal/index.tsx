@@ -1,6 +1,7 @@
 import React from 'react'
 import styles from 'styles/components/molecules/shareModal.module.scss'
-import { Modal, ModalProps } from 'antd'
+import Modal from 'antd/lib/modal'
+import type { ModalProps } from 'antd/lib/modal'
 import {
   IconClose,
   IconFacebook,

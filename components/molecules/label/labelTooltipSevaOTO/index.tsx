@@ -2,8 +2,7 @@ import React, { ReactNode, useState } from 'react'
 import { IconInfo, Label } from 'components/atoms'
 import styles from 'styles/components/molecules/labelTooltipSevaOTO.module.scss'
 import TooltipSevaOTO from './Tooltip'
-import { Tooltip } from 'antd'
-import TooltipContentQualifacation from 'components/molecules/tooltipContent'
+import Tooltip from 'antd/lib/tooltip'
 
 interface Props {
   label: string

@@ -1,6 +1,7 @@
 import React from 'react'
 import { IconInfo } from '../../atoms/icon'
-import { Col, Row } from 'antd'
+import Col from 'antd/lib/col'
+import Row from 'antd/lib/row'
 
 interface Props {
   onClick?: () => void
