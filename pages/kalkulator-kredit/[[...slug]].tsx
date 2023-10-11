@@ -1039,11 +1039,11 @@ export default function LoanCalculatorPage() {
           : financialQuery.monthlyIncome,
       }
       patchFinancialQuery(dataFinancial)
-      // patchFunnelQuery({
-      //   age: forms.age,
-      //   monthlyIncome: forms.monthlyIncome,
-      //   downPaymentAmount: forms.downPaymentAmount,
-      // })
+      patchFunnelQuery({
+        age: forms.age,
+        monthlyIncome: forms.monthlyIncome,
+        downPaymentAmount: forms.downPaymentAmount,
+      })
 
       fetchCarRecommendations()
 

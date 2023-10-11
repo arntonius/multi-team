@@ -67,7 +67,6 @@ import {
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getPageName } from 'utils/pageName'
-import { useFinancialQueryData } from 'services/context/finnancialQueryContext'
 import { LoanRank } from 'utils/types/models'
 import { decryptValue } from 'utils/encryptionUtils'
 import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
@@ -134,7 +133,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     resultMaxPrice: 0,
   })
   const { funnelQuery, patchFunnelQuery } = useFunnelQueryData()
-  const { financialQuery } = useFinancialQueryData()
   const [isButtonClick, setIsButtonClick] = useState(false)
   const [isResetFilter, setIsResetFilter] = useState(false)
   const showFilter =
@@ -540,15 +538,13 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
 
             const queryParam: any = {
               downPaymentType: 'amount',
-              downPaymentAmount:
-                downPaymentAmount || financialQuery.downPaymentAmount || '',
+              downPaymentAmount: downPaymentAmount || '',
               brand: brand?.split(',')?.map((item) => getCarBrand(item)) || '',
               bodyType: bodyType?.split(',') || '',
               priceRangeGroup: priceRangeGroup ? minTemp + '-' + maxTemp : '',
-              age: age || financialQuery.age || '',
-              tenure: tenure ? Number(tenure) : financialQuery.tenure || 5,
-              monthlyIncome:
-                monthlyIncome || financialQuery.monthlyIncome || '',
+              age: age || '',
+              tenure: Number(tenure) || 5,
+              monthlyIncome: monthlyIncome || '',
               sortBy: sortBy || 'lowToHigh',
             }
 
@@ -587,14 +583,13 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     } else {
       saveRecommendation(recommendation)
       const queryParam: any = {
-        downPaymentAmount:
-          downPaymentAmount || financialQuery.downPaymentAmount || '',
+        downPaymentAmount: downPaymentAmount || '',
         brand: brand?.split(',')?.map((item) => getCarBrand(item)) || '',
         bodyType: bodyType?.split(',') || '',
         priceRangeGroup: priceRangeGroup,
-        age: age || financialQuery.age || '',
-        tenure: tenure ? Number(tenure) : financialQuery.tenure || 5,
-        monthlyIncome: monthlyIncome || financialQuery.monthlyIncome || '',
+        age: age || '',
+        tenure: Number(tenure) || 5,
+        monthlyIncome: monthlyIncome || '',
         sortBy: sortBy || 'lowToHigh',
       }
       patchFunnelQuery(queryParam)
