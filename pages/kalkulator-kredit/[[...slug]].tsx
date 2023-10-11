@@ -93,6 +93,8 @@ import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
+import { useUtils } from 'services/context/utilsContext'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -321,15 +323,8 @@ export default function LoanCalculatorPage() {
     }
   }
 
-  const [showAnnouncementBox, setShowAnnouncementBox] = useState<
-    boolean | null
-  >(
-    getSessionStorage(
-      getToken()
-        ? SessionStorageKey.ShowWebAnnouncementLogin
-        : SessionStorageKey.ShowWebAnnouncementNonLogin,
-    ) ?? true,
-  )
+  const { saveDataAnnouncementBox, dataAnnouncementBox } = useUtils()
+  const [showAnnouncementBox, setShowAnnouncementBox] = useState<boolean>(false)
   const [articles, setArticles] = useState<Article[]>([])
 
   const fetchArticles = async () => {
@@ -348,19 +343,17 @@ export default function LoanCalculatorPage() {
     }
   }
 
-  const getAnnouncementBox = () => {
-    api
-      .getAnnouncementBox({
+  const getAnnouncementBox = async () => {
+    try {
+      const res: any = await api.getAnnouncementBox({
         headers: {
           'is-login': getToken() ? 'true' : 'false',
         },
       })
-      .then((res) => {
-        if (res.data === undefined) {
-          setShowAnnouncementBox(false)
-        }
-      })
+      saveDataAnnouncementBox(res.data)
+    } catch (error) {}
   }
+
   const checkPromoCode = async () => {
     if (!forms.promoCode) {
       setPromoCodeSessionStorage('')
@@ -670,6 +663,23 @@ export default function LoanCalculatorPage() {
     autofillCarVariantData()
     checkReffcode()
   }, [carVariantList])
+
+  useAfterInteractive(() => {
+    if (dataAnnouncementBox) {
+      const isShowAnnouncement = getSessionStorage(
+        getToken()
+          ? SessionStorageKey.ShowWebAnnouncementLogin
+          : SessionStorageKey.ShowWebAnnouncementNonLogin,
+      )
+      if (typeof isShowAnnouncement !== 'undefined') {
+        setShowAnnouncementBox(isShowAnnouncement as boolean)
+      } else {
+        setShowAnnouncementBox(true)
+      }
+    } else {
+      setShowAnnouncementBox(false)
+    }
+  }, [dataAnnouncementBox])
 
   const AgeList: Option<string>[] = [
     {
