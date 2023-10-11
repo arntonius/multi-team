@@ -97,7 +97,6 @@ import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
-import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { Currency } from 'utils/handler/calculation'
 import { useUtils } from 'services/context/utilsContext'
@@ -262,6 +261,7 @@ export default function LoanCalculatorPage() {
     saveDesktopWebTopMenu,
     saveMobileWebFooterMenus,
     saveDataAnnouncementBox,
+    dataAnnouncementBox,
   } = useUtils()
 
   const getAutofilledCityData = () => {
@@ -346,7 +346,6 @@ export default function LoanCalculatorPage() {
     }
   }
 
-  const { saveDataAnnouncementBox, dataAnnouncementBox } = useUtils()
   const [showAnnouncementBox, setShowAnnouncementBox] = useState<boolean>(false)
   const [articles, setArticles] = useState<Article[]>([])
 
