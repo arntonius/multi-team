@@ -17,9 +17,9 @@ export const TabV2 = ({
       onClick={() => onClickHandler && onClickHandler(value)}
       data-testid={dataTestId}
     >
-      <h2 className={`${styles.text} ${isActive && styles.textActive}`}>
+      <h3 className={`${styles.text} ${isActive && styles.textActive}`}>
         {label}
-      </h2>
+      </h3>
     </div>
   ) : (
     <div
