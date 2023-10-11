@@ -43,7 +43,7 @@ interface CsaInput {
 interface DataResponse {
   leadId: string
   name: string
-  phone: string
+  phoneNumber: string
   csaInput: CsaInput
 }
 
@@ -302,10 +302,11 @@ export async function getServerSideProps(context: any) {
     const salesRes: any = await Promise.all([api.getAgent()])
     const response = await getLeadsDetail(detailId)
     const data: DataResponse = response.data
+    console.log('qwe: ', data)
     const csaInput = data.csaInput
     const leadId = data.leadId
-    const name = 'data.name'
-    const phone = 'data.phone'
+    const name = data.name
+    const phone = data.phoneNumber.slice(3)
 
     return {
       props: {
