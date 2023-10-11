@@ -82,9 +82,6 @@ const initEmptyDataWidget = {
 
 const SearchWidget = () => {
   const { patchFunnelQuery }: any = useFunnelQueryData()
-  const [state, setState] = useState<FunnelWidget>(initEmptyDataWidget) // assume this state as Context widget, mind about re-render
-  const contextValue = useMemo(() => ({ state, setState }), [state])
-  const router = useRouter()
   const { financialQuery, patchFinancialQuery } = useFinancialQueryData()
   const { funnelWidget, saveFunnelWidget } = useContext(
     SearchWidgetContext,
@@ -302,10 +299,11 @@ const SearchWidget = () => {
 
     if (expandFinancial) {
       patchFinancialQuery(dataFinancial)
-      patchFunnelQuery({ ...state })
+      patchFunnelQuery({ ...dataFinancial, filterFincap: true })
     } else {
-      patchFunnelQuery({ brand, bodyType, priceRangeGroup })
+      patchFunnelQuery({ filterFincap: false })
     }
+    patchFunnelQuery({ brand, bodyType, priceRangeGroup })
 
     sendAmplitudeData(AmplitudeEventName.WEB_LP_SEARCHWIDGET_SUBMIT, {
       ...(brand && brand.length > 0 && { Car_Brand: brand.join(', ') }),
