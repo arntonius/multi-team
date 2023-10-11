@@ -906,7 +906,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
           <AdaOTOdiSEVALeadsForm
             onCancel={closeInterestingBtn}
             trackerProperties={trackLeads()}
-            onPage="LP"
+            onPage="PLP"
           />
         )}
       </div>

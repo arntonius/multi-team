@@ -204,7 +204,15 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
     }
     if (onPage === 'LP') {
       data = {
-        origination: UnverifiedLeadSubCategory.SEVA_NEW_CAR_CAR_OF_THE_MONTH,
+        origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_LP_LEADS_FORM,
+        name,
+        phoneNumber: phone,
+        ...(cityOtr?.id && { cityId: cityOtr.id }),
+        platform,
+      }
+    } else if (onPage === 'PLP') {
+      data = {
+        origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_PLP_LEADS_FORM,
         name,
         phoneNumber: phone,
         ...(cityOtr?.id && { cityId: cityOtr.id }),
@@ -212,7 +220,7 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
       }
     } else {
       data = {
-        origination: UnverifiedLeadSubCategory.SEVA_NEW_CAR_PLP_LEADS_FORM,
+        origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_PDP_LEADS_FORM,
         name,
         phoneNumber: phone,
         ...(cityOtr?.id && { cityId: cityOtr.id }),
