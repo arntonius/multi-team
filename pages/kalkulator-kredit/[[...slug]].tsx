@@ -32,20 +32,9 @@ import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { api } from 'services/api'
-import { getCities } from 'services/cities'
 import { useCar } from 'services/context/carContext'
 import { useFinancialQueryData } from 'services/context/finnancialQueryContext'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import { getCustomerInfoSeva } from 'services/customer'
-import { getCustomerAssistantWhatsAppNumber } from 'services/lead'
-import {
-  getLoanCalculatorInsurance,
-  getNewFunnelRecommendations,
-  getNewFunnelRecommendationsByCity,
-  postLoanPermutationIncludePromo,
-} from 'services/newFunnel'
-import { checkPromoCodeGias } from 'services/preApproval'
-import { getCarModelDetailsById } from 'services/recommendations'
 import { getToken } from 'utils/handler/auth'
 import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import {
@@ -99,6 +88,10 @@ import {
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { removeCarBrand } from 'utils/handler/removeCarBrand'
 import dynamic from 'next/dynamic'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
+import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -348,7 +341,7 @@ export default function LoanCalculatorPage() {
 
   const checkCitiesData = () => {
     if (cityListApi.length === 0) {
-      getCities().then((res) => {
+      api.getCities().then((res) => {
         setCityListApi(res)
       })
     }
@@ -376,7 +369,7 @@ export default function LoanCalculatorPage() {
 
     try {
       setIsLoadingPromoCode(true)
-      const result: any = await checkPromoCodeGias(forms.promoCode)
+      const result: any = await api.postCheckPromoGiias(forms.promoCode)
       setIsLoadingPromoCode(false)
 
       if (result.message === 'valid promo code') {
@@ -450,12 +443,12 @@ export default function LoanCalculatorPage() {
       objData,
     )
   }
-
   const fetchAllCarModels = async () => {
-    const response = await getNewFunnelRecommendationsByCity(
-      defaultCity.id,
-      defaultCity.cityCode,
-    )
+    const params = new URLSearchParams()
+    params.append('cityId', defaultCity.id as string)
+    params.append('city', defaultCity.cityCode as string)
+
+    const response = await api.getRecommendation('', { params })
 
     setAllModalCarList(response.carRecommendations)
   }
@@ -908,7 +901,7 @@ export default function LoanCalculatorPage() {
       )
 
       try {
-        const responseInsurance = await getLoanCalculatorInsurance({
+        const responseInsurance = await api.getLoanCalculatorInsurance({
           modelId: forms.model?.modelId ?? '',
           cityCode: forms.city.cityCode,
           tenure: allTenure[i],
@@ -1067,7 +1060,8 @@ export default function LoanCalculatorPage() {
         otr: getCarOtrNumber() - getCarDiscountNumber(),
       }
 
-      postLoanPermutationIncludePromo(payload)
+      api
+        .postLoanPermutationIncludePromo(payload)
         .then((response) => {
           const result = response.data.reverse()
           const filteredResult = getFilteredCalculationResults(result)
