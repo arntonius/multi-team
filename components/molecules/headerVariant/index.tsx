@@ -361,7 +361,9 @@ export default function HeaderVariant({
 
     return (
       <ul>
-        <h3 style={{ fontWeight: 'bold', marginBottom: '14px' }}>
+        <h3
+          style={{ fontWeight: 'bold', marginBottom: '14px', fontSize: '16px' }}
+        >
           Riwayat pencarian
         </h3>
         {searchHistory.map((searchTerm: any) => {
@@ -471,6 +473,7 @@ export default function HeaderVariant({
                         fontWeight: 'bold',
                         marginBottom: '14px',
                         marginTop: '14px',
+                        fontSize: '16px',
                       }}
                     >
                       Rekomendasi Mobil
