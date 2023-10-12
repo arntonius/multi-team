@@ -142,8 +142,7 @@ const PromoPopup = ({
           src={promoBannerTSO}
           alt="promo banner TSO"
           className={styles.promoBanner}
-          width={716}
-          height={537.6}
+          fill={true}
         />
       </div>
       <div>
@@ -185,8 +184,7 @@ const PromoPopup = ({
           src={promoBannerTradeIn}
           alt="promo banner trade In"
           className={styles.promoBanner}
-          width={373}
-          height={280}
+          fill={true}
         />
       </div>
       <div>

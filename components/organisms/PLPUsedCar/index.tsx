@@ -9,6 +9,7 @@ import {
   HeaderMobile,
   NavigationFilterMobile,
   PLPEmpty,
+  UsedCarDetailCard,
 } from 'components/organisms'
 import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import {
@@ -31,9 +32,9 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { api } from 'services/api'
-
 import { useCar } from 'services/context/carContext'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { getConvertFilterIncome } from 'utils/filterUtils'
 import { getToken } from 'utils/handler/auth'
@@ -58,8 +59,8 @@ import {
   MinMaxPrice,
 } from 'utils/types/context'
 import { MoengageViewCarSearch } from 'utils/types/moengage'
-import { AnnouncementBoxDataType, trackDataCarType } from 'utils/types/utils'
-import styles from '../../../styles/pages/mobil-baru.module.scss'
+import { AnnouncementBoxDataType } from 'utils/types/utils'
+import styles from '../../../styles/pages/mobil-bekas.module.scss'
 import {
   trackEventCountly,
   valueForInitialPageProperty,
@@ -68,13 +69,11 @@ import {
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getPageName } from 'utils/pageName'
 import { LoanRank } from 'utils/types/models'
+import { temanSevaUrlPath } from 'utils/types/props'
 import { decryptValue } from 'utils/encryptionUtils'
 import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
 import { useUtils } from 'services/context/utilsContext'
 import dynamic from 'next/dynamic'
-import { temanSevaUrlPath } from 'utils/types/props'
-import { getNewFunnelRecommendations } from 'utils/handler/funnel'
-import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
 const LeadsFormPrimary = dynamic(() =>
   import('components/organisms').then((mod) => mod.LeadsFormPrimary),
@@ -103,10 +102,9 @@ const CitySelectorModal = dynamic(() =>
 
 interface PLPProps {
   minmaxPrice: MinMaxPrice
-  isOTO?: boolean
 }
 
-export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
+export const PLPUsedCar = ({ minmaxPrice }: PLPProps) => {
   useAmplitudePageView(trackCarSearchPageView)
   const router = useRouter()
   const { recommendation, saveRecommendation } = useCar()
@@ -169,8 +167,9 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     items: recommendation.slice(0, 12),
   })
   const [isOpenCitySelectorModal, setIsOpenCitySelectorModal] = useState(false)
-  const { cities, dataAnnouncementBox } = useUtils()
+  const { cities, saveDataAnnouncementBox } = useUtils()
   const [showAnnouncementBox, setIsShowAnnouncementBox] = useState(false)
+  const [interactive, setInteractive] = useState(false)
   const [isLogin] = useState(!!getToken())
   const [dataCarForPromo, setDataCarForPromo] = useState({
     brand: '',
@@ -180,19 +179,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
   })
   const user: string | null = getLocalStorage(LocalStorageKey.sevaCust)
   const isCurrentCitySameWithSSR = getCity().cityCode === defaultCity.cityCode
-  const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
-  const isUsingFilterFinancial =
-    !!filterStorage?.age &&
-    !!filterStorage?.downPaymentAmount &&
-    !!filterStorage?.monthlyIncome &&
-    !!filterStorage?.tenure
-  const dataCar: trackDataCarType | null = getSessionStorage(
-    SessionStorageKey.PreviousCarDataBeforeLogin,
-  )
-
-  const IsShowBadgeCreditOpportunity = getSessionStorage(
-    SessionStorageKey.IsShowBadgeCreditOpportunity,
-  )
 
   const fetchMoreData = () => {
     if (sampleArray.items.length >= recommendation.length) {
@@ -342,19 +328,31 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     trackEventCountly(CountlyEventNames.WEB_PLP_OPEN_SORT_CLICK)
   }
   const getAnnouncementBox = () => {
-    if (dataAnnouncementBox) {
-      const isShowAnnouncement = getSessionStorage(
-        getToken()
-          ? SessionStorageKey.ShowWebAnnouncementLogin
-          : SessionStorageKey.ShowWebAnnouncementNonLogin,
-      )
-      if (typeof isShowAnnouncement !== 'undefined') {
-        setIsShowAnnouncementBox(isShowAnnouncement as boolean)
-      } else {
-        setIsShowAnnouncementBox(true)
-      }
-    } else {
-      setIsShowAnnouncementBox(false)
+    if (!interactive) {
+      setInteractive(true)
+      api
+        .getAnnouncementBox({
+          headers: {
+            'is-login': getToken() ? 'true' : 'false',
+          },
+        })
+        .then((res: { data: AnnouncementBoxDataType }) => {
+          if (res.data === undefined) {
+            setIsShowAnnouncementBox(false)
+          } else {
+            saveDataAnnouncementBox(res.data)
+            const sessionAnnouncmentBox = getSessionStorage(
+              getToken()
+                ? SessionStorageKey.ShowWebAnnouncementLogin
+                : SessionStorageKey.ShowWebAnnouncementNonLogin,
+            )
+            if (typeof sessionAnnouncmentBox !== 'undefined') {
+              setIsShowAnnouncementBox(sessionAnnouncmentBox as boolean)
+            } else {
+              setIsShowAnnouncementBox(true)
+            }
+          }
+        })
     }
   }
 
@@ -419,27 +417,31 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     }
   }
 
-  useAfterInteractive(() => {
-    getAnnouncementBox()
-  }, [dataAnnouncementBox])
-
-  useAfterInteractive(() => {
-    setTimeout(() => {
-      checkFincapBadge(recommendation.slice(0, 12))
-    }, 1000)
-  }, [recommendation])
-
   //handle scrolling
   useEffect(() => {
     window.scrollTo(0, 0)
     moengageViewPLP()
 
+    window.addEventListener('touchstart', getAnnouncementBox)
     window.addEventListener('scroll', handleScroll)
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('touchstart', getAnnouncementBox)
     }
   }, [])
+
+  useEffect(() => {
+    ;['scroll', 'touchstart'].forEach((ev) =>
+      window.addEventListener(ev, getAnnouncementBox),
+    )
+
+    return () => {
+      ;['scroll', 'touchstart'].forEach((ev) =>
+        window.removeEventListener(ev, getAnnouncementBox),
+      )
+    }
+  }, [interactive])
 
   useEffect(() => {
     if (funnelQuery.age && funnelQuery.monthlyIncome) {
@@ -466,25 +468,17 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     } else {
       setIsFilter(false)
     }
-  }, [funnelQuery, brand])
 
-  useEffect(() => {
     if (
       funnelQuery.downPaymentAmount &&
       funnelQuery.monthlyIncome &&
       funnelQuery.age
     ) {
       setIsFilterFinancial(true)
-      patchFunnelQuery({ filterFincap: true })
     } else {
       setIsFilterFinancial(false)
-      patchFunnelQuery({ filterFincap: false })
     }
-  }, [
-    funnelQuery.downPaymentAmount,
-    funnelQuery.monthlyIncome,
-    funnelQuery.age,
-  ])
+  }, [funnelQuery, brand])
 
   useEffect(() => {
     if (
@@ -514,8 +508,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     if (!isCurrentCitySameWithSSR || recommendation.length === 0) {
       const params = new URLSearchParams()
       getCity().cityCode && params.append('city', getCity().cityCode as string)
-      console.log(params)
-
       api
         .getMinMaxPrice('', { params })
         .then((response) => {
@@ -525,14 +517,26 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
               maxPriceValue: response.maxPriceValue,
             })
             const minTemp = priceRangeGroup
-              ? response.minPriceValue > Number(priceRangeGroup.split('-')[0])
-                ? response.minPriceValue
-                : Number(priceRangeGroup.split('-')[0])
+              ? response.data.minPriceValue >
+                Number(
+                  priceRangeGroup && priceRangeGroup?.toString().split('-')[0],
+                )
+                ? Number(
+                    priceRangeGroup &&
+                      priceRangeGroup?.toString().split('-')[0],
+                  )
+                : response.data.minPriceValue
               : ''
             const maxTemp = priceRangeGroup
-              ? response.maxPriceValue < Number(priceRangeGroup.split('-')[1])
-                ? response.maxPriceValue
-                : Number(priceRangeGroup.split('-')[1])
+              ? response.data.maxPriceValue <
+                Number(
+                  priceRangeGroup && priceRangeGroup?.toString().split('-')[1],
+                )
+                ? response.data.maxPriceValue
+                : Number(
+                    priceRangeGroup &&
+                      priceRangeGroup?.toString().split('-')[1],
+                  )
               : ''
 
             const queryParam: any = {
@@ -560,15 +564,16 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
                   setSampleArray({
                     items: response.carRecommendations.slice(0, 12),
                   })
+                  setTimeout(() => {
+                    checkFincapBadge(response.carRecommendations.slice(0, 12))
+                  }, 1000)
                 }
                 setShowLoading(false)
               })
               .catch(() => {
                 setShowLoading(false)
                 router.push({
-                  pathname: isOTO
-                    ? `adaSEVAdiOTO/${carResultsUrl}`
-                    : carResultsUrl,
+                  pathname: carResultsUrl,
                 })
               })
             getNewFunnelRecommendations({ ...queryParam, brand: [] }).then(
@@ -592,6 +597,9 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
         sortBy: sortBy || 'lowToHigh',
       }
       patchFunnelQuery(queryParam)
+      setTimeout(() => {
+        checkFincapBadge(recommendation.slice(0, 12))
+      }, 1000)
     }
     return () => cleanEffect()
   }, [])
@@ -622,6 +630,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
           sticky={sticky}
           resultMinMaxPrice={resultMinMaxPrice}
           isShowAnnouncementBox={showAnnouncementBox}
+          isUsed={true}
         />
       )
 
@@ -651,7 +660,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
       setShowLoading(false)
 
       router.replace({
-        pathname: isOTO ? OTONewCarUrl : carResultsUrl,
+        pathname: carResultsUrl,
         query: {
           ...(age && { age }),
           ...(downPaymentAmount && { downPaymentAmount }),
@@ -697,8 +706,10 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
       CAR_MODEL: car.model,
       CAR_ORDER: parseInt(index) + 1,
       PELUANG_KREDIT_BADGE:
-        isUsingFilterFinancial && IsShowBadgeCreditOpportunity
-          ? dataCar?.PELUANG_KREDIT_BADGE
+        car.loanRank === 'Green'
+          ? 'Mudah disetujui'
+          : car.loanRank === 'Red'
+          ? 'Sulit disetujui'
           : 'Null',
       PAGE_ORIGINATION: 'PLP',
     })
@@ -720,7 +731,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
           setShowAnnouncementBox={setIsShowAnnouncementBox}
           isShowAnnouncementBox={showAnnouncementBox}
           pageOrigination={'PLP'}
-          isOTO={isOTO}
         />
 
         {!showLoading && sampleArray.items.length === 0 ? (
@@ -734,6 +744,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
               isFilterFinancial={isFilterFinancial}
               resultMinMaxPrice={resultMinMaxPrice}
               isShowAnnouncementBox={showAnnouncementBox}
+              isUsed={true}
             />
             {stickyFilter()}
             <PLPEmpty
@@ -752,7 +763,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
               isFilterFinancial={isFilterFinancial}
               resultMinMaxPrice={resultMinMaxPrice}
               isShowAnnouncementBox={showAnnouncementBox}
-              isOTO={isOTO}
+              isUsed={true}
             />
             {stickyFilter()}
             <div
@@ -774,23 +785,23 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
               >
                 {sampleArray.items.map(
                   (i: any, index: React.Key | null | undefined) => (
-                    <CarDetailCard
+                    <UsedCarDetailCard
                       order={Number(index)}
                       key={index}
                       recommendation={i}
-                      isOTO={isOTO}
                       isFilter={isFilterCredit}
                       setOpenInterestingModal={setOpenInterestingModal}
                       onClickLabel={() => {
                         setOpenLabelPromo(true)
                         trackCountlyPromoBadgeClick(i, index)
-
-                        setDataCarForPromo({
-                          brand: i.brand,
-                          model: i.model,
-                          carOrder: Number(index) + 1,
-                          loanRank: i.loanRank,
-                        })
+                        if (index) {
+                          setDataCarForPromo({
+                            brand: i.brand,
+                            model: i.model,
+                            carOrder: Number(index) + 1,
+                            loanRank: i.loanRank,
+                          })
+                        }
                       }}
                       onClickResultMudah={() => {
                         setOpenLabelResultMudah(true)
@@ -849,7 +860,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
           isFilter={isFilter}
           isFilterFinancial={isFilterFinancial}
           setIsFilter={setIsFilter}
-          isOTO={isOTO}
         />
         <SortingMobile
           open={openSorting}
@@ -895,7 +905,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
           <AdaOTOdiSEVALeadsForm
             onCancel={closeInterestingBtn}
             trackerProperties={trackLeads()}
-            onPage="PLP"
+            onPage="LP"
           />
         )}
       </div>

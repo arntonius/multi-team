@@ -60,6 +60,7 @@ import { RouteName } from 'utils/navigate'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useCar } from 'services/context/carContext'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 
 const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
