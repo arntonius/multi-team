@@ -38,7 +38,6 @@ export const FormSelectBrandCarSevaOTO = ({
 }: FilterMobileProps) => {
   const { funnelQuery } = useFunnelQueryData()
   const [isCheckedBrandQuery, setIsCheckedBrandQuery] = useState<string[]>([])
-  console.log(isSelected)
 
   // setIsCheckedBrand(isCheckedBrandQuery)
   const carList: CarButtonProps[] = [
