@@ -59,7 +59,7 @@ const PromoSection = ({
   const router = useRouter()
   const brand = router.query.brand as string
   const model = router.query.model as string
-  const enablePromoCumaDiSeva = false
+  const enablePromoCumaDiSeva = isOTO
 
   const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
 
