@@ -9,6 +9,28 @@ import {
 
 export type FormControlValue = string | number | readonly string[] | undefined
 
+export interface CreateProbeTrackRequest {
+  utmCampaign: string
+  campaignId?: number
+  utmContent?: string
+  adsetId?: string
+  utmTerm?: string
+  adId?: number
+  platform?: string
+  fullName?: string
+  email?: string
+  phoneNumber?: string
+  city?: string
+  carVariant?: string
+  loanDownPayment?: number
+  utmSource?: string
+  dmContactable?: string
+  dmDataValidation?: string
+  dmDataValidationAnswerDate?: string
+  dmEndJourneyDate?: string
+  dmValidation?: string
+}
+
 export interface Option<T extends FormControlValue> {
   label: string
   value: T
@@ -1061,4 +1083,34 @@ export interface trackDataCarType {
   INCOME_CHANGE: string
   INCOME_LC: string | number
   INCOME_KK: number
+}
+
+export interface updateLeadFormOTO {
+  leadId: string
+  leadResponse: boolean
+  isLeadQualified: boolean
+  carVariantId: string
+  carModelId: string
+  cityId: number
+  priceOtr: number
+}
+
+export interface updateLeadFormCM {
+  leadId: string
+  name: string
+  phone: string
+  salesId: number
+  spkDate: string
+  spkNo: string
+  bstkDate: string
+  bstkNo: string
+}
+
+export interface SalesAgent {
+  branchCode: string
+  branchName: string
+  dealer: string
+  id: number
+  salesCodeNpk: string
+  salesName: string
 }

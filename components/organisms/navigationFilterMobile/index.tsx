@@ -12,13 +12,13 @@ import clsx from 'clsx'
 import urls from 'utils/helpers/url'
 import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
 import { filterNonDigitCharacters } from 'utils/stringUtils'
-import { getNewFunnelRecommendations } from 'services/newFunnel'
 import elementId from 'helpers/elementIds'
 import { LanguageCode } from 'utils/enum'
 import { sortOptions } from 'utils/config/funnel.config'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { PreviousButton, navigateToPLP } from 'utils/navigate'
 import { useRouter } from 'next/router'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 
 type NavFilterMobileProps = {
   carlist?: any
@@ -70,6 +70,7 @@ export const NavigationFilterMobile = ({
       monthlyIncome: '',
       tenure: 5,
       isDefaultTenureChanged: false,
+      filterFincap: false,
     })
     const filter = {
       ...funnelQuery,

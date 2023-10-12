@@ -12,7 +12,6 @@ import { PopupResultInfo } from './popupResultFilter/resultInfo'
 import { PopupResultMudah } from './popupResultFilter/resultMudah'
 import { PopupResultSulit } from './popupResultFilter/resultSulit'
 import SortingMobile from './sortingMobile'
-import PdpDesktop from './PdpDesktop/index'
 import PdpMobile from './PdpMobile'
 import { PdpLowerSection } from './pdpLowerSection'
 import { PdpUpperSection } from './pdpUpperSection'
@@ -34,7 +33,6 @@ import Articles from './articles/index'
 import { CalculationResult } from './calculationResult/index'
 import PDPCarOverviewSkeleton from './pdpCarOverviewSkeleton'
 import SidebarMobile from './sidebarMobile'
-import HomepageDesktop from './homepageDesktop'
 import HomepageMobile from './homepageMobile'
 import LeadsFormTertiary from './leadsForm/tertiary'
 import ArticleWidget from './articleWidget'
@@ -49,15 +47,13 @@ import CarOfTheMonth from './carOfTheMonth'
 import dynamic from 'next/dynamic'
 import HomepageAdaSEVAdiOTO from './homepageAdaSEVAdiOTO'
 import { InsuranceTooltip } from './insuranceTooltip'
+import InformationSection from './InformationSection'
 import LeadsFormAdaOTOdiSEVA from './leadsForm/adaOTOdiSEVA'
 import { AdaOTOdiSEVALeadsForm } from './leadsForm/adaOTOdiSEVA/popUp'
 import { UsedCarDetailCard } from './usedCarDetailCard'
 const Exterior360ViewerTab = dynamic(
   () => import('./tabContent/upper/exterior360Viewer'),
 )
-
-// const FilterMobile = dynamic(() => import('./filterMobile'), { ssr: false })
-// const SortingMobile = dynamic(() => import('./sortingMobile'), { ssr: false })
 
 export {
   CarDetailCard,
@@ -74,7 +70,6 @@ export {
   NavigationFilterMobile,
   FilterMobile,
   PLP,
-  PdpDesktop,
   PdpMobile,
   PdpLowerSection,
   PdpUpperSection,
@@ -97,7 +92,6 @@ export {
   CalculationResult,
   PDPCarOverviewSkeleton,
   SidebarMobile,
-  HomepageDesktop,
   HomepageMobile,
   LeadsFormTertiary,
   ArticleWidget,
@@ -114,4 +108,5 @@ export {
   LeadsFormAdaOTOdiSEVA,
   AdaOTOdiSEVALeadsForm,
   UsedCarDetailCard,
+  InformationSection,
 }
