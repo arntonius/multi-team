@@ -3,12 +3,13 @@ import { createContext, useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 import { api } from 'services/api'
 import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
-import { HomepageDesktop, HomepageMobile } from 'components/organisms'
+import { HomepageMobile } from 'components/organisms'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import { getCity } from 'utils/hooks/useGetCity'
 import { useCar } from 'services/context/carContext'
 import { useUtils } from 'services/context/utilsContext'
 import { MobileWebTopMenuType, NavbarItemResponse } from 'utils/types/utils'
+import { getToken } from 'utils/handler/auth'
 
 interface HomePageDataLocalContextType {
   dataBanner: any
@@ -54,16 +55,26 @@ export default function WithTracker({
   dataMainArticle,
   dataTypeCar,
   dataCarofTheMonth,
+  ssr,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [isMobile, setIsMobile] = useState(useIsMobileSSr())
   const { saveTypeCar, saveCarOfTheMonth, saveRecommendationToyota } = useCar()
-  const { saveArticles, saveDesktopWebTopMenu, saveMobileWebTopMenus } =
-    useUtils()
-  const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
+  const {
+    saveArticles,
+    saveDesktopWebTopMenu,
+    saveMobileWebTopMenus,
+    saveDataAnnouncementBox,
+  } = useUtils()
 
-  useEffect(() => {
-    setIsMobile(isClientMobile)
-  }, [isClientMobile])
+  const getAnnouncementBox = async () => {
+    try {
+      const res: any = await api.getAnnouncementBox({
+        headers: {
+          'is-login': getToken() ? 'true' : 'false',
+        },
+      })
+      saveDataAnnouncementBox(res.data)
+    } catch (error) {}
+  }
 
   useEffect(() => {
     saveDesktopWebTopMenu(dataDesktopMenu)
@@ -72,6 +83,7 @@ export default function WithTracker({
     saveCarOfTheMonth(dataCarofTheMonth)
     saveTypeCar(dataTypeCar)
     saveRecommendationToyota(dataRecToyota)
+    getAnnouncementBox()
   }, [])
 
   return (
@@ -90,11 +102,7 @@ export default function WithTracker({
         dataCarofTheMonth,
       }}
     >
-      {isMobile ? (
-        <HomepageMobile dataReccomendation={dataReccomendation} />
-      ) : (
-        <HomepageDesktop />
-      )}
+      <HomepageMobile dataReccomendation={dataReccomendation} ssr={ssr} />
     </HomePageDataLocalContext.Provider>
   )
 }
@@ -102,9 +110,9 @@ export default function WithTracker({
 export async function getServerSideProps(context: any) {
   context.res.setHeader(
     'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=59',
+    'public, s-maxage=59, stale-while-revalidate=3000',
   )
-  const params = `?city=${getCity().cityCode}&cityId=${getCity().id}`
+  const params = `?city=jakarta&cityId=118`
   try {
     const [
       recommendationRes,
@@ -175,9 +183,25 @@ export async function getServerSideProps(context: any) {
         dataCarofTheMonth,
         isSsrMobile: getIsSsrMobile(context),
         dataDesktopMenu,
+        ssr: 'success',
       },
     }
   } catch (error) {
-    throw error
+    return {
+      props: {
+        dataBanner: null,
+        dataDesktopMenu: [],
+        dataMobileMenu: [],
+        dataCities: null,
+        dataTestimony: null,
+        dataRecToyota: null,
+        dataRecMVP: null,
+        dataUsage: null,
+        dataMainArticle: null,
+        dataTypeCar: null,
+        dataCarofTheMonth: null,
+        ssr: 'failed',
+      },
+    }
   }
 }

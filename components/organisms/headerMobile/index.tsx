@@ -31,6 +31,7 @@ import {
   saveDataForCountlyTrackerPageViewHomepage,
 } from 'utils/navigate'
 import dynamic from 'next/dynamic'
+import { getToken } from 'utils/handler/auth'
 
 const Overlay = dynamic(() =>
   import('components/atoms').then((mod) => mod.Overlay),
@@ -41,8 +42,9 @@ const SearchModal = dynamic(() =>
 const WebAnnouncementBox = dynamic(() =>
   import('components/organisms').then((mod) => mod.WebAnnouncementBox),
 )
-const SidebarMobile = dynamic(() =>
-  import('components/organisms').then((mod) => mod.SidebarMobile),
+const SidebarMobile = dynamic(
+  () => import('components/organisms').then((mod) => mod.SidebarMobile),
+  { ssr: false },
 )
 const LogoPrimary = '/revamp/icon/logo-primary.webp'
 
@@ -61,6 +63,7 @@ type HeaderMobileProps = {
   isOTO?: boolean
   transparent?: boolean
   isRegular?: boolean
+  passCountlyTrackerPageView?: (() => void) | (() => Promise<void>)
 }
 
 export const HeaderMobile = ({
@@ -75,6 +78,8 @@ export const HeaderMobile = ({
   isOTO = false,
   transparent = false,
   isRegular = true,
+  passCountlyTrackerPageView,
+
 }: HeaderMobileProps): JSX.Element => {
   const enableAnnouncementBoxAleph =
     getCurrentEnvironment.featureToggles.enableAnnouncementBoxAleph
@@ -83,6 +88,9 @@ export const HeaderMobile = ({
   const router = useRouter()
 
   const adaSeva = router.asPath.split('/')[1]
+  const [isLogin] = useState(!!getToken())
+
+  const redirectHome = adaSeva === 'adaSEVAdiOTO' ? rootOTOUrl : rootUrl
 
   const handleClickCityIcon = () => {
     if (!isActive) {
@@ -95,7 +103,7 @@ export const HeaderMobile = ({
             ? getPageName()
             : 'PDP - ' + valueMenuTabCategory(),
         USER_TYPE: valueForUserTypeProperty(),
-        SOURCE_BUTTON: 'Location Icon',
+        SOURCE_BUTTON: 'Location Icon (Navbar)',
       })
       emitClickCityIcon()
     }
@@ -103,13 +111,17 @@ export const HeaderMobile = ({
 
   const handleSearch = () => {
     if (!isActive) {
-      trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_CLICK, {
-        PAGE_ORIGINATION: getPageName(),
-      })
       setIsOpenSearchModal(true)
       trackSearchbarOpen({
         Page_Origination_URL: window.location.href,
       })
+      if (pageOrigination && pageOrigination.length !== 0) {
+        trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_CLICK, {
+          PAGE_ORIGINATION: pageOrigination.includes('PDP')
+            ? 'PDP - ' + valueMenuTabCategory()
+            : pageOrigination,
+        })
+      }
     }
   }
 
@@ -118,6 +130,17 @@ export const HeaderMobile = ({
       trackOpenBurgerMenu({
         Page_Origination_URL: window.location.href,
       })
+      if (pageOrigination && pageOrigination.length !== 0) {
+        const track = {
+          PAGE_ORIGINATION: pageOrigination.includes('PDP')
+            ? 'PDP - ' + valueMenuTabCategory()
+            : pageOrigination,
+          LOGIN_STATUS: isLogin ? 'Yes' : 'No',
+          USER_TYPE: valueForUserTypeProperty(),
+        }
+
+        trackEventCountly(CountlyEventNames.WEB_HAMBURGER_OPEN, track)
+      }
     }
     setIsActive(() => !isActive)
   }
@@ -126,16 +149,32 @@ export const HeaderMobile = ({
     trackSevaLogoClick({
       Page_Origination_URL: window.location.href,
     })
-    trackEventCountly(CountlyEventNames.WEB_SEVA_LOGO_CLICK, {
-      PAGE_ORIGINATION: getPageName(),
-      USER_TYPE: valueForUserTypeProperty(),
-    })
+    if (pageOrigination && pageOrigination.length !== 0) {
+      trackEventCountly(CountlyEventNames.WEB_SEVA_LOGO_CLICK, {
+        PAGE_ORIGINATION: pageOrigination.includes('PDP')
+          ? 'PDP - ' + valueMenuTabCategory()
+          : pageOrigination,
+        USER_TYPE: valueForUserTypeProperty(),
+      })
+    }
     saveDataForCountlyTrackerPageViewHomepage(PreviousButton.SevaLogo)
-
-    window.location.href = redirectHome
+    if (window.location.pathname.includes('kalkulator-kredit')) {
+      saveDataForCountlyTrackerPageViewHomepage(
+        PreviousButton.SevaLogo,
+        pageOrigination,
+      )
+    } else if (window.location.pathname === '/') {
+      saveDataForCountlyTrackerPageViewHomepage(PreviousButton.SevaLogo)
+      setTimeout(() => {
+        passCountlyTrackerPageView && passCountlyTrackerPageView()
+      }, 1000)
+    } else {
+      saveDataForCountlyTrackerPageViewHomepage(PreviousButton.SevaLogo)
+    }
+    setTimeout(() => {
+      window.location.href = redirectHome
+    }, 1000)
   }
-
-  const redirectHome = adaSeva === 'adaSEVAdiOTO' ? rootOTOUrl : rootUrl
 
   return (
     <>
@@ -280,6 +319,7 @@ export const HeaderMobile = ({
                 showSidebar={isActive}
                 isShowAnnouncementBox={isShowAnnouncementBox}
                 isOTO={isOTO}
+                pageOrigination={pageOrigination}
               />
               <div
                 className={styles.right}
@@ -309,9 +349,14 @@ export const HeaderMobile = ({
           isOpen={isOpenSearchModal}
           handleCloseModal={() => setIsOpenSearchModal(false)}
           isOTO={isOTO}
+          pageOrigination={pageOrigination}
         />
       </header>
-      <Overlay isShow={isActive} onClick={() => setIsActive(false)} />
+      <Overlay
+        isShow={isActive}
+        onClick={() => setIsActive(false)}
+        additionalstyle={styles.overlayAdditionalStyle}
+      />
     </>
   )
 }

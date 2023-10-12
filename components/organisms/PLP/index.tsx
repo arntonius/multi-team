@@ -31,10 +31,9 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { api } from 'services/api'
-import { getCities } from 'services/cities'
+
 import { useCar } from 'services/context/carContext'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import { getMinMaxPrice, getNewFunnelRecommendations } from 'services/newFunnel'
 import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { getConvertFilterIncome } from 'utils/filterUtils'
 import { getToken } from 'utils/handler/auth'
@@ -59,7 +58,7 @@ import {
   MinMaxPrice,
 } from 'utils/types/context'
 import { MoengageViewCarSearch } from 'utils/types/moengage'
-import { AnnouncementBoxDataType } from 'utils/types/utils'
+import { AnnouncementBoxDataType, trackDataCarType } from 'utils/types/utils'
 import styles from '../../../styles/pages/mobil-baru.module.scss'
 import {
   trackEventCountly,
@@ -69,11 +68,13 @@ import {
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getPageName } from 'utils/pageName'
 import { LoanRank } from 'utils/types/models'
-import { temanSevaUrlPath } from 'services/temanseva'
 import { decryptValue } from 'utils/encryptionUtils'
 import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
 import { useUtils } from 'services/context/utilsContext'
 import dynamic from 'next/dynamic'
+import { temanSevaUrlPath } from 'utils/types/props'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
 const LeadsFormPrimary = dynamic(() =>
   import('components/organisms').then((mod) => mod.LeadsFormPrimary),
@@ -168,9 +169,8 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     items: recommendation.slice(0, 12),
   })
   const [isOpenCitySelectorModal, setIsOpenCitySelectorModal] = useState(false)
-  const { cities, saveDataAnnouncementBox } = useUtils()
+  const { cities, dataAnnouncementBox } = useUtils()
   const [showAnnouncementBox, setIsShowAnnouncementBox] = useState(false)
-  const [interactive, setInteractive] = useState(false)
   const [isLogin] = useState(!!getToken())
   const [dataCarForPromo, setDataCarForPromo] = useState({
     brand: '',
@@ -180,6 +180,19 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
   })
   const user: string | null = getLocalStorage(LocalStorageKey.sevaCust)
   const isCurrentCitySameWithSSR = getCity().cityCode === defaultCity.cityCode
+  const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
+  const isUsingFilterFinancial =
+    !!filterStorage?.age &&
+    !!filterStorage?.downPaymentAmount &&
+    !!filterStorage?.monthlyIncome &&
+    !!filterStorage?.tenure
+  const dataCar: trackDataCarType | null = getSessionStorage(
+    SessionStorageKey.PreviousCarDataBeforeLogin,
+  )
+
+  const IsShowBadgeCreditOpportunity = getSessionStorage(
+    SessionStorageKey.IsShowBadgeCreditOpportunity,
+  )
 
   const fetchMoreData = () => {
     if (sampleArray.items.length >= recommendation.length) {
@@ -329,31 +342,19 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     trackEventCountly(CountlyEventNames.WEB_PLP_OPEN_SORT_CLICK)
   }
   const getAnnouncementBox = () => {
-    if (!interactive) {
-      setInteractive(true)
-      api
-        .getAnnouncementBox({
-          headers: {
-            'is-login': getToken() ? 'true' : 'false',
-          },
-        })
-        .then((res: { data: AnnouncementBoxDataType }) => {
-          if (res.data === undefined) {
-            setIsShowAnnouncementBox(false)
-          } else {
-            saveDataAnnouncementBox(res.data)
-            const sessionAnnouncmentBox = getSessionStorage(
-              getToken()
-                ? SessionStorageKey.ShowWebAnnouncementLogin
-                : SessionStorageKey.ShowWebAnnouncementNonLogin,
-            )
-            if (typeof sessionAnnouncmentBox !== 'undefined') {
-              setIsShowAnnouncementBox(sessionAnnouncmentBox as boolean)
-            } else {
-              setIsShowAnnouncementBox(true)
-            }
-          }
-        })
+    if (dataAnnouncementBox) {
+      const isShowAnnouncement = getSessionStorage(
+        getToken()
+          ? SessionStorageKey.ShowWebAnnouncementLogin
+          : SessionStorageKey.ShowWebAnnouncementNonLogin,
+      )
+      if (typeof isShowAnnouncement !== 'undefined') {
+        setIsShowAnnouncementBox(isShowAnnouncement as boolean)
+      } else {
+        setIsShowAnnouncementBox(true)
+      }
+    } else {
+      setIsShowAnnouncementBox(false)
     }
   }
 
@@ -418,31 +419,27 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     }
   }
 
+  useAfterInteractive(() => {
+    getAnnouncementBox()
+  }, [dataAnnouncementBox])
+
+  useAfterInteractive(() => {
+    setTimeout(() => {
+      checkFincapBadge(recommendation.slice(0, 12))
+    }, 1000)
+  }, [recommendation])
+
   //handle scrolling
   useEffect(() => {
     window.scrollTo(0, 0)
     moengageViewPLP()
 
-    window.addEventListener('touchstart', getAnnouncementBox)
     window.addEventListener('scroll', handleScroll)
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('touchstart', getAnnouncementBox)
     }
   }, [])
-
-  useEffect(() => {
-    ;['scroll', 'touchstart'].forEach((ev) =>
-      window.addEventListener(ev, getAnnouncementBox),
-    )
-
-    return () => {
-      ;['scroll', 'touchstart'].forEach((ev) =>
-        window.removeEventListener(ev, getAnnouncementBox),
-      )
-    }
-  }, [interactive])
 
   useEffect(() => {
     if (funnelQuery.age && funnelQuery.monthlyIncome) {
@@ -469,17 +466,25 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     } else {
       setIsFilter(false)
     }
+  }, [funnelQuery, brand])
 
+  useEffect(() => {
     if (
       funnelQuery.downPaymentAmount &&
       funnelQuery.monthlyIncome &&
       funnelQuery.age
     ) {
       setIsFilterFinancial(true)
+      patchFunnelQuery({ filterFincap: true })
     } else {
       setIsFilterFinancial(false)
+      patchFunnelQuery({ filterFincap: false })
     }
-  }, [funnelQuery, brand])
+  }, [
+    funnelQuery.downPaymentAmount,
+    funnelQuery.monthlyIncome,
+    funnelQuery.age,
+  ])
 
   useEffect(() => {
     if (
@@ -507,7 +512,12 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     }
 
     if (!isCurrentCitySameWithSSR || recommendation.length === 0) {
-      getMinMaxPrice()
+      const params = new URLSearchParams()
+      getCity().cityCode && params.append('city', getCity().cityCode as string)
+      console.log(params)
+
+      api
+        .getMinMaxPrice('', { params })
         .then((response) => {
           if (response) {
             setMinMaxPrice({
@@ -515,26 +525,14 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
               maxPriceValue: response.maxPriceValue,
             })
             const minTemp = priceRangeGroup
-              ? response.data.minPriceValue >
-                Number(
-                  priceRangeGroup && priceRangeGroup?.toString().split('-')[0],
-                )
-                ? Number(
-                    priceRangeGroup &&
-                      priceRangeGroup?.toString().split('-')[0],
-                  )
-                : response.data.minPriceValue
+              ? response.minPriceValue > Number(priceRangeGroup.split('-')[0])
+                ? response.minPriceValue
+                : Number(priceRangeGroup.split('-')[0])
               : ''
             const maxTemp = priceRangeGroup
-              ? response.data.maxPriceValue <
-                Number(
-                  priceRangeGroup && priceRangeGroup?.toString().split('-')[1],
-                )
-                ? response.data.maxPriceValue
-                : Number(
-                    priceRangeGroup &&
-                      priceRangeGroup?.toString().split('-')[1],
-                  )
+              ? response.maxPriceValue < Number(priceRangeGroup.split('-')[1])
+                ? response.maxPriceValue
+                : Number(priceRangeGroup.split('-')[1])
               : ''
 
             const queryParam: any = {
@@ -562,9 +560,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
                   setSampleArray({
                     items: response.carRecommendations.slice(0, 12),
                   })
-                  setTimeout(() => {
-                    checkFincapBadge(response.carRecommendations.slice(0, 12))
-                  }, 1000)
                 }
                 setShowLoading(false)
               })
@@ -597,9 +592,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
         sortBy: sortBy || 'lowToHigh',
       }
       patchFunnelQuery(queryParam)
-      setTimeout(() => {
-        checkFincapBadge(recommendation.slice(0, 12))
-      }, 1000)
     }
     return () => cleanEffect()
   }, [])
@@ -705,10 +697,8 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
       CAR_MODEL: car.model,
       CAR_ORDER: parseInt(index) + 1,
       PELUANG_KREDIT_BADGE:
-        car.loanRank === 'Green'
-          ? 'Mudah disetujui'
-          : car.loanRank === 'Red'
-          ? 'Sulit disetujui'
+        isUsingFilterFinancial && IsShowBadgeCreditOpportunity
+          ? dataCar?.PELUANG_KREDIT_BADGE
           : 'Null',
       PAGE_ORIGINATION: 'PLP',
     })
@@ -794,14 +784,13 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
                       onClickLabel={() => {
                         setOpenLabelPromo(true)
                         trackCountlyPromoBadgeClick(i, index)
-                        if (index) {
-                          setDataCarForPromo({
-                            brand: i.brand,
-                            model: i.model,
-                            carOrder: Number(index) + 1,
-                            loanRank: i.loanRank,
-                          })
-                        }
+
+                        setDataCarForPromo({
+                          brand: i.brand,
+                          model: i.model,
+                          carOrder: Number(index) + 1,
+                          loanRank: i.loanRank,
+                        })
                       }}
                       onClickResultMudah={() => {
                         setOpenLabelResultMudah(true)
@@ -906,7 +895,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
           <AdaOTOdiSEVALeadsForm
             onCancel={closeInterestingBtn}
             trackerProperties={trackLeads()}
-            onPage="LP"
+            onPage="PLP"
           />
         )}
       </div>
