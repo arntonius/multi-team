@@ -35,6 +35,15 @@ const product = {
   carVideoReview: baseUrl + '/car-video-review',
 }
 
+const usedCar = {
+  usedCars: `${baseUrl}/used-cars`,
+  skuCode: `${baseUrl}/used-car/detail/:sku_code`,
+  cityList: `${baseUrl}/used-car/city-list`,
+  pricing: `${baseUrl}/used-car/get-price-car-min-max-by-city`,
+  years: `${baseUrl}/used-car/get-years-car-min-max-by-city`,
+  mileage: `${baseUrl}/used-car/get-mileage-car-min-max-by-city`,
+}
+
 const leads = {
   unverifiedLeadNew: `${baseUrl}/unverifiedLeads/new`,
   customerAssistantDetails: `${baseUrl}/unverifiedLeads/csaDetails`,
@@ -101,4 +110,5 @@ export const collections = {
   ktp,
   profile,
   omnicom,
+  usedCar,
 }
