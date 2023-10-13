@@ -9,8 +9,6 @@ import {
 } from 'utils/handler/sessionStorage'
 import { ZIndex } from 'utils/types/models'
 import Image from 'next/image'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { colors } from 'utils/helpers/style/colors'
 import { Close } from './Close'
 import { getToken } from 'utils/handler/auth'
@@ -148,10 +146,6 @@ export const WebAnnouncementBox = ({
     } else {
       saveSessionStorage(SessionStorageKey.ShowWebAnnouncementNonLogin, 'false')
     }
-    sendAmplitudeData(AmplitudeEventName.WEB_ANNOUNCEMENT_BOX_CLICK_CLOSE, {
-      title: announcement ? announcement.title : '',
-      Page_Origination_URL: window.location.href.replace('https://www.', ''),
-    })
     trackEventCountly(CountlyEventNames.WEB_ANNOUNCEMENT_CLOSE_CLICK, {
       ANNOUNCEMENT_TITLE: announcement?.title,
     })
@@ -196,19 +190,6 @@ export const WebAnnouncementBox = ({
                   eventAction: 'Promotion Click',
                   eventLabel: announcement.title,
                 })
-                sendAmplitudeData(
-                  AmplitudeEventName.WEB_ANNOUNCEMENT_BOX_CLICK_CTA,
-                  {
-                    title: announcement.title,
-                    Page_Origination_URL: window.location.href.replace(
-                      'https://www.',
-                      '',
-                    ),
-                    Page_Direction_URL: announcement.url
-                      ? announcement.url.replace('https://www.', '')
-                      : '',
-                  },
-                )
                 trackEventCountly(CountlyEventNames.WEB_ANNOUNCEMENT_CLICK, {
                   ANNOUNCEMENT_TITLE: announcement.title,
                   PAGE_ORIGINATION: pageOrigination,

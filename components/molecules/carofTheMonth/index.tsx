@@ -6,8 +6,6 @@ import styles from 'styles/components/molecules/carOfTheMonth.module.scss'
 import clsx from 'clsx'
 import { PageOriginationName } from 'utils/types/tracker'
 import elementId from 'utils/helpers/trackerId'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { COMData, COMDataTracking } from 'utils/types/models'
 import { CityOtrOption } from 'utils/types'
 
@@ -94,15 +92,6 @@ const CarOfTheMonth = ({
                     item={item}
                     onCurrentSlide={(slide: any) => setCurrentSlide(slide)}
                     onSendOffer={() => {
-                      sendAmplitudeData(
-                        AmplitudeEventName.WEB_LEADS_FORM_OPEN,
-                        {
-                          Page_Origination: PageOriginationName.COTMLeadsForm,
-                          ...(cityOtr && { City: cityOtr.cityName }),
-                          Car_Brand: item.brand,
-                          Car_Model: item.name,
-                        },
-                      )
                       setSelectedCarOfTheMonth({
                         Car_Brand: item.brand,
                         Car_Model: item.name,

@@ -3,34 +3,29 @@ import { InformationSection } from 'components/organisms'
 import { InferGetServerSidePropsType } from 'next'
 import { defaultSeoImage } from 'utils/helpers/const'
 import styles from 'styles/pages/updateleadsformCM.module.scss'
-import FormDBLeads from 'components/molecules/formUpdateLeadsSevaOTO/formDBLeads'
-import { useRouter } from 'next/router'
-import { CityOtrOption } from 'utils/types'
-import { InstallmentTypeOptions } from 'utils/types/models'
 import { useEffect, useState } from 'react'
-import FormDealerSales from 'components/molecules/formUpdateLeadsSevaOTO/formDealerSales'
 import { Button, Input } from 'components/atoms'
-import { DatePickerCM } from 'components/atoms/inputDate'
-import { LabelWithTooltip } from 'components/molecules'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
-import { LabelTooltipSevaOTO } from 'components/molecules/label/labelTooltipSevaOTO'
 import dayjs from 'dayjs'
 import { InferType, number, object, string } from 'yup'
 import { useFormik } from 'formik'
 import { updateLeadFormCMSEVA } from 'services/leadsCM'
 import { api } from 'services/api'
 import { useUtils } from 'services/context/utilsContext'
-import FormSelectCitySevaOTO from 'components/molecules/formUpdateLeadsSevaOTO/formSelectCitySevaOTO'
 import { getLeadsDetail } from 'services/leadsSeva'
 import dynamic from 'next/dynamic'
+import FormDBLeads from 'components/molecules/formUpdateLeadsSevaOTO/formDBLeads'
+import FormDealerSales from 'components/molecules/formUpdateLeadsSevaOTO/formDealerSales'
 
 const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
-
-const getSlug = (query: any, index: number) => {
-  return (
-    query.slug && query.slug.length > index && (query.slug[index] as string)
-  )
-}
+const LabelTooltipSevaOTO = dynamic(() =>
+  import('components/molecules/label/labelTooltipSevaOTO').then(
+    (mod) => mod.LabelTooltipSevaOTO,
+  ),
+)
+const DatePickerCM = dynamic(() =>
+  import('components/atoms').then((mod) => mod.DatePickerCM),
+)
 
 interface CsaInput {
   salesId: number
@@ -103,7 +98,7 @@ const UpdateLeadsFormCM = ({
 
   useEffect(() => {
     saveAgent(dataAgent)
-  })
+  }, [])
 
   if (!isValidz) {
     return <div className="blank"></div>

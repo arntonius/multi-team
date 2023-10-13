@@ -4,7 +4,6 @@ import { Gap, IconCar } from 'components/atoms'
 import { TrackVariantList } from 'utils/types/tracker'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { formatNumberByLocalization, rupiah } from 'utils/handler/rupiah'
-import { trackWebPDPSpecificationTab } from 'helpers/amplitude/seva20Tracking'
 import { LeadsFormSecondary } from 'components/organisms'
 import { Info } from 'components/molecules'
 import { hundred, million } from 'utils/helpers/const'
@@ -156,32 +155,9 @@ export const SpecificationTab = () => {
 
   useEffect(() => {
     if (carModelDetails && flag === TrackerFlag.Init) {
-      sendAmplitude()
       setFlag(TrackerFlag.Sent)
     }
   }, [carModelDetails])
-
-  const sendAmplitude = (): void => {
-    const data: TrackVariantList = {
-      Car_Brand: carModelDetails?.brand || '',
-      Car_Model: carModelDetails?.model || '',
-      DP: `Rp${formatNumberByLocalization(
-        sortedCarModelVariant[0].dpAmount,
-        LanguageCode.id,
-        1000000,
-        10,
-      )} Juta`,
-      Monthly_Installment: `Rp${formatNumberByLocalization(
-        sortedCarModelVariant[0].monthlyInstallment,
-        LanguageCode.id,
-        1000000,
-        10,
-      )} jt/bln`,
-      Tenure: `${sortedCarModelVariant[0].tenure} Tahun`,
-      City: cityOtr?.cityName || '',
-    }
-    trackWebPDPSpecificationTab(data)
-  }
 
   const getColorVariant = () => {
     const currentUrlPathName = window.location.pathname

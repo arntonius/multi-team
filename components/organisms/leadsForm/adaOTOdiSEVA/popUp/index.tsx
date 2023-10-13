@@ -14,11 +14,6 @@ import { decryptValue, encryptValue } from 'utils/encryptionUtils'
 import { filterNonDigitCharacters } from 'utils/stringUtils'
 import elementId from 'helpers/elementIds'
 import { Modal } from 'components/atoms'
-import {
-  LeadsActionParam,
-  trackLeadsFormAction,
-} from 'helpers/amplitude/seva20Tracking'
-import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import { useMediaQuery } from 'react-responsive'
 import { onlyLettersAndSpaces } from 'utils/handler/regex'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
@@ -35,6 +30,7 @@ import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { createUnverifiedLeadNew } from 'utils/handler/lead'
+import { LeadsActionParam } from 'utils/types/props'
 
 const SupergraphicSecondarySmall =
   '/revamp/illustration/supergraphic-secondary-small.webp'
@@ -112,11 +108,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
 
   const sendOtpCode = async () => {
     setIsLoading(true)
-    if (trackerProperties)
-      trackLeadsFormAction(
-        TrackingEventName.WEB_LEADS_FORM_SUBMIT,
-        trackerProperties,
-      )
     const dataLeads = checkDataFlagLeads()
     if (dataLeads) {
       if (phone === dataLeads.phone && name === dataLeads.name) {
@@ -175,11 +166,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
     })
   }
   const onClose = () => {
-    if (trackerProperties)
-      trackLeadsFormAction(
-        TrackingEventName.WEB_LEADS_FORM_CLOSE,
-        trackerProperties,
-      )
     onCancel && onCancel()
   }
 
@@ -221,11 +207,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
     }
     try {
       await createUnverifiedLeadNew(data)
-      if (trackerProperties)
-        trackLeadsFormAction(
-          TrackingEventName.WEB_LEADS_FORM_SUCCESS,
-          trackerProperties,
-        )
       trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
         PAGE_ORIGINATION: 'PLP',
         LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',

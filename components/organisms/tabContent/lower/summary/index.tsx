@@ -20,7 +20,6 @@ import { Faq } from 'components/molecules/section/faq'
 import { TrackVariantList } from 'utils/types/tracker'
 import { CityOtrOption } from 'utils/types/utils'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-import { trackNewVariantListPageView } from 'helpers/amplitude/seva20Tracking'
 import { LeadsFormSecondary } from 'components/organisms'
 import { setTrackEventMoEngage } from 'helpers/moengage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
@@ -31,9 +30,9 @@ import { useRouter } from 'next/router'
 import { useCar } from 'services/context/carContext'
 import { LanguageCode, LocalStorageKey } from 'utils/enum'
 import { TrackerFlag, InstallmentTypeOptions } from 'utils/types/models'
-import dynamic from 'next/dynamic'
 import { getNewFunnelLoanSpecialRate } from 'utils/handler/funnel'
-import Modal from 'antd/lib/modal'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 const PopupVariantDetail = dynamic(
   () => import('components/organisms/popupVariantDetail/index'),
@@ -151,7 +150,6 @@ export const SummaryTab = ({
 
   useEffect(() => {
     if (carModelDetails && cheapestVariantData && flag === TrackerFlag.Init) {
-      sendAmplitude()
       trackEventMoengage()
       setFlag(TrackerFlag.Sent)
     }
@@ -162,28 +160,6 @@ export const SummaryTab = ({
       setVariantIdFuelRatio(variantView.id)
     }
   }, [variantView])
-
-  const sendAmplitude = (): void => {
-    const data: TrackVariantList = {
-      Car_Brand: carModelDetails?.brand || '',
-      Car_Model: carModelDetails?.model || '',
-      DP: `Rp${formatNumberByLocalization(
-        sortedCarModelVariant[0].dpAmount,
-        LanguageCode.id,
-        1000000,
-        10,
-      )} Juta`,
-      Monthly_Installment: `Rp${formatNumberByLocalization(
-        sortedCarModelVariant[0].monthlyInstallment,
-        LanguageCode.id,
-        1000000,
-        10,
-      )} jt/bln`,
-      Tenure: `${sortedCarModelVariant[0].tenure} Tahun`,
-      City: cityOtr?.cityName || '',
-    }
-    trackNewVariantListPageView(data)
-  }
 
   const getColorVariant = () => {
     const model = router.query.model
@@ -361,21 +337,11 @@ export const SummaryTab = ({
     },
   ]
 
-  const getDataForAmplitude = () => {
-    return {
-      Car_Brand: modelDetail?.brand,
-      Car_Model: modelDetail?.model,
-      City: cityOtr?.cityName || 'null',
-      Page_Origination_URL: client ? window.location.href : '',
-    }
-  }
-
   return (
     <div className={styles.container}>
       <div className={styles.wrapper}>
         <PromoSection
           setPromoName={setPromoName}
-          dataForAmplitude={getDataForAmplitude()}
           onButtonClick={onButtonClick}
           cheapestVariantData={cheapestVariantData}
           info={summaryInfo}
@@ -412,7 +378,7 @@ export const SummaryTab = ({
           </Modal>
         )}
 
-        {videoData.videoId.length > 0 ? (
+        {videoData?.videoId?.length > 0 ? (
           <>
             <div className={styles.videoSectionCard}>
               <div className={styles.videoSectionHeader}>

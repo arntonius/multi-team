@@ -11,7 +11,6 @@ import {
   DeleteAccountRequestType,
   UpdateProfileType,
 } from 'utils/types/utils'
-import { setAmplitudeUserId } from 'services/amplitude'
 
 export const getCustomerInfoSeva = () => {
   return api.getUserInfo()
@@ -22,7 +21,6 @@ export const getCustomerInfoWrapperSeva = () => {
     .then((response) => {
       const customerId = response[0].id ?? ''
       const customerName = response[0].fullName ?? ''
-      setAmplitudeUserId(response[0].phoneNumber ?? '')
       saveLocalStorage(
         LocalStorageKey.CustomerId,
         encryptValue(customerId.toString()),

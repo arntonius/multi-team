@@ -9,16 +9,9 @@ import {
   MoengageEventName,
   setTrackEventMoEngageWithoutValue,
 } from 'helpers/moengage'
-import {
-  trackProfilePageDeleteAccountEntryPointClick,
-  trackProfilePageLogoutClick,
-  trackProfilePageSaveChanges,
-  trackProfilePageView,
-} from 'helpers/amplitude/seva20Tracking'
 import getCurrentEnvironment from 'helpers/environments'
 import elementId from 'helpers/elementIds'
 import { useRouter } from 'next/router'
-import { useAmplitudePageView } from 'utils/hooks/useAmplitudePageView'
 import { CustomerInfoSeva } from 'utils/types/utils'
 import { separatePhoneNumber } from 'utils/handler/separatePhoneNumber'
 import {
@@ -59,7 +52,6 @@ const lostConnectionMessage =
 
 const Profile = () => {
   const history = useRouter()
-  useAmplitudePageView(trackProfilePageView)
   const [customerDetail, setCustomerDetail] = React.useState<CustomerInfoSeva>()
   const [toast, setToast] = useState('')
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false)
@@ -204,7 +196,6 @@ const Profile = () => {
       setIsModalOpen({ status: true, action: 'logout' })
       return
     }
-    trackProfilePageLogoutClick()
     logoutHandler()
   }
 
@@ -460,7 +451,6 @@ const Profile = () => {
                   setErrorMessage(lostConnectionMessage)
                   return
                 }
-                trackProfilePageSaveChanges()
                 handleSubmit()
               }}
               version={ButtonVersion.PrimaryDarkBlue}
@@ -484,11 +474,7 @@ const Profile = () => {
         </main>
         {enableDeleteAccount && (
           <div className={styles.deleteAccountSection}>
-            <Link
-              className={styles.deleteAccountLink}
-              href={deleteAccountUrl}
-              onClick={() => trackProfilePageDeleteAccountEntryPointClick()}
-            >
+            <Link className={styles.deleteAccountLink} href={deleteAccountUrl}>
               Hapus Akun
             </Link>
           </div>

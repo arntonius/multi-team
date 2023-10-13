@@ -1,7 +1,3 @@
-import {
-  trackLCAllArticleClick,
-  trackLCArticleClick,
-} from 'helpers/amplitude/seva20Tracking'
 import React from 'react'
 import PrimaryCard from 'components/molecules/card/primaryCard'
 import styles from 'styles/components/organisms/articles.module.scss'
@@ -43,13 +39,6 @@ export default function Articles({
   }, [])
 
   const handleClickArticle = (article: any) => {
-    trackLCArticleClick({
-      Page_Origination: window.location.href,
-      Car_Brand: carBrand,
-      Car_Model: carModel,
-      City: cityName,
-      Article: article.url,
-    })
     trackEventCountly(CountlyEventNames.WEB_ARTICLE_CLICK, {
       PAGE_ORIGINATION: 'PDP - Kredit',
       TENOR_OPTION: selectedTenure,
@@ -67,13 +56,6 @@ export default function Articles({
   }
 
   const handleClickAllArticle = () => {
-    trackLCAllArticleClick({
-      Page_Origination: window.location.href,
-      Car_Brand: carBrand,
-      Car_Model: carModel,
-      City: cityName,
-    })
-
     trackEventCountly(CountlyEventNames.WEB_ARTICLE_ALL_CLICK, {
       PAGE_ORIGINATION: 'PDP - Kredit',
       TENOR_OPTION: selectedTenure,

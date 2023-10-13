@@ -14,14 +14,6 @@ import { CityOtrOption, VideoDataType } from 'utils/types/utils'
 import styles from 'styles/components/organisms/pdpUpperSection.module.scss'
 import { exteriorImagesListNew } from 'config/Exterior360ImageList.config'
 import { interiorImagesListNew } from 'config/Interior360ImageList.config'
-import {
-  TrackingEventName,
-  TrackingEventWebPDPPhoto,
-} from 'helpers/amplitude/eventTypes'
-import {
-  CarVariantPhotoParam,
-  trackPDPPhotoClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { LocalStorageKey } from 'utils/enum'
 import { useRouter } from 'next/router'
@@ -114,20 +106,6 @@ export const PdpUpperSection = ({
 
   const [tabItemList] = useState(filterTabItem())
 
-  const trackEventPhoto = (
-    event: TrackingEventWebPDPPhoto,
-    photoType: string,
-  ) => {
-    const trackProperties: CarVariantPhotoParam = {
-      Car_Brand: carModelDetails?.brand as string,
-      Car_Model: carModelDetails?.model as string,
-      Page_Origination_URL: window.location.href.replace('https://www.', ''),
-      Photo_Type: photoType,
-      City: cityOtr?.cityName || 'null',
-    }
-    trackPDPPhotoClick(event, trackProperties)
-  }
-
   useEffect(() => {
     // useEffect to set tab item hidden or not
     filterTabItem()
@@ -200,7 +178,6 @@ export const PdpUpperSection = ({
               tab: value,
             },
           })
-          trackEventPhoto(TrackingEventName.WEB_PDP_TAB_PHOTO_CLICK, value)
           trackEventCountly(CountlyEventNames.WEB_PDP_VISUAL_TAB_CLICK, {
             VISUAL_TAB_CATEGORY: value,
           })

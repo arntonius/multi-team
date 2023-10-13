@@ -1,6 +1,7 @@
 import getCurrentEnvironment from 'helpers/environments'
 import { temanSevaUrlPath } from 'utils/types/props'
 const baseUrl = getCurrentEnvironment.apiBaseUrl
+const baseUrlTemanSeva = getCurrentEnvironment.temanSevaApiBaseUrl
 
 const utils = {
   menu: `${baseUrl}/menu`,
@@ -89,6 +90,10 @@ const profile = {
   updateProfile: `${baseUrl}/customers/update-profile`,
 }
 
+const temanSeva = {
+  checkTemanSeva: `${baseUrlTemanSeva}/auth/is-teman-seva`,
+}
+
 export const collections = {
   utils,
   product,
@@ -101,4 +106,5 @@ export const collections = {
   ktp,
   profile,
   omnicom,
+  temanSeva,
 }

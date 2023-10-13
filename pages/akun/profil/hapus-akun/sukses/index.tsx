@@ -3,10 +3,6 @@ import styles from 'styles/pages/delete-account-success.module.scss'
 
 import { AxiosResponse } from 'axios'
 import clsx from 'clsx'
-import {
-  trackDeleteAccountSuccessPageView,
-  trackDeleteAccountSucessCTAClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { useRouter } from 'next/router'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
 import { getToken } from 'utils/handler/auth'
@@ -43,7 +39,6 @@ export default function index() {
   useEffect(() => {
     checkCitiesData()
     getAnnouncementBox()
-    trackDeleteAccountSuccessPageView()
 
     const timer = setTimeout(() => {
       navigateHandler()
@@ -93,9 +88,6 @@ export default function index() {
   }
 
   const onClickCta = () => {
-    trackDeleteAccountSucessCTAClick({
-      Reason: (router.query.reason as string) || '',
-    })
     navigateHandler()
   }
 

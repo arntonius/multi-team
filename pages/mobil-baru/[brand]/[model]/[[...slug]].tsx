@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 import { PdpMobile } from 'components/organisms'
 import { api } from 'services/api'
 import {
@@ -11,7 +11,6 @@ import { InferGetServerSidePropsType } from 'next'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import { useUtils } from 'services/context/utilsContext'
 import { getToken } from 'utils/handler/auth'
-import { useMediaQuery } from 'react-responsive'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { LanguageCode } from 'utils/enum'
@@ -26,7 +25,6 @@ import { getCity } from 'utils/hooks/useGetCity'
 import { useCar } from 'services/context/carContext'
 import { capitalizeFirstLetter } from 'utils/stringUtils'
 import { lowerSectionNavigationTab } from 'config/carVariantList.config'
-import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import Script from 'next/script'
 import { mergeModelDetailsWithLoanRecommendations } from 'utils/handler/carRecommendation'
 import { formatShortPrice } from 'components/organisms/tabContent/lower/summary'
@@ -86,8 +84,7 @@ export default function index({
   } = useUtils()
   const router = useRouter()
   const { model, brand, slug } = router.query
-  const [isMobile, setIsMobile] = useState(useIsMobileSSr())
-  const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
+  const [isMobile] = useState(true)
   const { carModelDetails, recommendation } = useCar()
   const lowerTab = router.query.slug as string
   const path = lowerTab ? capitalizeFirstLetter(lowerTab[0]) : ''
@@ -97,18 +94,6 @@ export default function index({
         .value,
   )
 
-  const meta = useMemo(() => {
-    const title =
-      metaTagDataRes.data && metaTagDataRes.data.length > 0
-        ? metaTagDataRes.data[0].attributes.meta_title
-        : 'SEVA'
-    const description =
-      metaTagDataRes.data && metaTagDataRes.data.length > 0
-        ? metaTagDataRes.data[0].attributes.meta_description
-        : ''
-    return { title, description }
-  }, [metaTagDataRes])
-
   useEffect(() => {
     saveDesktopWebTopMenu(dataDesktopMenu)
     saveMobileWebTopMenus(dataMobileMenu)
@@ -116,10 +101,6 @@ export default function index({
     saveCities(dataCities)
     getAnnouncementBox()
   }, [])
-
-  useEffect(() => {
-    setIsMobile(isClientMobile)
-  }, [isClientMobile])
 
   const getAnnouncementBox = async () => {
     try {
@@ -148,8 +129,11 @@ export default function index({
   const currentYear = todayDate.getFullYear()
   const currentMonth = monthId(todayDate.getMonth())
 
-  const carOTRValueArray = dataCombinationOfCarRecomAndModelDetail?.variants.map(item => Number(item.priceValue))
-  const carOTRValue = Math.min(...carOTRValueArray as number[])
+  const carOTRValueArray =
+    dataCombinationOfCarRecomAndModelDetail?.variants.map((item) =>
+      Number(item.priceValue),
+    )
+  const carOTRValue = Math.min(...(carOTRValueArray as number[]))
   const carOTR = `Rp ${carOTRValue / 1000000} juta`
 
   const getMetaTitle = () => {
@@ -298,7 +282,6 @@ export async function getServerSideProps(context: any) {
         notFound: true,
       }
     }
-
     const [
       carRecommendationsRes,
       metaTagDataRes,
@@ -655,8 +638,11 @@ const jsonLD = (
     ImageObject: [
       {
         '@type': 'ImageObject',
-        contentUrl: (filterImageBasedOnType(carModel?.images, 'eksterior') as string[])?.length ?
-          filterImageBasedOnType(carModel?.images, 'eksterior')?.[0] : carModel?.images?.[0],
+        contentUrl: (
+          filterImageBasedOnType(carModel?.images, 'eksterior') as string[]
+        )?.length
+          ? filterImageBasedOnType(carModel?.images, 'eksterior')?.[0]
+          : carModel?.images?.[0],
         mainEntityOfPage: `https://www.seva.id/mobil-baru/${carModel?.brand}/${carModel?.model}?tab=Eksterior`,
         representativeOfPage: 'https://schema.org/True',
         isFamilyFriendly: 'https://schema.org/True',
@@ -664,8 +650,11 @@ const jsonLD = (
       },
       {
         '@type': 'ImageObject',
-        contentUrl: (filterImageBasedOnType(carModel?.images, 'eksterior') as string[])?.length ?
-          filterImageBasedOnType(carModel?.images, 'interior')?.[0] : carModel?.images?.[0],
+        contentUrl: (
+          filterImageBasedOnType(carModel?.images, 'eksterior') as string[]
+        )?.length
+          ? filterImageBasedOnType(carModel?.images, 'interior')?.[0]
+          : carModel?.images?.[0],
         mainEntityOfPage: `https://www.seva.id/mobil-baru/${carModel?.brand}/${carModel?.model}?tab=Interior`,
         representativeOfPage: 'https://schema.org/True',
         isFamilyFriendly: 'https://schema.org/True',

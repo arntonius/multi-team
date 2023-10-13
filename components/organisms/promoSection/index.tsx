@@ -1,9 +1,3 @@
-import {
-  trackCarVariantBannerPromoClick,
-  trackPromoBannerClick,
-  trackPromoBannerSeeAllClick,
-  trackSeeAllPromoClick,
-} from 'helpers/amplitude/seva20Tracking'
 import React from 'react'
 import styles from 'styles/components/organisms/summary.module.scss'
 
@@ -21,11 +15,7 @@ import {
   IconCar,
 } from 'components/atoms'
 import { CarVariantRecommendation, trackDataCarType } from 'utils/types/utils'
-import {
-  OTOCarResultsUrl,
-  OTOVariantListUrl,
-  variantListUrl,
-} from 'utils/helpers/routes'
+import { OTOVariantListUrl, variantListUrl } from 'utils/helpers/routes'
 import elementId from 'helpers/elementIds'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
@@ -39,7 +29,6 @@ import { getSessionStorage } from 'utils/handler/sessionStorage'
 
 type PromoSectionProps = {
   setPromoName?: (value: string) => void
-  dataForAmplitude?: any
   onButtonClick?: (value: boolean) => void
   cheapestVariantData?: CarVariantRecommendation | undefined
   info?: any
@@ -50,7 +39,6 @@ type PromoSectionProps = {
 
 const PromoSection = ({
   setPromoName,
-  dataForAmplitude,
   onButtonClick,
   cheapestVariantData,
   info,
@@ -105,14 +93,6 @@ const PromoSection = ({
     })
   }
 
-  const getValueBrandAndModel = (value: string) => {
-    return value
-      .replaceAll('-', ' ')
-      .toLowerCase()
-      .split(' ')
-      .map((s: any) => s.charAt(0).toUpperCase() + s.substring(1))
-      .join(' ')
-  }
   const trackCountlePromoCLick = (promoDetail: string, promoOrder: number) => {
     trackEventCountly(CountlyEventNames.WEB_PROMO_CLICK, {
       CAR_BRAND: getBrandAndModelValue(brand),
@@ -236,7 +216,6 @@ const PromoSection = ({
               rel="noopener noreferrer"
               className={styles.openSans}
               style={{ color: '#246ED4', paddingRight: '16px' }}
-              onClick={() => trackSeeAllPromoClick(dataForAmplitude)}
               data-testid={elementId.PDP.CTA.LihatSemuaPromo}
             >
               Lihat Semua
@@ -249,7 +228,6 @@ const PromoSection = ({
               className={styles.openSansMedium}
               style={{ color: '#246ED4', paddingRight: '16px' }}
               onClick={() => {
-                trackPromoBannerSeeAllClick()
                 trackCountlyClickSeeAll()
               }}
               data-testid={elementId.Homepage.Promo.LihatSemua}
@@ -266,12 +244,10 @@ const PromoSection = ({
                 if (onPage === 'VariantListPage') {
                   onButtonClick && onButtonClick(true)
                   setPromoName && setPromoName('promo1')
-                  trackCarVariantBannerPromoClick(dataForAmplitude)
                   trackCountlePromoCLick('Promo Cuma di SEVA', 1)
                 } else {
                   const Page_Direction_URL =
                     'https://www.seva.id/info/promo/cuma-di-seva/'
-                  trackPromoBannerClick({ Page_Direction_URL })
                   window.open(Page_Direction_URL, '_blank')
                 }
               }}
@@ -311,11 +287,9 @@ const PromoSection = ({
                   'Toyota Spektakuler',
                   enablePromoCumaDiSeva ? 2 : 1,
                 )
-                trackCarVariantBannerPromoClick(dataForAmplitude)
               } else {
                 const Page_Direction_URL =
                   'https://www.seva.id/info/promo/toyota-spektakuler/'
-                trackPromoBannerClick({ Page_Direction_URL })
                 trackCountlyClicPromo(Page_Direction_URL, 1)
                 window.open(Page_Direction_URL, '_blank')
               }
@@ -354,11 +328,9 @@ const PromoSection = ({
                   'Promo Trade-In Daihatsu',
                   enablePromoCumaDiSeva ? 3 : 2,
                 )
-                trackCarVariantBannerPromoClick(dataForAmplitude)
               } else {
                 const Page_Direction_URL =
                   'https://www.seva.id/info/promo/promo-trade-in-daihatsu/'
-                trackPromoBannerClick({ Page_Direction_URL })
                 trackCountlyClicPromo(Page_Direction_URL, 1)
                 window.open(Page_Direction_URL, '_blank')
               }

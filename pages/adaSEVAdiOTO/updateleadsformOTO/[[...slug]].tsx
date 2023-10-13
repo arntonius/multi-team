@@ -13,7 +13,7 @@ import { variantEmptyValue } from 'components/molecules/form/formSelectCarVarian
 import { ModelVariant } from 'utils/types/carVariant'
 import { CityOtrOption } from 'utils/types'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
+import { LocalStorageKey } from 'utils/enum'
 import { CarModel } from 'utils/types/carModel'
 import { Button } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
@@ -21,14 +21,17 @@ import { FormSelectModelCarSevaOTO } from 'components/molecules/formUpdateLeadsS
 import { FormSelectCarVariantSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectCarVariant'
 import { getLeadsDetail, updateLeadFormOTO } from 'services/leadsSeva'
 import { FormSelectBrandCarSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectBrandCarSevaOTO'
-import { LabelTooltipSevaOTO } from 'components/molecules/label/labelTooltipSevaOTO'
-import { capitalizeFirstLetter } from 'utils/stringUtils'
 import dynamic from 'next/dynamic'
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { api } from 'services/api'
-const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
+import CarSillhouete from '/public/revamp/illustration/car-sillhouete.webp'
 
-const CarSillhouete = '/revamp/illustration/car-sillhouete.webp'
+const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
+const LabelTooltipSevaOTO = dynamic(() =>
+  import('components/molecules/label/labelTooltipSevaOTO').then(
+    (mod) => mod.LabelTooltipSevaOTO,
+  ),
+)
 
 interface FormDataState {
   leadId: string
@@ -102,18 +105,6 @@ const UpdateLeadsFormOTO = ({
   const [toastMessage, setToastMessage] = useState(
     'Update form telah berhasil diperbaharui',
   )
-
-  const [isUserChooseVariantDropdown, setIsUserChooseVariantDropdown] =
-    useState(false)
-
-  const getAutofilledCityData = () => {
-    // related to logic inside component "FormSelectCity"
-    if (cityOtr) {
-      return cityOtr
-    } else {
-      return null
-    }
-  }
 
   const [forms, setForms] = useState<FormDataState>({
     leadId: leadId,

@@ -13,8 +13,6 @@ import {
   formatNumberByLocalization,
 } from 'utils/handler/rupiah'
 import Image from 'next/image'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { Button } from 'components/atoms'
 import { saveLocalStorage } from 'utils/handler/localStorage'
 import { client } from 'utils/helpers/const'
@@ -180,13 +178,6 @@ const CardCarOfTheMonth = ({
                 version={ButtonVersion.Secondary}
                 size={ButtonSize.Small}
                 onClick={() => {
-                  sendAmplitudeData(
-                    AmplitudeEventName.WEB_LP_CAROFTHEMONTH_CAR_CLICK,
-                    {
-                      Car_Brand: item.brand,
-                      Car_Model: item.name,
-                    },
-                  )
                   saveDataForCountlyTrackerPageViewPDP(
                     PreviousButton.CarOfTheMonth,
                   )

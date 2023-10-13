@@ -4,8 +4,6 @@ import { useInView } from 'react-intersection-observer'
 import CSAButton from 'components/atoms/floatButton/CSAButton'
 import { setTrackEventMoEngageWithoutValue } from 'services/moengage'
 import { EventName } from 'services/moengage/type'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { LeadsActionParam, PageOriginationName } from 'utils/types/tracker'
 import { AlephArticleCategoryType, Article, CityOtrOption } from 'utils/types'
 import { COMData, COMDataTracking } from 'utils/types/models'
@@ -23,7 +21,6 @@ import {
 } from 'components/molecules'
 import {
   LeadsFormTertiary,
-  LeadsFormPrimary,
   ArticleWidget,
   SearchWidget,
   WebAnnouncementBox,
@@ -35,12 +32,10 @@ import {
 } from 'components/organisms'
 import { getCity } from 'utils/hooks/useGetCity'
 import { HomePageDataLocalContext } from 'pages'
-import { trackLPKualifikasiKreditTopCtaClick } from 'helpers/amplitude/seva20Tracking'
 import { getToken } from 'utils/handler/auth'
 import { useRouter } from 'next/router'
 import { multiCreditQualificationPageUrl } from 'utils/helpers/routes'
 import { savePageBeforeLogin } from 'utils/loginUtils'
-import { LoginModalMultiKK } from '../loginModalMultiKK'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
@@ -63,6 +58,16 @@ import dynamic from 'next/dynamic'
 
 const CitySelectorModal = dynamic(
   () => import('components/molecules').then((mod) => mod.CitySelectorModal),
+  { ssr: false },
+)
+
+const LeadsFormPrimary = dynamic(
+  () => import('components/organisms').then((mod) => mod.LeadsFormPrimary),
+  { ssr: false },
+)
+
+const LoginModalMultiKK = dynamic(
+  () => import('components/organisms').then((mod) => mod.LoginModalMultiKK),
   { ssr: false },
 )
 
@@ -186,10 +191,6 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
         inline: 'center',
         block: 'center',
       })
-      sendAmplitudeData(
-        AmplitudeEventName.WEB_LEADS_FORM_OPEN,
-        trackLeadsLPForm(),
-      )
 
       trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_BUTTON_CLICK, {
         PAGE_ORIGINATION: 'Homepage - Floating Icon',
@@ -235,9 +236,7 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
 
   useAfterInteractive(() => {
     cityHandler()
-    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
     setTrackEventMoEngageWithoutValue(EventName.view_homepage)
-
     const timeoutCountlyTracker = setTimeout(() => {
       if (!isSentCountlyPageView) {
         trackCountlyPageView()
@@ -282,7 +281,6 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
         LOGIN_STATUS: !!getToken() ? 'Yes' : 'No',
       },
     )
-    trackLPKualifikasiKreditTopCtaClick()
     if (!!getToken()) {
       router.push(multiCreditQualificationPageUrl)
     } else {

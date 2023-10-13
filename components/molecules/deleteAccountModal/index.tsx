@@ -1,9 +1,10 @@
 import React from 'react'
 import styles from '/styles/components/molecules/deleteAccountModal.module.scss'
-import Modal from 'antd/lib/modal'
 import type { ModalProps } from 'antd/lib/modal'
 import { Button, IconClose, TextButton } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 type Props = ModalProps & {
   emitClickCtaCancel: () => void

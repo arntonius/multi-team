@@ -14,10 +14,6 @@ import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { InstallmentTypeOptions, LoanRank } from 'utils/types/models'
 import Tooltip from 'antd/lib/tooltip'
 import TooltipContentQualifacation from 'components/molecules/tooltipContent'
-import {
-  trackLCKualifikasiKreditTooltipCTAClick,
-  trackLCKualifikasiKreditTooltipCTACloseClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
 import elementId from 'helpers/elementIds'
 import PromoBottomSheet from '../promoBottomSheet'
@@ -188,65 +184,11 @@ export const CalculationResult = ({
   }
 
   const handleUnderstandTooltip = () => {
-    if (selectedLoan) {
-      trackCountlyOnClickUnderstandTooltip()
-      trackLCKualifikasiKreditTooltipCTAClick({
-        Age: `${formData.age} Tahun`,
-        Angsuran_Type: formData.paymentOption,
-        Car_Brand: formData?.model?.brandName || '',
-        Car_Model: formData?.model?.modelName || '',
-        Car_Variant: formData.variant?.variantName || '',
-        City: formData.city.cityName,
-        DP: `Rp${replacePriceSeparatorByLocalization(
-          formData.downPaymentAmount,
-          LanguageCode.id,
-        )}`,
-        Page_Origination: window.location.href,
-        Promo: formData.promoCode,
-        Monthly_Installment: `Rp${replacePriceSeparatorByLocalization(
-          selectedLoan.installment,
-          LanguageCode.id,
-        )}`,
-        Peluang_Kredit: getLoanRank(selectedLoan.loanRank),
-        Tenure: `${selectedLoan.tenure} Tahun`,
-        Total_DP: `Rp${replacePriceSeparatorByLocalization(
-          selectedLoan.dpAmount,
-          LanguageCode.id,
-        )}`,
-      })
-    }
-
+    if (selectedLoan) trackCountlyOnClickUnderstandTooltip()
     closeTooltip()
   }
 
   const handleCloseTooltip = () => {
-    if (selectedLoan) {
-      trackLCKualifikasiKreditTooltipCTACloseClick({
-        Age: `${formData.age} Tahun`,
-        Angsuran_Type: formData.paymentOption,
-        Car_Brand: formData?.model?.brandName || '',
-        Car_Model: formData?.model?.modelName || '',
-        Car_Variant: formData.variant?.variantName || '',
-        City: formData.city.cityName,
-        DP: `Rp${replacePriceSeparatorByLocalization(
-          formData.downPaymentAmount,
-          LanguageCode.id,
-        )}`,
-        Page_Origination: window.location.href,
-        Promo: formData.promoCode,
-        Monthly_Installment: `Rp${replacePriceSeparatorByLocalization(
-          selectedLoan.installment,
-          LanguageCode.id,
-        )}`,
-        Peluang_Kredit: getLoanRank(selectedLoan.loanRank),
-        Tenure: `${selectedLoan.tenure} Tahun`,
-        Total_DP: `Rp${replacePriceSeparatorByLocalization(
-          selectedLoan.dpAmount,
-          LanguageCode.id,
-        )}`,
-      })
-    }
-
     closeTooltip()
   }
 

@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react'
 import styles from 'styles/components/molecules/searchModal.module.scss'
 import HeaderVariant from '../headerVariant'
 import { Forward } from 'components/atoms/icon/Forward'
-import Modal from 'antd/lib/modal'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 interface Props {
   isOpen: boolean

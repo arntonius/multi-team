@@ -4,8 +4,6 @@ import { useMediaQuery } from 'react-responsive'
 import 'pure-react-carousel/dist/react-carousel.es.css'
 import styles from 'styles/components/organisms/carOfTheMonth.module.scss'
 import clsx from 'clsx'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { COMData, COMDataTracking } from 'utils/types/models'
 import CardCarOfTheMonth from 'components/molecules/cardCarOfTheMonth'
 import elementId from 'utils/helpers/trackerId'
@@ -104,15 +102,6 @@ const CarOfTheMonth = ({
                     item={item}
                     onCurrentSlide={(slide: any) => setCurrentSlide(slide)}
                     onSendOffer={() => {
-                      sendAmplitudeData(
-                        AmplitudeEventName.WEB_LEADS_FORM_OPEN,
-                        {
-                          Page_Origination: PageOriginationName.COTMLeadsForm,
-                          ...(cityOtr && { City: cityOtr.cityName }),
-                          Car_Brand: item.brand,
-                          Car_Model: item.name,
-                        },
-                      )
                       setSelectedCarOfTheMonth({
                         Car_Brand: item.brand,
                         Car_Model: item.name,

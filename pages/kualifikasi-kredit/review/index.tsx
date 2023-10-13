@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import styles from 'styles/pages/kualifikasi-kredit-review.module.scss'
-import Modal from 'antd/lib/modal'
 import Progress from 'antd/lib/progress'
 import Tooltip from 'antd/lib/tooltip'
 import { Button, IconInfo } from '../../../components/atoms'
@@ -26,26 +25,14 @@ import {
   replacePriceSeparatorByLocalization,
 } from 'utils/handler/rupiah'
 import { getCity } from 'utils/hooks/useCurrentCityOtr/useCurrentCityOtr'
-import {
-  CreditQualificationReviewParam,
-  trackKualifikasiKreditCarDetailClick,
-  trackKualifikasiKreditCarDetailClose,
-  trackKualifikasiKreditReviewPageCtaClick,
-  trackKualifikasiKreditReviewPageView,
-} from 'helpers/amplitude/seva20Tracking'
 import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { getToken } from 'utils/handler/auth'
-import {
-  creditQualificationUrl,
-  loanCalculatorDefaultUrl,
-} from 'utils/helpers/routes'
+import { loanCalculatorDefaultUrl } from 'utils/helpers/routes'
 import HeaderCreditClasificationMobile from 'components/organisms/headerCreditClasificationMobile'
 import { getOptionLabel } from 'utils/handler/optionLabel'
 import { occupations } from 'utils/occupations'
 import TooltipDaihatsu from 'components/molecules/tooltipDaihatsu'
 import { Currency } from 'utils/handler/calculation'
-import PopupCarDetail from 'components/organisms/popupCarDetail'
-import PopupCreditDetail from 'components/organisms/popupCreditDetail'
 import { LandingIA } from 'components/organisms/landingIA'
 import { useBadgePromo } from 'utils/hooks/usebadgePromo'
 import { FormLCState } from 'pages/kalkulator-kredit/[[...slug]]'
@@ -57,6 +44,15 @@ import Image from 'next/image'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getCarVariantDetailsById } from 'utils/handler/carRecommendation'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
+import { CreditQualificationReviewParam } from 'utils/types/props'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
+const PopupCarDetail = dynamic(
+  () => import('components/organisms/popupCarDetail'),
+)
+const PopupCreditDetail = dynamic(
+  () => import('components/organisms/popupCreditDetail'),
+)
 
 const CreditQualificationReviewPage = () => {
   useProtectPage()
@@ -150,15 +146,7 @@ const CreditQualificationReviewPage = () => {
       : { selectablePromo: [] }),
   }
 
-  const onClickCtaNext = async () => {
-    //after success response
-    trackKualifikasiKreditReviewPageCtaClick({
-      ...getDataForTracker(),
-      Total_Income: formattedIncome(String(totalIncome)),
-    })
-
-    setOpenIA(true)
-  }
+  const onClickCtaNext = async () => setOpenIA(true)
 
   const fetchNewFunnelRecommendation = async () => {
     const response = await getNewFunnelRecommendations({})
@@ -173,26 +161,8 @@ const CreditQualificationReviewPage = () => {
     }
   }
 
-  const getCreditCualficationDataTracker = () => ({
-    ...getDataForTracker(),
-    Income: undefined,
-    Total_Income: `Rp${formatNumberByLocalization(
-      Number(dataReview?.monthlyIncome),
-      LanguageCode.id,
-      1000000,
-      10,
-    )} Juta`,
-    Page_Origination: window.location.href,
-  })
-
-  const handleOpenDetail = () => {
-    trackKualifikasiKreditCarDetailClick(getCreditCualficationDataTracker())
-    setIsShowDetailCar(true)
-  }
-  const handleCloseDetail = () => {
-    trackKualifikasiKreditCarDetailClose(getCreditCualficationDataTracker())
-    setIsShowDetailCar(false)
-  }
+  const handleOpenDetail = () => setIsShowDetailCar(true)
+  const handleCloseDetail = () => setIsShowDetailCar(false)
 
   const getDataForTracker = (): CreditQualificationReviewParam => {
     return {
@@ -223,10 +193,6 @@ const CreditQualificationReviewPage = () => {
   }
 
   const trackAmplitudeAndMoengagePageView = () => {
-    trackKualifikasiKreditReviewPageView({
-      ...getDataForTracker(),
-      Income: formattedIncome(String(financialQuery.monthlyIncome)),
-    })
     setTrackEventMoEngage(
       MoengageEventName.view_kualifikasi_kredit_review_page,
       {

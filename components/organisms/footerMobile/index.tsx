@@ -5,7 +5,6 @@ import styles from '../../../styles/components/organisms/footerMobile.module.scs
 import urls from 'helpers/urls'
 import elementId from 'helpers/elementIds'
 import Image from 'next/image'
-import { trackFooterClick } from 'helpers/amplitude/seva20Tracking'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { UTMTagsData } from 'utils/types/utils'
 import { LocalStorageKey } from 'utils/enum'
@@ -72,10 +71,6 @@ export const FooterMobile = ({ pageOrigination }: FooterProps) => {
     }
   }
   const handleClickMenu = (menuName: string, menuUrl: string) => {
-    trackFooterClick({
-      Page_Origination_URL: window.location.href,
-      Menu: menuName,
-    })
     trackCountlyFooter(menuUrl)
   }
 

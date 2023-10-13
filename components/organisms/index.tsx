@@ -50,11 +50,13 @@ import { InsuranceTooltip } from './insuranceTooltip'
 import InformationSection from './InformationSection'
 import LeadsFormAdaOTOdiSEVA from './leadsForm/adaOTOdiSEVA'
 import { AdaOTOdiSEVALeadsForm } from './leadsForm/adaOTOdiSEVA/popUp'
+import { LoginModalMultiKK } from './loginModalMultiKK'
 const Exterior360ViewerTab = dynamic(
   () => import('./tabContent/upper/exterior360Viewer'),
 )
 
 export {
+  LoginModalMultiKK,
   CarDetailCard,
   FooterMobile,
   HeaderMobile,

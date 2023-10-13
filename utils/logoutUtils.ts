@@ -1,20 +1,8 @@
 import { logoutModalId } from '../utils/helpers/const'
-// import { setAmplitudeUserId } from 'helpers/amplitude'
 import { destroySessionMoEngage } from 'helpers/moengage'
 import { LocalStorageKey, SessionStorageKey } from './enum'
 import { isGoingToRestrictedRoutes } from './loginUtils'
 import { rootUrl } from './helpers/routes'
-import { setAmplitudeUserId } from 'services/amplitude'
-// import MoEngage from 'react-moengage'
-
-// export const showLogoutModal = () => {
-//   const logoutDom = document.getElementById(logoutModalId)
-//   if (logoutDom) {
-//     logoutDom.style.display = 'flex'
-//   }
-
-//   trackViewLogoutModal()
-// }
 
 export const hideLogout = () => {
   const logoutDom = document.getElementById(logoutModalId)
@@ -30,7 +18,6 @@ export const removeInformationWhenLogout = () => {
   sessionStorage.removeItem(SessionStorageKey.CustomerId)
   // MoEngage.destroySession()
   destroySessionMoEngage()
-  setAmplitudeUserId(null)
 }
 
 export const getPageBeforeProfile = () => {

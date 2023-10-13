@@ -16,13 +16,6 @@ import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import elementId from 'helpers/elementIds'
 import { OTP } from '../../otp'
-import {
-  LeadsActionParam,
-  PageOriginationName,
-  trackCTAWidgetDirection,
-  trackLeadsFormAction,
-} from 'helpers/amplitude/seva20Tracking'
-import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import { useSessionStorage } from 'utils/hooks/useSessionStorage/useSessionStorage'
 import { variantListUrl } from 'utils/helpers/routes'
 import { getConvertFilterIncome } from 'utils/filterUtils'
@@ -51,6 +44,7 @@ import {
 import Image from 'next/image'
 import { createUnverifiedLeadNew } from 'utils/handler/lead'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { LeadsActionParam, PageOriginationName } from 'utils/types/props'
 
 const SupergraphicLeft = '/revamp/illustration/supergraphic-small.webp'
 const SupergraphicRight = '/revamp/illustration/supergraphic-large.webp'
@@ -202,7 +196,6 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
   }
   const sendOtpCode = async () => {
     setIsLoading(true)
-    trackLeadsFormAction(TrackingEventName.WEB_LEADS_FORM_SUBMIT, trackLeads())
     const dataLeads = checkDataFlagLeads()
     if (dataLeads) {
       if (phone === dataLeads.phone && name === dataLeads.name) {
@@ -273,11 +266,6 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
     try {
       await createUnverifiedLeadNew(data)
       setModalOpened('success-toast')
-      trackLeadsFormAction(
-        TrackingEventName.WEB_LEADS_FORM_SUCCESS,
-        trackLeads(),
-      )
-
       trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
         PAGE_ORIGINATION: 'PDP - ' + valueMenuTabCategory(),
         LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
@@ -355,10 +343,6 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
       urlDirection = router.basePath + urlDirection
     }
 
-    trackCTAWidgetDirection({
-      Page_Direction_URL:
-        'https://' + window.location.host + urlDirection.replace('?', ''),
-    })
     trackClickCtaCountly()
     saveDataForCountlyTrackerPageViewLC(PreviousButton.LeadsForm)
     window.location.href = urlDirection

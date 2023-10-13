@@ -101,7 +101,9 @@ import { Separator } from './separator'
 import CustomModal from './modal/custom'
 import BottomSheet from './bottomSheet'
 import { SearchInput } from './searchInput'
+import DatePickerCM from './inputDate/datepickerCM'
 export {
+  DatePickerCM,
   IconLockFill,
   Button,
   Capsule,

@@ -8,28 +8,21 @@ import {
 } from 'components/atoms/icon'
 import urls from 'utils/helpers/url'
 import elementId from 'utils/helpers/trackerId'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { useRouter } from 'next/router'
 import {
   navigateToPLP,
   PreviousButton,
   saveDataForCountlyTrackerPageViewLC,
 } from 'utils/navigate'
-import { trackLPHowToUseSevaClick } from 'helpers/amplitude/seva20Tracking'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
-import { carResultsUrl, loanCalculatorDefaultUrl } from 'utils/helpers/routes'
+import { loanCalculatorDefaultUrl } from 'utils/helpers/routes'
 
 const HowToUse = () => {
   const router = useRouter()
 
   const onClickDreamCar = () => {
-    sendAmplitudeData(AmplitudeEventName.WEB_LP_HOW_TO_USE_SEVA_CLICK, {
-      Page_Direction_URL:
-        'https://' + window.location.host + urls.internalUrls.carResultsUrl,
-    })
     trackEventCountly(CountlyEventNames.WEB_HOMEPAGE_CAR_SEARCH_BUTTON_CLICK, {
       SOURCE_SECTION: 'SEVA Steps',
       CAR_BRAND: 'Null',
@@ -41,9 +34,6 @@ const HowToUse = () => {
       INCOME_AMOUNT: 'Null',
       AGE_RANGE: 'Null',
     })
-    trackLPHowToUseSevaClick({
-      Page_Direction_URL: 'https://' + window.location.host + carResultsUrl,
-    })
     navigateToPLP(PreviousButton.SevaSteps, history)
   }
 
@@ -54,10 +44,6 @@ const HowToUse = () => {
       CAR_MODEL: 'Null',
       CAR_ORDER: 'Null',
     })
-    trackLPHowToUseSevaClick({
-      Page_Direction_URL:
-        'https://' + window.location.host + loanCalculatorDefaultUrl,
-    })
     saveDataForCountlyTrackerPageViewLC(PreviousButton.SevaStepsCalculate)
     router.push({
       pathname: loanCalculatorDefaultUrl,
@@ -66,12 +52,6 @@ const HowToUse = () => {
   }
 
   const onClickCreditQualification = () => {
-    sendAmplitudeData(AmplitudeEventName.WEB_LP_HOW_TO_USE_SEVA_CLICK, {
-      Page_Direction_URL:
-        'https://' +
-        window.location.host +
-        urls.internalUrls.loanCalculatorDefaultUrl,
-    })
     trackEventCountly(
       CountlyEventNames.WEB_HOMEPAGE_CHECK_CREDIT_QUALIFICATION_CLICK,
       {
@@ -79,10 +59,6 @@ const HowToUse = () => {
         LOGIN_STATUS: !!getToken() ? 'Yes' : 'No',
       },
     )
-    trackLPHowToUseSevaClick({
-      Page_Direction_URL:
-        'https://' + window.location.host + loanCalculatorDefaultUrl,
-    })
     saveDataForCountlyTrackerPageViewLC(PreviousButton.SevaStepsQualification)
     router.push({
       pathname: loanCalculatorDefaultUrl,

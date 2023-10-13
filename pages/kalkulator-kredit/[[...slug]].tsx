@@ -18,15 +18,6 @@ import {
 } from 'components/molecules/form/formSelectCarVariant'
 import { HeaderMobile } from 'components/organisms'
 import { CalculationResultEmpty } from 'components/organisms/calculationResultEmpty'
-import {
-  trackLCCTAHitungKemampuanClick,
-  trackLCCtaWaDirectClick,
-  trackLCKualifikasiKreditClick,
-  trackLCKualifikasiKreditPopUpClose,
-  trackRegularCalculatorPage,
-  trackVariantListPageCodeFailed,
-  trackVariantListPageCodeSuccess,
-} from 'helpers/amplitude/seva20Tracking'
 import elementId from 'helpers/elementIds'
 import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { useRouter } from 'next/router'
@@ -286,41 +277,6 @@ export default function LoanCalculatorPage() {
     isValidPromoCode: true,
   })
 
-  const getDataForAmplitude = () => {
-    return {
-      Car_Brand: brand ? capitalizeFirstLetter(brand) : '',
-      Car_Model: model ? capitalizeFirstLetter(model.replaceAll('-', ' ')) : '',
-      Car_Variant: variant
-        ? variant
-            .toUpperCase()
-            .replaceAll('-', ' ')
-            .replaceAll(' AT ', ' A/T ')
-            .replaceAll(' MT ', ' M/T ')
-        : '',
-      DP:
-        storedFilter && storedFilter?.downPaymentAmount?.length > 0
-          ? `Rp${formatNumberByLocalization(
-              parseInt(storedFilter?.downPaymentAmount.toString()),
-              LanguageCode.id,
-              1000000,
-              10,
-            )} Juta`
-          : '',
-      Income:
-        storedFilter && storedFilter?.monthlyIncome?.length > 0
-          ? `Rp${formatNumberByLocalization(
-              parseInt(storedFilter?.monthlyIncome.toString()),
-              LanguageCode.id,
-              1000000,
-              10,
-            )} Juta`
-          : '',
-      Age:
-        storedFilter && storedFilter?.age?.length > 0 ? storedFilter?.age : '',
-      City: cityOtr?.cityName || '',
-    }
-  }
-
   const [showAnnouncementBox, setShowAnnouncementBox] = useState<
     boolean | null
   >(
@@ -374,7 +330,6 @@ export default function LoanCalculatorPage() {
       setIsLoadingPromoCode(false)
 
       if (result.message === 'valid promo code') {
-        trackVariantListPageCodeSuccess(forms.promoCode)
         if (result.citySelector) {
           const citygias = {
             cityName: result.citySelector.cityName,
@@ -389,14 +344,12 @@ export default function LoanCalculatorPage() {
         handlePromoCodeValidResult(true)
         return true
       }
-      trackVariantListPageCodeFailed(forms.promoCode)
       setIsErrorPromoCode(true)
       setisSuccessPromoCode(false)
       handlePromoCodeValidResult(false)
       return false
     } catch (err: any) {
       setIsLoadingPromoCode(false)
-      trackVariantListPageCodeFailed(forms.promoCode)
       setIsErrorPromoCode(true)
       setisSuccessPromoCode(false)
       handlePromoCodeValidResult(false)
@@ -603,7 +556,6 @@ export default function LoanCalculatorPage() {
 
   useEffect(() => {
     trackMoengage()
-    trackRegularCalculatorPage(getDataForAmplitude())
     checkCitiesData()
     fetchAllCarModels()
     fetchArticles()
@@ -1017,21 +969,6 @@ export default function LoanCalculatorPage() {
     if (promoCodeValidity) {
       setIsLoadingCalculation(true)
 
-      trackLCCTAHitungKemampuanClick({
-        Age: `${forms.age} Tahun`,
-        Angsuran_Type: forms.paymentOption,
-        Car_Brand: forms?.model?.brandName || '',
-        Car_Model: forms?.model?.modelName || '',
-        Car_Variant: forms.variant?.variantName || '',
-        City: forms.city.cityName,
-        DP: `Rp${replacePriceSeparatorByLocalization(
-          forms.downPaymentAmount,
-          LanguageCode.id,
-        )}`,
-        Page_Origination: window.location.href,
-        Promo: forms.promoCode,
-      })
-
       const dataFinancial = {
         ...financialQuery,
         downPaymentAmount: dpValue,
@@ -1140,50 +1077,10 @@ export default function LoanCalculatorPage() {
     }
   }, [])
 
-  const getLoanRank = (rank: string) => {
-    if (rank === LoanRank.Green) {
-      return 'Mudah'
-    } else if (rank === LoanRank.Red) {
-      return 'Sulit'
-    }
-
-    return ''
-  }
-
-  const getDataForAmplitudeQualification = (
-    loan: SpecialRateListWithPromoType | null,
-  ) => {
-    return {
-      Age: `${forms.age} Tahun`,
-      Angsuran_Type: forms.paymentOption,
-      Car_Brand: forms?.model?.brandName || '',
-      Car_Model: forms?.model?.modelName || '',
-      Car_Variant: forms.variant?.variantName || '',
-      City: forms.city.cityName,
-      DP: `Rp${replacePriceSeparatorByLocalization(
-        forms.downPaymentAmount,
-        LanguageCode.id,
-      )}`,
-      Page_Origination: window.location.href,
-      Promo: forms.promoCode,
-      Monthly_Installment: `Rp${replacePriceSeparatorByLocalization(
-        loan?.installment ?? 0,
-        LanguageCode.id,
-      )}`,
-      Peluang_Kredit: getLoanRank(loan?.loanRank ?? ''),
-      Tenure: `${loan?.tenure ?? ''} Tahun`,
-      Total_DP: `Rp${replacePriceSeparatorByLocalization(
-        loan?.dpAmount ?? 0,
-        LanguageCode.id,
-      )}`,
-    }
-  }
-
   const handleClickButtonQualification = (
     loan: SpecialRateListWithPromoType,
   ) => {
     trackCountlyClickCheckQualification(loan)
-    trackLCKualifikasiKreditClick(getDataForAmplitudeQualification(loan))
     setIsQualificationModalOpen(true)
 
     const selectedPromoTenure = insuranceAndPromoForAllTenure.filter(
@@ -1308,7 +1205,6 @@ export default function LoanCalculatorPage() {
   const handleRedirectToWhatsapp = async (
     loan: SpecialRateListWithPromoType,
   ) => {
-    trackLCCtaWaDirectClick(getDataForAmplitudeQualification(loan))
     const { model, variant, downPaymentAmount } = forms
     const message = `Halo, saya tertarik dengan ${model?.modelName} ${variant?.variantName} dengan DP sebesar Rp ${downPaymentAmount}, cicilan per bulannya Rp ${loan?.installment}, dan tenor ${loan?.tenure} tahun.`
 
@@ -1344,9 +1240,6 @@ export default function LoanCalculatorPage() {
 
   const onCloseQualificationPopUp = () => {
     trackCountlyOnCloseQualificationModal()
-    trackLCKualifikasiKreditPopUpClose(
-      getDataForAmplitudeQualification(selectedLoan),
-    )
     setIsQualificationModalOpen(false)
   }
 

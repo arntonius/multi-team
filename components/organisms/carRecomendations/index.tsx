@@ -1,7 +1,3 @@
-import {
-  trackLCCarRecommendationClick,
-  trackLCCarRecommendationCTAClick,
-} from 'helpers/amplitude/seva20Tracking'
 import elementId from 'helpers/elementIds'
 import { LanguageCode, SessionStorageKey } from 'utils/enum'
 import React from 'react'
@@ -96,13 +92,6 @@ export default function CarRecommendations({
       SessionStorageKey.PreviousCarDataBeforeLogin,
       JSON.stringify(dataCarTemp),
     )
-    trackLCCarRecommendationCTAClick({
-      Car_Brand: item.brand,
-      Car_Model: item.model,
-      City: selectedCity,
-      Monthly_Installment: `Rp${formatLowestInstallment}`,
-      Page_Origination: window.location.href,
-    })
     trackEventCountly(CountlyEventNames.WEB_CAR_RECOMMENDATION_CTA_CLICK, {
       PAGE_ORIGINATION: 'PDP - Kredit',
       CAR_BRAND: brand
@@ -144,13 +133,6 @@ export default function CarRecommendations({
       )
       .toLocaleLowerCase()
 
-    trackLCCarRecommendationClick({
-      Car_Brand: item.brand,
-      Car_Model: item.model,
-      City: selectedCity,
-      Monthly_Installment: `Rp${formatLowestInstallment}`,
-      Page_Origination: window.location.href,
-    })
     trackEventCountly(CountlyEventNames.WEB_CAR_RECOMMENDATION_CLICK, {
       PAGE_ORIGINATION: 'PDP - Kredit',
       PELUANG_KREDIT_BADGE:

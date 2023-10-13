@@ -1,4 +1,3 @@
-import Modal from 'antd/lib/modal'
 import React, {
   TextareaHTMLAttributes,
   useEffect,
@@ -15,9 +14,10 @@ import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
-import { LoanRank } from 'utils/types/models'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
 import { getBrandAndModelValue } from 'utils/handler/getBrandAndModel'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 const initPromoList: PopupPromoDataItemType[] = [
   // {

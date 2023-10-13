@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes } from 'react'
+import React from 'react'
 import styles from 'styles/components/atoms/input.module.scss'
 import clsx from 'clsx'
 import { PropsInput } from 'utils/types/props'

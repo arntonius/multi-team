@@ -3,7 +3,6 @@ import 'react-spring-bottom-sheet/dist/style.css'
 import React from 'react'
 import styles from 'styles/components/organisms/promoPopupPdp.module.scss'
 import { IconClose } from 'components/atoms'
-import { trackCarVariantBannerPromoPopupClose } from 'helpers/amplitude/seva20Tracking'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { CityOtrOption, trackDataCarType } from 'utils/types/utils'
@@ -52,17 +51,8 @@ const PromoPopup = ({
 
   const loanRankcr = router.query.loanRankCVL ?? ''
 
-  const getDataForAmplitude = () => {
-    return {
-      Car_Brand: carModelDetails?.brand,
-      Car_Model: carModelDetails?.model,
-      City: cityOtr?.cityName || 'null',
-      Page_Origination_URL: window.location.href,
-    }
-  }
   const onClickClose = () => {
     onButtonClick && onButtonClick(false)
-    trackCarVariantBannerPromoPopupClose(getDataForAmplitude())
   }
   const trackClickPromoSK = (promoDetail: string, promoOrder: number) => {
     trackEventCountly(CountlyEventNames.WEB_PROMO_SK_CLICK, {

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import styles from 'styles/pages/instant-approval-review.module.scss'
-import Modal from 'antd/lib/modal'
 import Progress from 'antd/lib/progress'
 import Tooltip from 'antd/lib/tooltip'
 import { Button, IconInfo } from '../../../components/atoms'
@@ -29,16 +28,9 @@ import {
 } from 'utils/handler/rupiah'
 import { FormLCState } from 'pages/kalkulator-kredit/[[...slug]]'
 import {
-  creditQualificationUrl,
   loanCalculatorDefaultUrl,
   waitingCreditQualificationUrl,
 } from 'utils/helpers/routes'
-import {
-  CreditQualificationReviewParam,
-  trackKualifikasiKreditCarDetailClick,
-  trackKualifikasiKreditCarDetailClose,
-  trackKualifikasiKreditReviewPageView,
-} from 'helpers/amplitude/seva20Tracking'
 
 import { isIsoDateFormat } from 'utils/handler/regex'
 import { getToken } from 'utils/handler/auth'
@@ -62,6 +54,10 @@ import {
 } from 'utils/handler/customer'
 import { getCarVariantDetailsById } from 'utils/handler/carRecommendation'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
+import { CreditQualificationReviewParam } from 'utils/types/props'
+import dynamic from 'next/dynamic'
+
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 const CreditQualificationReviewPage = () => {
   useProtectPage()
@@ -230,11 +226,9 @@ const CreditQualificationReviewPage = () => {
   }
 
   const handleOpenDetail = () => {
-    trackKualifikasiKreditCarDetailClick(getCreditCualficationDataTracker())
     setIsShowDetailCar(true)
   }
   const handleCloseDetail = () => {
-    trackKualifikasiKreditCarDetailClose(getCreditCualficationDataTracker())
     setIsShowDetailCar(false)
   }
 
@@ -267,10 +261,6 @@ const CreditQualificationReviewPage = () => {
   }
 
   const trackAmplitudeAndMoengagePageView = () => {
-    trackKualifikasiKreditReviewPageView({
-      ...getDataForTracker(),
-      Income: formattedIncome(String(financialQuery.monthlyIncome)),
-    })
     setTrackEventMoEngage(
       MoengageEventName.view_kualifikasi_kredit_review_page,
       {

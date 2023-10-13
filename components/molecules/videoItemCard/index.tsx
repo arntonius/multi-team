@@ -6,8 +6,6 @@ import { useUtils } from 'services/context/utilsContext'
 import { articleDateFormat } from 'utils/handler/date'
 // import Youtube, { YouTubeEvent } from 'react-youtube'
 import elementId from 'helpers/elementIds'
-import { trackPDPGalleryVideo } from 'helpers/amplitude/seva20Tracking'
-import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { LocalStorageKey } from 'utils/enum'
 import { useCar } from 'services/context/carContext'
@@ -79,7 +77,6 @@ export const VideoItemCard = ({ data }: Props) => {
       City: cityOtr?.cityName || 'Null',
       Page_Origination_URL: originationUrl,
     }
-    trackPDPGalleryVideo(TrackingEventName.WEB_PDP_PLAY_VIDEO, trackProperties)
     trackCountlyOnPlay()
   }
 
