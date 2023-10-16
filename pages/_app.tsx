@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/inline-script-id */
 import type { AppProps } from 'next/app'
 import localFont from '@next/font/local'
-import { useEffect } from 'react'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
@@ -117,7 +116,6 @@ export default function App({ Component, pageProps }: AppProps) {
               --open-sans-extra-bold: ${OpenSansExtraBold.style.fontFamily};
             }
           `}</style>
-          <CityFirst />
           <Component {...pageProps} />
         </GlobalContextProvider>
       </IsSsrMobileContext.Provider>
