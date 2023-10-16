@@ -243,7 +243,7 @@ const UpdateLeadsFormOTO = ({
 
   useEffect(() => {
     if (isCheckedBrand.length > 0) fetchAllCarModels()
-  }, [isCheckedBrand])
+  }, [isCheckedBrand, forms.city?.id])
 
   useEffect(() => {
     if (forms.model?.modelId !== '' && forms.city?.id !== '') fetchCarVariant()
