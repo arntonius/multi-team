@@ -250,22 +250,6 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
     }
   }
 
-  useAfterInteractive(() => {
-    cityHandler()
-    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
-    setTrackEventMoEngageWithoutValue(EventName.view_homepage)
-
-    const timeoutCountlyTracker = setTimeout(() => {
-      if (!isSentCountlyPageView) {
-        trackCountlyPageView()
-      }
-    }, 1000)
-
-    return () => {
-      cleanEffect(timeoutCountlyTracker)
-    }
-  }, [])
-
   useEffect(() => {
     if (getCity().cityCode !== 'jakarta' || ssr === 'failed') {
       loadCarRecommendation()
@@ -278,6 +262,17 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   useAfterInteractive(() => {
     getAnnouncementBox()
   }, [dataAnnouncementBox])
+
+  useAfterInteractive(() => {
+    cityHandler()
+    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
+    setTrackEventMoEngageWithoutValue(EventName.view_homepage)
+    setTimeout(() => {
+      if (!isSentCountlyPageView) {
+        trackCountlyPageView()
+      }
+    }, 1000)
+  }, [])
 
   const trackLeadsLPForm = (): LeadsActionParam => {
     return {
