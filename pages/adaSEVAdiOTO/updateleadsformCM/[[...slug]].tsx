@@ -26,13 +26,7 @@ import dynamic from 'next/dynamic'
 
 const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
 
-const getSlug = (query: any, index: number) => {
-  return (
-    query.slug && query.slug.length > index && (query.slug[index] as string)
-  )
-}
-
-interface CsaInput {
+interface CMInput {
   salesId: number
   spkDate: string
   spkNo: string
@@ -44,14 +38,14 @@ interface DataResponse {
   leadId: string
   name: string
   phoneNumber: string
-  csaInput: CsaInput
+  cmInput: CMInput
 }
 
 const UpdateLeadsFormCM = ({
   message,
   isValidz,
   dataAgent,
-  csaInput,
+  cmInput,
   leadId,
   name,
   phone,
@@ -60,6 +54,7 @@ const UpdateLeadsFormCM = ({
   const [isRequiredSPK, setIsRequiredSPK] = useState(false)
   const [isRequiredBSTK, setIsRequiredBSTK] = useState(false)
   const [isOpenToast, setIsOpenToast] = useState(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [toastMessage, setToastMessage] = useState(
     'Lead berhasil diassign ke dealer & sales agent',
   )
@@ -88,17 +83,15 @@ const UpdateLeadsFormCM = ({
       dbLeadsId: leadId || '',
       name: name || '',
       phone: phone || '',
-      salesId: csaInput?.salesId || 0,
-      noSPK: csaInput?.spkNo || '',
-      spkDate: csaInput?.spkDate || '',
-      noBSTK: csaInput?.bstkNo || '',
-      bstkDate: csaInput?.bstkDate || '',
+      salesId: cmInput?.salesId || 0,
+      noSPK: cmInput?.spkNo || '',
+      spkDate: cmInput?.spkDate || '',
+      noBSTK: cmInput?.bstkNo || '',
+      bstkDate: cmInput?.bstkDate || '',
     },
     onSubmit: (value) => {
       updateLeadFormCMSEVA({
         leadId: value.dbLeadsId || '',
-        name: value.name || '',
-        phone: value.phone || '',
         salesId: value.salesId || 0,
         spkNo: value.noSPK || '',
         spkDate: dayjs(value.spkDate).format('YYYY-MM-DD'),
@@ -127,6 +120,45 @@ const UpdateLeadsFormCM = ({
     const target = document.getElementById(elementId)
     if (target) {
       target.scrollIntoView({ block: 'center' })
+    }
+  }
+
+  const handleClick = async () => {
+    setIsLoading(true)
+
+    if (values.noSPK !== '') {
+      if (values.spkDate === '') {
+        setIsRequiredSPK(true)
+        scrollToElement('update-leads-form-spk-date')
+        setIsLoading(false)
+        return
+      } else {
+        setToastMessage('SPK berhasil diperbaharui')
+      }
+    }
+    if (values.noBSTK !== '') {
+      if (values.bstkDate === '') {
+        setIsRequiredBSTK(true)
+        scrollToElement('update-leads-form-bstk-date')
+        setIsLoading(false)
+        return
+      } else {
+        setToastMessage('BSTK berhasil diperbaharui')
+      }
+    }
+    setIsRequiredBSTK(false)
+    setIsRequiredSPK(false)
+    setIsOpenToast(true)
+    try {
+      handleSubmit()
+      setIsLoading(false)
+      setTimeout(() => {
+        setIsOpenToast(false)
+      }, 3000)
+    } catch (error) {
+      setTimeout(() => {
+        setIsOpenToast(false)
+      }, 3000)
     }
   }
 
@@ -244,29 +276,9 @@ const UpdateLeadsFormCM = ({
             }
             size={ButtonSize.Big}
             disabled={values.salesId === 0}
+            loading={isLoading}
             onClick={() => {
-              if (values.noSPK !== '') {
-                if (values.spkDate === '') {
-                  setIsRequiredSPK(true)
-                  scrollToElement('update-leads-form-spk-date')
-                  return
-                } else {
-                  setToastMessage('SPK berhasil diperbaharui')
-                }
-              }
-              if (values.noBSTK !== '') {
-                if (values.bstkDate === '') {
-                  setIsRequiredBSTK(true)
-                  scrollToElement('update-leads-form-bstk-date')
-                  return
-                } else {
-                  setToastMessage('BSTK berhasil diperbaharui')
-                }
-              }
-              setIsRequiredBSTK(false)
-              setIsRequiredSPK(false)
-              setIsOpenToast(true)
-              handleSubmit()
+              handleClick()
             }}
           >
             Submit
@@ -293,7 +305,7 @@ export async function getServerSideProps(context: any) {
   let valid = true
 
   // TODO: Check Token
-  if (TokenStatic !== 'SEv4Uh4Y') {
+  if (TokenStatic !== 'c2V2YQ==') {
     valid = false
   }
   // TODO: getDetail ID
@@ -302,7 +314,7 @@ export async function getServerSideProps(context: any) {
     const salesRes: any = await Promise.all([api.getAgent()])
     const response = await getLeadsDetail(detailId)
     const data: DataResponse = response.data
-    const csaInput = data.csaInput
+    const cmInput = data.cmInput
     const leadId = data.leadId
     const name = data.name
     const phone = data.phoneNumber.slice(3)
@@ -312,7 +324,7 @@ export async function getServerSideProps(context: any) {
         message: 'hello',
         isValidz: valid,
         dataAgent: salesRes,
-        csaInput,
+        cmInput,
         leadId,
         name,
         phone,

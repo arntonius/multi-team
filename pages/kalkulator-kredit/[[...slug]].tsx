@@ -100,6 +100,7 @@ import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { Currency } from 'utils/handler/calculation'
 import { useUtils } from 'services/context/utilsContext'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -346,7 +347,8 @@ export default function LoanCalculatorPage() {
     }
   }
 
-  const [showAnnouncementBox, setShowAnnouncementBox] = useState<boolean>(false)
+  const { showAnnouncementBox, saveShowAnnouncementBox } =
+    useAnnouncementBoxContext()
   const [articles, setArticles] = useState<Article[]>([])
 
   const fetchArticles = async () => {
@@ -694,12 +696,12 @@ export default function LoanCalculatorPage() {
           : SessionStorageKey.ShowWebAnnouncementNonLogin,
       )
       if (typeof isShowAnnouncement !== 'undefined') {
-        setShowAnnouncementBox(isShowAnnouncement as boolean)
+        saveShowAnnouncementBox(isShowAnnouncement as boolean)
       } else {
-        setShowAnnouncementBox(true)
+        saveShowAnnouncementBox(true)
       }
     } else {
-      setShowAnnouncementBox(false)
+      saveShowAnnouncementBox(false)
     }
   }, [dataAnnouncementBox])
 
@@ -1693,7 +1695,7 @@ export default function LoanCalculatorPage() {
             position: 'fixed',
           }}
           emitClickCityIcon={() => setIsOpenCitySelectorModal(true)}
-          setShowAnnouncementBox={setShowAnnouncementBox}
+          setShowAnnouncementBox={saveShowAnnouncementBox}
           isShowAnnouncementBox={showAnnouncementBox}
         />
         <div
@@ -1724,6 +1726,7 @@ export default function LoanCalculatorPage() {
                 name="city"
                 onOpenTooltip={onOpenTooltipCityField}
                 onShowDropdown={onShowDropdownCityField}
+                isError={isValidatingEmptyField && !forms.city}
               />
               {isValidatingEmptyField && !forms.city
                 ? renderErrorMessageEmpty()
@@ -1743,6 +1746,10 @@ export default function LoanCalculatorPage() {
                 allModelCarList={allModelCarList}
                 setModelError={setModelError}
                 onShowDropdown={onShowDropdownModelField}
+                overrideIsErrorFieldOnly={
+                  isValidatingEmptyField &&
+                  (!forms.model?.modelId || !forms.model.modelName)
+                }
               />
               {isValidatingEmptyField &&
               (!forms.model?.modelId || !forms.model.modelName)
@@ -1758,6 +1765,10 @@ export default function LoanCalculatorPage() {
                 value={forms.variant || variantEmptyValue}
                 modelError={modelError}
                 onShowDropdown={onShowDropdownVariantField}
+                isError={
+                  isValidatingEmptyField &&
+                  (!forms.variant?.variantId || !forms.variant.variantName)
+                }
               />
               {isValidatingEmptyField &&
               (!forms.variant?.variantId || !forms.variant.variantName)
@@ -1771,7 +1782,10 @@ export default function LoanCalculatorPage() {
                 value={Number(forms.monthlyIncome)}
                 defaultValue={Number(forms.monthlyIncome)}
                 handleChange={handleChange}
-                isErrorTooLow={isIncomeTooLow}
+                isError={
+                  isIncomeTooLow ||
+                  (isValidatingEmptyField && !forms.monthlyIncome)
+                }
                 emitOnBlurInput={onBlurIncomeInput}
                 onFocus={onFocusIncomeField}
               />
@@ -1836,6 +1850,7 @@ export default function LoanCalculatorPage() {
                 handleChange={handleChange}
                 defaultValue={forms.age}
                 onShowDropdown={onShowDropdownAgeField}
+                isError={isValidatingEmptyField && !forms.age}
               />
               {isValidatingEmptyField && !forms.age
                 ? renderErrorMessageEmpty()
@@ -1861,17 +1876,8 @@ export default function LoanCalculatorPage() {
             <Button
               // not using "disabled" attrib because some func need to be run
               // when disabled button is clicked
-              version={
-                isDisableCtaCalculate
-                  ? ButtonVersion.Disable
-                  : ButtonVersion.PrimaryDarkBlue
-              }
+              version={ButtonVersion.PrimaryDarkBlue}
               secondaryClassName={styles.buttonSubmit}
-              disabled={
-                isDisableCtaCalculate ||
-                isLoadingCalculation ||
-                isLoadingInsuranceAndPromo
-              }
               size={ButtonSize.Big}
               onClick={onClickCalculate}
               data-testid={elementId.LoanCalculator.Button.HitungKemampuan}

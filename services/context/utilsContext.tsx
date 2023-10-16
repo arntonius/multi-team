@@ -17,7 +17,7 @@ import {
 
 export type UtilsContextType = {
   dataAnnouncementBox: AnnouncementBoxDataType | undefined
-  saveDataAnnouncementBox: (data: AnnouncementBoxDataType) => void
+  saveDataAnnouncementBox: (data: AnnouncementBoxDataType | undefined) => void
   cities: CityOtrOption[]
   saveCities: (data: CityOtrOption[]) => void
   agent: SalesAgent[]
@@ -76,7 +76,7 @@ export const UtilsContextProvider = ({ children }: any) => {
     setArticles(articlesData)
 
   const saveDataAnnouncementBox = (
-    dataAnnouncementBox: AnnouncementBoxDataType,
+    dataAnnouncementBox: AnnouncementBoxDataType | undefined,
   ) => setIsShowAnnouncementBox(dataAnnouncementBox)
 
   const saveMobileWebTopMenus = (
