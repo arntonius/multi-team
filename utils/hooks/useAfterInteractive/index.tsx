@@ -11,13 +11,13 @@ export const useAfterInteractive = (
 
   const onInteractive = useCallback(() => {
     if (!interactive) {
-      setInteractive(true)
       executeFunc()
       ;['scroll', 'touchstart'].forEach((ev) =>
         window.removeEventListener(ev, onInteractive),
       )
+      setInteractive(true)
     }
-  }, [interactive])
+  }, [])
 
   useEffect(() => {
     if (!interactive) {
@@ -39,5 +39,5 @@ export const useAfterInteractive = (
         options?.unmountFunc && options.unmountFunc()
       }
     }
-  }, [interactive, ...dependencies])
+  }, [...dependencies])
 }
