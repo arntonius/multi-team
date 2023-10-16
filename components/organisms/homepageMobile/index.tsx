@@ -61,6 +61,8 @@ import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useCar } from 'services/context/carContext'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
+import { useUtils } from 'services/context/utilsContext'
 
 const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
@@ -96,6 +98,8 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   })
   const [isSentCountlyPageView, setIsSentCountlyPageView] = useState(false)
   const [sourceButton, setSourceButton] = useState('Null')
+  const { dataAnnouncementBox } = useUtils()
+  const { saveShowAnnouncementBox } = useAnnouncementBoxContext()
 
   const checkCitiesData = () => {
     api.getCities().then((res: any) => {
@@ -229,6 +233,23 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
     }
   }
 
+  const getAnnouncementBox = () => {
+    if (dataAnnouncementBox) {
+      const isShowAnnouncement = getSessionStorage(
+        getToken()
+          ? SessionStorageKey.ShowWebAnnouncementLogin
+          : SessionStorageKey.ShowWebAnnouncementNonLogin,
+      )
+      if (typeof isShowAnnouncement !== 'undefined') {
+        saveShowAnnouncementBox(Boolean(isShowAnnouncement))
+      } else {
+        saveShowAnnouncementBox(true)
+      }
+    } else {
+      saveShowAnnouncementBox(false)
+    }
+  }
+
   useAfterInteractive(() => {
     cityHandler()
     sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
@@ -253,6 +274,10 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
       getArticles()
     }
   }, [])
+
+  useAfterInteractive(() => {
+    getAnnouncementBox()
+  }, [dataAnnouncementBox])
 
   const trackLeadsLPForm = (): LeadsActionParam => {
     return {
