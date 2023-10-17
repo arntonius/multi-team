@@ -103,7 +103,6 @@ const sidebarMobile = ({
     trackProfileAkunSayaClick({
       Page_Origination_URL: window.location.href,
     })
-
     trackEventCountly(CountlyEventNames.WEB_HAMBURGER_ACCOUNT_CLICK, {
       PAGE_ORIGINATION: pageOrigination,
       SOURCE_SECTION: 'Top',
@@ -114,7 +113,7 @@ const sidebarMobile = ({
         pageOrigination,
       )
     }
-    // window.location.href = url
+    window.location.href = url
   }
 
   return (

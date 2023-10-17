@@ -25,7 +25,6 @@ import { LeadsFormSecondary } from 'components/organisms'
 import { setTrackEventMoEngage } from 'helpers/moengage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import PromoSection from 'components/organisms/promoSection/index'
-import { getNewFunnelLoanSpecialRate } from 'services/newFunnel'
 import elementId from 'helpers/elementIds'
 import { PdpDataLocalContext } from 'pages/mobil-baru/[brand]/[model]/[[...slug]]'
 import { useRouter } from 'next/router'
@@ -33,6 +32,7 @@ import { useCar } from 'services/context/carContext'
 import { LanguageCode, LocalStorageKey } from 'utils/enum'
 import { TrackerFlag, InstallmentTypeOptions } from 'utils/types/models'
 import dynamic from 'next/dynamic'
+import { getNewFunnelLoanSpecialRate } from 'utils/handler/funnel'
 
 const Modal = dynamic(() => import('antd').then((mod) => mod.Modal))
 const PopupVariantDetail = dynamic(
@@ -49,7 +49,7 @@ type RingkasanProps = {
   isOTO?: boolean
 }
 
-const formatShortPrice = (price: number) => {
+export const formatShortPrice = (price: number) => {
   return formatNumberByLocalization(price, LanguageCode.id, million, ten)
 }
 
@@ -349,6 +349,16 @@ export const SummaryTab = ({
       answer: `Panjang dimensi ${modelDetail?.brand} ${modelDetail?.model} adalah ${summaryInfo.length} mm dan lebarnya ${summaryInfo.width} mm, dan tinggi ${summaryInfo.height}  mm.`,
       testid: elementId.PDP.FAQ.PanjangMobil,
     },
+    {
+      question: `Berapa kapasitas penumpang dalam ${modelDetail?.brand} ${modelDetail?.model}?`,
+      answer: `${modelDetail?.brand} ${modelDetail?.model} biasanya hadir dalam opsi ${summaryInfo?.seats} kursi penumpang, dengan tempat duduk yang nyaman untuk penumpang di baris depan dan belakang.`,
+      testid: elementId.PDP.FAQ.KapasitasMobil,
+    },
+    {
+      question: `Apa jenis sistem transmisi yang digunakan oleh ${modelDetail?.brand} ${modelDetail?.model}?`,
+      answer: `${modelDetail?.brand} ${modelDetail?.model} umumnya dilengkapi dengan transmisi ${summaryInfo.transmissionDetail}.`,
+      testid: elementId.PDP.FAQ.TransmisiMobil,
+    },
   ]
 
   const getDataForAmplitude = () => {
@@ -432,7 +442,7 @@ export const SummaryTab = ({
         />
         <Gap height={32} />
       </div>
-      <LeadsFormSecondary />
+      <LeadsFormSecondary isOTO={isOTO} />
       <div className={styles.wrapper}>
         <Gap height={24} />
         <Info isWithIcon headingText="Tentang Mobil" descText={getInfoText()} />

@@ -14,10 +14,6 @@ import { capitalizeWords, filterNonDigitCharacters } from 'utils/stringUtils'
 import { onlyLettersAndSpaces } from 'utils/handler/regex'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import {
-  UnverifiedLeadSubCategory,
-  createUnverifiedLeadNew,
-} from 'services/lead'
 import elementId from 'helpers/elementIds'
 import { OTP } from '../../otp'
 import {
@@ -28,13 +24,16 @@ import {
 } from 'helpers/amplitude/seva20Tracking'
 import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import { useSessionStorage } from 'utils/hooks/useSessionStorage/useSessionStorage'
-import { useMediaQuery } from 'react-responsive'
 import { variantListUrl } from 'utils/helpers/routes'
 import { getConvertFilterIncome } from 'utils/filterUtils'
 import { useRouter } from 'next/router'
 import { useCar } from 'services/context/carContext'
 import { ButtonVersion, ButtonSize } from 'components/atoms/button'
-import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
+import {
+  LocalStorageKey,
+  SessionStorageKey,
+  UnverifiedLeadSubCategory,
+} from 'utils/enum'
 import { Currency } from 'utils/handler/calculation'
 import { CityOtrOption } from 'utils/types'
 import { LoanRank } from 'utils/types/models'
@@ -45,12 +44,13 @@ import {
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
-import { getCustomerInfoSeva } from 'services/customer'
 import {
   PreviousButton,
   saveDataForCountlyTrackerPageViewLC,
 } from 'utils/navigate'
 import Image from 'next/image'
+import { createUnverifiedLeadNew } from 'utils/handler/lead'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
 
 const SupergraphicLeft = '/revamp/illustration/supergraphic-small.webp'
 const SupergraphicRight = '/revamp/illustration/supergraphic-large.webp'
@@ -59,9 +59,12 @@ interface PropsLeadsForm {
   otpStatus?: any
   onVerify?: (e: any) => void
   onFailed?: (e: any) => void
+  isOTO?: boolean
 }
 
-export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
+export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({
+  isOTO = false,
+}) => {
   const platform = 'web'
   const toastSuccessInfo = 'Agen kami akan segera menghubungimu dalam 1x24 jam.'
   const [name, setName] = useState<string>('')
@@ -74,7 +77,6 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
   >('none')
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false)
   const { carModelDetails, carVariantDetails } = useCar()
-  const isMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -263,13 +265,16 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
       platform,
       name,
       phoneNumber: phone,
-      origination: UnverifiedLeadSubCategory.SEVA_NEW_CAR_PDP_LEADS_FORM,
+      origination: isOTO
+        ? UnverifiedLeadSubCategory.OTO_NEW_CAR_PDP_LEADS_FORM
+        : UnverifiedLeadSubCategory.SEVA_NEW_CAR_PDP_LEADS_FORM,
       ...(cityOtr?.id && { cityId: cityOtr.id }),
       dp: getDp(),
       tenure: getTenure(),
       monthlyInstallment: sortedCarModelVariant[0].monthlyInstallment,
       carBrand: carModelDetails?.brand,
       carModelText: carModelDetails?.model,
+      carVariantText: carVariantDetails?.variantDetail.name,
     }
     try {
       await createUnverifiedLeadNew(data)
@@ -379,7 +384,7 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
   }
   return (
     <div>
-      <div className={styles.wrapper}>
+      <div className={isOTO ? styles.wrapperOTO : styles.wrapper}>
         <div className={styles.background}>
           <div className={styles.wrapperSupergraphicLeft}>
             <Image
@@ -414,9 +419,9 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
         </div>
 
         <div className={styles.foreground}>
-          <h3 className={styles.textHeading}>
+          <h2 className={styles.textHeading}>
             Yuk, cari tahu & tanya lebih lanjut tentang {infoCar}
-          </h3>
+          </h2>
           <div className={styles.form}>
             <Input
               dataTestId={elementId.Field.FullName}
@@ -452,15 +457,19 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
                 'Kirim'
               )}
             </Button>
-            <p className={styles.textSuggestion}>atau</p>
-            <Button
-              version={ButtonVersion.SecondaryDark}
-              size={ButtonSize.Big}
-              onClick={onClickCalculateCta}
-              data-testid={elementId.PDP.Button.HitungKemampuan}
-            >
-              Hitung Kemampuan
-            </Button>
+            {isOTO === false && (
+              <div>
+                <p className={styles.textSuggestion}>atau</p>
+                <Button
+                  version={ButtonVersion.SecondaryDark}
+                  size={ButtonSize.Big}
+                  onClick={onClickCalculateCta}
+                  data-testid={elementId.PDP.Button.HitungKemampuan}
+                >
+                  Hitung Kemampuan
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -477,7 +486,7 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
         />
       )}
       <Toast
-        width={isMobile ? 339 : 428}
+        width={343}
         text={toastSuccessInfo}
         open={modalOpened === 'success-toast'}
       />

@@ -87,14 +87,8 @@ export const PopupPromo = (props: PopupPromo) => {
       PROMO_DETAILS: promoDetail,
       PROMO_ORDER: promoOrder + 1,
       PELUANG_KREDIT_BADGE:
-        isUsingFilterFinancial &&
-        IsShowBadgeCreditOpportunity &&
-        props.carData.loanRank === 'Green'
-          ? 'Mudah disetujui'
-          : isUsingFilterFinancial &&
-            IsShowBadgeCreditOpportunity &&
-            props.carData.loanRank === 'Red'
-          ? 'Sulit disetujui'
+        isUsingFilterFinancial && IsShowBadgeCreditOpportunity
+          ? dataCar?.PELUANG_KREDIT_BADGE
           : 'Null',
       PAGE_ORIGINATION: 'PLP',
     })
