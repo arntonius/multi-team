@@ -42,10 +42,6 @@
   line-height: 20px;
   color: #{$primary-black};
   text-align: left;
-  &.is-clicked {
-    font-family: var(--open-sans-semi-bold);
-    color: #{$secondary-sky-blue};
-  }
 }
 
 .titleTextDP {
