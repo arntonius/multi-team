@@ -319,7 +319,10 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
 
       <main className={styles.main}>
         {enableAnnouncementBoxAleph && (
-          <WebAnnouncementBox onCloseAnnouncementBox={() => null} />
+          <WebAnnouncementBox
+            onCloseAnnouncementBox={() => null}
+            pageOrigination="Homepage"
+          />
         )}
 
         <div className={styles.container}>
