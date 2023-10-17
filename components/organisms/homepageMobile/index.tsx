@@ -120,12 +120,15 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   }
 
   const loadCarRecommendation = async () => {
+    if (getCity().cityName === 'Jakarta Pusat')
+      return saveRecommendation(dataReccomendation)
+
     try {
       const params = `?city=${getCity().cityCode}&cityId=${getCity().id}`
       const recommendation: any = await api.getRecommendation(params)
       saveRecommendation(recommendation.carRecommendations)
     } catch {
-      saveRecommendation([])
+      saveRecommendation(dataReccomendation)
     }
   }
 
