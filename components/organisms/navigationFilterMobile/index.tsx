@@ -12,14 +12,13 @@ import clsx from 'clsx'
 import urls from 'utils/helpers/url'
 import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
 import { filterNonDigitCharacters } from 'utils/stringUtils'
-import { getNewFunnelRecommendations } from 'services/newFunnel'
 import elementId from 'helpers/elementIds'
 import { LanguageCode } from 'utils/enum'
 import { sortOptions } from 'utils/config/funnel.config'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { PreviousButton, navigateToPLP } from 'utils/navigate'
 import { useRouter } from 'next/router'
-import { isCurrentCityJakartaPusatOrSurabaya } from 'utils/hooks/useCurrentCityOtr/useCurrentCityOtr'
+import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 
 type NavFilterMobileProps = {
   carlist?: any
@@ -32,8 +31,8 @@ type NavFilterMobileProps = {
   resultMinMaxPrice?: any
   setRecommendations: any
   isShowAnnouncementBox?: boolean | null
-  showInformationDaihatsu: boolean
   isOTO?: boolean
+  isUsed?: boolean
 }
 export const NavigationFilterMobile = ({
   carlist,
@@ -45,8 +44,8 @@ export const NavigationFilterMobile = ({
   isFilterFinancial,
   setRecommendations,
   isShowAnnouncementBox,
-  showInformationDaihatsu,
   isOTO,
+  isUsed,
 }: NavFilterMobileProps) => {
   const { funnelQuery, patchFunnelQuery } = useFunnelQueryData()
   const { sortBy } = funnelQuery
@@ -71,6 +70,7 @@ export const NavigationFilterMobile = ({
       monthlyIncome: '',
       tenure: 5,
       isDefaultTenureChanged: false,
+      filterFincap: false,
     })
     const filter = {
       ...funnelQuery,
@@ -280,7 +280,7 @@ export const NavigationFilterMobile = ({
                 className={styles.carSummaryLabel}
                 data-testid={elementId.PLP.Text.JumlahMobil}
               >
-                {summaryCar} Mobil Baru
+                {summaryCar} {isUsed ? 'Mobil Bekas' : 'Mobil Baru'}
               </div>
             </div>
           </>
@@ -305,21 +305,6 @@ export const NavigationFilterMobile = ({
           {/*</div>*/}
         </>
       )}
-      {showInformationDaihatsu &&
-        !isCurrentCityJakartaPusatOrSurabaya() &&
-        !sticky && (
-          <>
-            <div className={styles.line} />
-            <div className={styles.informWrapper}>
-              <span
-                className={styles.informDaihatsuText}
-                data-testid={elementId.DSOCityBlocker}
-              >
-                Harga OTR Daihatsu menggunakan harga OTR Jakarta Pusat.
-              </span>
-            </div>
-          </>
-        )}
     </>
   )
 }

@@ -13,7 +13,6 @@ import React, {
 import { useMediaQuery } from 'react-responsive'
 import { api } from 'services/api'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import { getCarsSearchBar } from 'services/searchbar'
 import styles from 'styles/components/molecules/headerSearch.module.scss'
 import { LocalStorageKey } from 'utils/enum'
 import { convertObjectQuery } from 'utils/handler/convertObjectQuery'
@@ -34,14 +33,16 @@ import {
   saveDataForCountlyTrackerPageViewPDP,
 } from 'utils/navigate'
 import { getPageName } from 'utils/pageName'
-import { trackEventCountly } from 'helpers/countly/countly'
+import {
+  trackEventCountly,
+  valueMenuTabCategory,
+} from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
-
-const Loading = dynamic(() =>
-  import('components/atoms/loading').then((mod) => mod.Loading),
-)
+import { getCity } from 'utils/hooks/useGetCity'
+import { removeCarBrand } from 'utils/handler/removeCarBrand'
+import { removeCarModel } from 'utils/handler/removeCarModel'
 
 interface HeaderVariantProps {
   overrideDisplay?: string
@@ -50,6 +51,7 @@ interface HeaderVariantProps {
   suggestionListMobileWidth?: string
   hideModal: () => void
   isOTO?: boolean
+  pageOrigination?: string
 }
 
 const SEARCH_NOT_FOUND_TEXT = 'Mobil tidak ditemukan'
@@ -61,6 +63,7 @@ export default function HeaderVariant({
   hideModal,
   suggestionListMobileWidth = '90%',
   isOTO = false,
+  pageOrigination,
 }: HeaderVariantProps) {
   const { patchFunnelQuery } = useFunnelQueryData()
   const [searchInputValue, setSearchInputValue] = useState('')
@@ -79,7 +82,13 @@ export default function HeaderVariant({
   const isInLoanCalcKK = router.query.from === 'homepageKualifikasi'
 
   const handleDebounceFn = (inputValue: string) => {
-    getCarsSearchBar(inputValue)
+    const params = new URLSearchParams()
+    getCity().cityCode && params.append('city', getCity().cityCode as string)
+    getCity().id && params.append('cityId', getCity().id as string)
+    params.append('query', inputValue as string)
+
+    api
+      .getSearchDataQuery('', { params })
       .then((response) => {
         const listedResult = response.map(
           (item: { value: string; label: string }) => {
@@ -166,11 +175,16 @@ export default function HeaderVariant({
     localStorage.setItem('searchHistory', JSON.stringify(searchHistory))
 
     hideModal()
+    removeCarBrand
+    const brandValue = item.label.split(' ')[0]
+    const modelValue = item.label.split(' ').splice(1).join(' ')
     trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_SUGGESTION_CLICK, {
-      PAGE_ORIGINATION: getPageName(),
+      PAGE_ORIGINATION: pageOrigination?.includes('PDP')
+        ? 'PDP - ' + valueMenuTabCategory()
+        : pageOrigination,
       SUGGESTION_CATEGORY: 'Keyword',
-      CAR_BRAND: item.label,
-      CAR_MODEL: item.value,
+      CAR_BRAND: brandValue,
+      CAR_MODEL: modelValue,
       PAGE_DIRECTION_URL: window.location.origin + urlDestination,
     })
     trackSearchBarSuggestionClick({
@@ -242,7 +256,19 @@ export default function HeaderVariant({
     return temp
   }
 
-  const onClickRecommedationList = () => {
+  const onClickRecommedationList = (car: any) => {
+    let urlDestination = (isOTO ? OTOVariantListUrl : variantListUrl)
+      .replace('/:brand/:model', car.link)
+      .replace(':tab?', '')
+    trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_SUGGESTION_CLICK, {
+      SUGGESTION_CATEGORY: 'Recommendation',
+      CAR_BRAND: removeCarModel(car.name),
+      CAR_MODEL: removeCarBrand(car.name),
+      PAGE_ORIGINATION: pageOrigination?.includes('PDP')
+        ? 'PDP - ' + valueMenuTabCategory()
+        : pageOrigination,
+      PAGE_DIRECTION_URL: window.location.origin + urlDestination,
+    })
     saveDataForCountlyTrackerPageViewPDP(
       PreviousButton.SearchIcon,
       isInLoanCalcKK ? 'Loan Calculator - Kualifikasi Kredit' : undefined,
@@ -263,7 +289,7 @@ export default function HeaderVariant({
 
   useEffect(() => {
     api
-      .getCarofTheMonth()
+      .getCarofTheMonth('?city=' + getCity().cityCode)
       .then((res) => {
         setComDataNew(res.data)
       })
@@ -283,7 +309,7 @@ export default function HeaderVariant({
               href={`${
                 isOTO ? `/adaSEVAdiOTO` : ``
               }/mobil-baru${car.link.toLowerCase()}`}
-              onClick={onClickRecommedationList}
+              onClick={() => onClickRecommedationList(car)}
             >
               <div
                 style={{
@@ -317,6 +343,19 @@ export default function HeaderVariant({
   }
   const onClickSearchHistory = (data: any) => {
     hideModal()
+    trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_SUGGESTION_CLICK, {
+      SUGGESTION_CATEGORY: 'History',
+      CAR_BRAND: removeCarModel(data.label),
+      CAR_MODEL: removeCarBrand(data.label),
+      PAGE_ORIGINATION: pageOrigination?.includes('PDP')
+        ? 'PDP - ' + valueMenuTabCategory()
+        : pageOrigination,
+      PAGE_DIRECTION_URL:
+        'https://' +
+        window.location.hostname +
+        carResultsUrl +
+        data.value.toLowerCase(),
+    })
     if (data.value === '') {
       patchFunnelQuery({ brand: [data.label] })
       const funnelQueryTemp = {
@@ -361,7 +400,9 @@ export default function HeaderVariant({
 
     return (
       <ul>
-        <h3 style={{ fontWeight: 'bold', marginBottom: '14px' }}>
+        <h3
+          style={{ fontWeight: 'bold', marginBottom: '14px', fontSize: '16px' }}
+        >
           Riwayat pencarian
         </h3>
         {searchHistory.map((searchTerm: any) => {
@@ -471,6 +512,7 @@ export default function HeaderVariant({
                         fontWeight: 'bold',
                         marginBottom: '14px',
                         marginTop: '14px',
+                        fontSize: '16px',
                       }}
                     >
                       Rekomendasi Mobil
@@ -480,7 +522,6 @@ export default function HeaderVariant({
                 </div>
               </div>
             )}
-            <Loading isShowLoading={isShowLoading} progress={progress} />
           </div>
         </div>
       </div>

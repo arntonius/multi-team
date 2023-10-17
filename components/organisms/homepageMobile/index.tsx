@@ -28,14 +28,12 @@ import {
   ArticleWidget,
   SearchWidget,
   WebAnnouncementBox,
-  LpSkeleton,
   MainHeroLP,
   SubProduct,
   TestimonyWidget,
   LpCarRecommendations,
   CarOfTheMonth,
 } from 'components/organisms'
-import { CarContext, CarContextType } from 'services/context'
 import { getCity } from 'utils/hooks/useGetCity'
 import { HomePageDataLocalContext } from 'pages'
 import { trackLPKualifikasiKreditTopCtaClick } from 'helpers/amplitude/seva20Tracking'
@@ -53,16 +51,20 @@ import {
   valueForInitialPageProperty,
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
-import { getCustomerInfoSeva } from 'services/customer'
 import {
   getSessionStorage,
   removeSessionStorage,
   saveSessionStorage,
 } from 'utils/handler/sessionStorage'
 import { RouteName } from 'utils/navigate'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useCar } from 'services/context/carContext'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { useFunnelQueryData } from 'services/context/funnelQueryContext'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
+import { useUtils } from 'services/context/utilsContext'
 
-const HomepageMobile = ({ dataReccomendation }: any) => {
+const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
     HomePageDataLocalContext,
   )
@@ -77,7 +79,7 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
   const [isLoginModalOpened, setIsLoginModalOpened] = useState(false)
   const [carOfTheMonthData, setCarOfTheMonthData] =
     useState<COMData[]>(dataCarofTheMonth)
-  const [articles, setArticles] = useState<Article[]>([])
+  const [articles, setArticles] = useState<Article[]>(dataMainArticle)
   const [articlesTabList, setArticlesTabList] =
     useState<Article[]>(dataMainArticle)
   const [isModalOpenend, setIsModalOpened] = useState<boolean>(false)
@@ -96,6 +98,8 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
   })
   const [isSentCountlyPageView, setIsSentCountlyPageView] = useState(false)
   const [sourceButton, setSourceButton] = useState('Null')
+  const { dataAnnouncementBox } = useUtils()
+  const { saveShowAnnouncementBox } = useAnnouncementBoxContext()
 
   const checkCitiesData = () => {
     api.getCities().then((res: any) => {
@@ -105,7 +109,10 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
 
   const getCarOfTheMonth = async () => {
     try {
-      const carofmonth: any = await api.getCarofTheMonth(getCity().cityCode)
+      const carofmonth: any = await api.getCarofTheMonth(
+        '?city=' + getCity().cityCode,
+      )
+
       setCarOfTheMonthData(carofmonth.data)
     } catch (e: any) {
       throw new Error(e)
@@ -229,26 +236,47 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
     }
   }
 
+  const getAnnouncementBox = () => {
+    if (dataAnnouncementBox) {
+      const isShowAnnouncement = getSessionStorage(
+        getToken()
+          ? SessionStorageKey.ShowWebAnnouncementLogin
+          : SessionStorageKey.ShowWebAnnouncementNonLogin,
+      )
+      if (typeof isShowAnnouncement !== 'undefined') {
+        saveShowAnnouncementBox(Boolean(isShowAnnouncement))
+      } else {
+        saveShowAnnouncementBox(true)
+      }
+    } else {
+      saveShowAnnouncementBox(false)
+    }
+  }
+
   useEffect(() => {
-    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
+    if (getCity().cityCode !== 'jakarta' || ssr === 'failed') {
+      loadCarRecommendation()
+      getCarOfTheMonth()
+      checkCitiesData()
+      getArticles()
+    }
+  }, [])
+
+  useAfterInteractive(() => {
+    getAnnouncementBox()
+  }, [dataAnnouncementBox])
+
+  useAfterInteractive(() => {
     cityHandler()
+    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
     setTrackEventMoEngageWithoutValue(EventName.view_homepage)
-
-    loadCarRecommendation()
-    getCarOfTheMonth()
-    checkCitiesData()
-    getArticles()
-
-    const timeoutCountlyTracker = setTimeout(() => {
+    setTimeout(() => {
       if (!isSentCountlyPageView) {
         trackCountlyPageView()
       }
     }, 1000)
-
-    return () => {
-      cleanEffect(timeoutCountlyTracker)
-    }
   }, [])
+
   const trackLeadsLPForm = (): LeadsActionParam => {
     return {
       Page_Origination: PageOriginationName.LPFloatingIcon,
@@ -354,7 +382,10 @@ const HomepageMobile = ({ dataReccomendation }: any) => {
           />
         )}
         {!isLeadsFormSectionVisible && (
-          <CSAButton onClick={scrollToLeadsForm} />
+          <CSAButton
+            onClick={scrollToLeadsForm}
+            additionalstyle={'csa-button-homepage'}
+          />
         )}
 
         {isLoginModalOpened && (

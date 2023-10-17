@@ -18,7 +18,11 @@ import { useCar } from 'services/context/carContext'
 import { LocalStorageKey, LanguageCode } from 'utils/enum'
 import { TrackerFlag } from 'utils/types/models'
 
-export const SpecificationTab = () => {
+interface SpecificationTabProps {
+  isOTO?: boolean
+}
+
+export const SpecificationTab = ({ isOTO = false }: SpecificationTabProps) => {
   const { carModelDetails, carVariantDetails, recommendation } = useCar()
   const [spesification, setSpesification] = useState<any>()
   const headingText = 'Spesifikasi'
@@ -261,7 +265,7 @@ export const SpecificationTab = () => {
     <div className={styles.spesification}>
       <div className={styles.heading}>
         <div className={styles.iconInfo}>
-          <IconCar width={24} height={24} color="#B4231E" />
+          <IconCar width={24} height={24} color="#B4231E" alt="SEVA Car Icon" />
         </div>
         <h3 className={styles.textHeading}>{headingText}</h3>
       </div>
@@ -287,7 +291,7 @@ export const SpecificationTab = () => {
     <div className={styles.wrapper}>
       <SpesificationSection />
       <Gap height={32} />
-      <LeadsFormSecondary />
+      <LeadsFormSecondary isOTO={isOTO} />
       <div className={styles.wrapperSeoText}>
         <div className={styles.gap} />
         <Info isWithIcon headingText="Tentang Mobil" descText={getInfoText()} />

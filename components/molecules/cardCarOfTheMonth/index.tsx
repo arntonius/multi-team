@@ -128,7 +128,7 @@ const CardCarOfTheMonth = ({
           <div className={styles.carDetailWrapper}>
             {renderBrandLogo(item.brand)}
             <div>
-              <span className={styles.textModel}>{item.name}</span>
+              <h3 className={styles.textModel}>{item.name}</h3>
               <p
                 className={styles.textOtr}
                 style={{ fontSize: '12px', lineHeight: '18px' }}

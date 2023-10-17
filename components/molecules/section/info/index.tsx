@@ -82,15 +82,20 @@ export const Info: React.FC<PropsInfo> = ({
       <div className={styles.heading}>
         {isWithIcon && (
           <div className={styles.iconInfo}>
-            <IconInfo width={24} height={24} color="#B4231E" />
+            <IconInfo
+              width={24}
+              height={24}
+              color="#B4231E"
+              alt="SEVA Information Icon"
+            />
           </div>
         )}
-        <h3
+        <h2
           className={styles.textHeading}
           data-testid={elementId.Text + 'tentang-mobil'}
         >
           {headingText}
-        </h3>
+        </h2>
       </div>
       <div className={styles.desc}>
         <p className={`${styles.textDesc} ${!isExpanded && styles.elipsed}`}>

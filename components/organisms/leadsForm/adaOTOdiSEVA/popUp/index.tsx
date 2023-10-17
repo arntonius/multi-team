@@ -20,7 +20,6 @@ import {
 } from 'helpers/amplitude/seva20Tracking'
 import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import { useMediaQuery } from 'react-responsive'
-import { createUnverifiedLeadNew } from 'services/lead'
 import { onlyLettersAndSpaces } from 'utils/handler/regex'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { OTP } from 'components/organisms/otp'
@@ -34,7 +33,9 @@ import {
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
-import { getCustomerInfoSeva } from 'services/customer'
+import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { createUnverifiedLeadNew } from 'utils/handler/lead'
+import { useCar } from 'services/context/carContext'
 
 const SupergraphicSecondarySmall =
   '/revamp/illustration/supergraphic-secondary-small.webp'
@@ -66,6 +67,7 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
   >('leads-form')
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false)
   const isMobile = useMediaQuery({ query: '(max-width: 1024px)' })
+  const { carModelDetails, carVariantDetails } = useCar()
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -204,7 +206,15 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
     }
     if (onPage === 'LP') {
       data = {
-        origination: UnverifiedLeadSubCategory.SEVA_NEW_CAR_CAR_OF_THE_MONTH,
+        origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_LP_LEADS_FORM,
+        name,
+        phoneNumber: phone,
+        ...(cityOtr?.id && { cityId: cityOtr.id }),
+        platform,
+      }
+    } else if (onPage === 'PLP') {
+      data = {
+        origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_PLP_LEADS_FORM,
         name,
         phoneNumber: phone,
         ...(cityOtr?.id && { cityId: cityOtr.id }),
@@ -212,11 +222,14 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
       }
     } else {
       data = {
-        origination: UnverifiedLeadSubCategory.SEVA_NEW_CAR_PLP_LEADS_FORM,
+        origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_PDP_LEADS_FORM,
         name,
         phoneNumber: phone,
         ...(cityOtr?.id && { cityId: cityOtr.id }),
         platform,
+        carBrand: carModelDetails?.brand,
+        carModelText: carModelDetails?.model,
+        carVariantText: carVariantDetails?.variantDetail.name,
       }
     }
     try {

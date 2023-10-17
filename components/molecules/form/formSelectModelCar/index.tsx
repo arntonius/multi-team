@@ -1,7 +1,6 @@
 import Fuse from 'fuse.js'
 import elementId from 'helpers/elementIds'
 import React, { useEffect, useRef, useState } from 'react'
-import { getNewFunnelAllRecommendations } from 'services/newFunnel'
 import { FormControlValue, Option, OptionWithImage } from 'utils/types'
 import {
   ErrorMessage,
@@ -13,6 +12,8 @@ import {
 import styles from 'styles/components/molecules/form/formSelectModelCar.module.scss'
 import { CarModel } from 'utils/types/carModel'
 import Image from 'next/image'
+import { api } from 'services/api'
+import { getCity } from 'utils/hooks/useGetCity'
 
 const CarSillhouete = '/revamp/illustration/car-sillhouete.webp'
 
@@ -36,6 +37,7 @@ type FormSelectModelCarProps = {
   isCheckForError?: boolean
   isShowArrow?: boolean
   onShowDropdown?: () => void
+  overrideIsErrorFieldOnly?: boolean
 }
 
 export const FormSelectModelCar = ({
@@ -51,6 +53,7 @@ export const FormSelectModelCar = ({
   isCheckForError = true,
   isShowArrow = true,
   onShowDropdown,
+  overrideIsErrorFieldOnly = false,
 }: FormSelectModelCarProps) => {
   const [modelCarList, setModelCarList] = useState<CarModel[]>([])
   const [carImage, setCarImage] = React.useState(
@@ -79,10 +82,14 @@ export const FormSelectModelCar = ({
   }, [value, valueImage])
 
   const fetchCarModels = async () => {
-    const response = await getNewFunnelAllRecommendations(
-      undefined,
-      selectedCity,
-    )
+    const params = new URLSearchParams()
+
+    getCity().cityCode && params.append('city', getCity().cityCode as string)
+    getCity().id && params.append('cityId', getCity().id as string)
+    if (selectedCity) {
+      params.set('city', selectedCity as string)
+    }
+    const response = await api.getRecommendation('', { params })
     setModelCarList(response.carRecommendations)
   }
 
@@ -238,7 +245,7 @@ export const FormSelectModelCar = ({
       <div className={styles.imageWrapper}>
         <Image
           src={carImage}
-          alt="car"
+          alt={`Data Kredit Mobil ${inputValue.replace('-', ' ')}`}
           width={100}
           height={100}
           className={styles.carImage}
@@ -283,7 +290,10 @@ export const FormSelectModelCar = ({
         isClearable={false}
         showDropdownImage
         disableDropdownText="Tidak tersedia di kota pilihan kamu"
-        isError={isError && !!selectedCity && isCheckForError}
+        isError={
+          (isError && !!selectedCity && isCheckForError) ||
+          overrideIsErrorFieldOnly
+        }
         disabled={!selectedCity || overrideDisabled}
         datatestid={elementId.Field.CarMobil}
         onShowDropdown={onShowDropdown}

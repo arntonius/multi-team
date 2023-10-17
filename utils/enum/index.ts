@@ -158,6 +158,7 @@ export enum SessionStorageKey {
   PageReferrerLoginPage = 'pageReferrerLoginPage',
   IsShowBadgeCreditOpportunity = 'IsShowBadgeCreditOpportunity',
   PageReferrerMultiKK = 'pageReferrerMultiKK',
+  PageReferrerProfilePage = 'pageReferrerProfilePage',
 }
 
 export enum HTTPResponseStatusCode {
@@ -192,6 +193,9 @@ export enum UnverifiedLeadSubCategory {
   SEVA_NEW_CAR_SEARCH_WIDGET = 'SEVNCSWG',
   SEVA_NEW_CAR_OFFLINE_EVENT_FORM_COLD = 'SEVNCOEC',
   SEVA_NEW_CAR_OFFLINE_EVENT_FORM_HOT = 'SEVNCOEH',
+  OTO_NEW_CAR_PDP_LEADS_FORM = 'OTONCPDP',
+  OTO_NEW_CAR_PLP_LEADS_FORM = 'OTONCPLP',
+  OTO_NEW_CAR_LP_LEADS_FORM = 'OTONCLPF',
 }
 
 export enum ContactType {
@@ -240,4 +244,15 @@ export enum UploadDataKey {
   File = 'file',
   FileKey = 'fileKey',
   FileType = 'fileType',
+}
+
+export enum ZIndex {
+  'Overlay' = 10,
+  'Appbar' = 20,
+  'Menubar' = 30,
+  'PageHeader' = 30,
+  'WebAnnouncementBox' = 31,
+  'FloatingIcon' = 35,
+  'Modal' = 40,
+  'Notification' = 50,
 }

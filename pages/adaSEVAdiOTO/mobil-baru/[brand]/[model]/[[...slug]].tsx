@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { PdpDesktop, PdpMobile } from 'components/organisms'
+import { PdpMobile } from 'components/organisms'
 import { api } from 'services/api'
 import { AnnouncementBoxDataType, CarRecommendation } from 'utils/types/utils'
 import { InferGetServerSidePropsType } from 'next'
@@ -16,7 +16,9 @@ import { useUtils } from 'services/context/utilsContext'
 import styles from 'styles/pages/plp.module.scss'
 import { getToken } from 'utils/handler/auth'
 import { AxiosResponse } from 'axios'
-import { mergeModelDetailsWithLoanRecommendations } from 'services/recommendations'
+import { mergeModelDetailsWithLoanRecommendations } from 'utils/handler/carRecommendation'
+import { useRouter } from 'next/router'
+import { monthId } from 'utils/handler/date'
 
 interface PdpDataOTOLocalContextType {
   /**
@@ -65,6 +67,8 @@ export default function index({
   dataFooter,
   dataCities,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const router = useRouter()
+  const { brand, model } = router.query
   const [isMobile, setIsMobile] = useState(useIsMobileSSr())
   const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const {
@@ -85,6 +89,23 @@ export default function index({
     getAnnouncementBox()
   }, [])
 
+  const capitalizeWord = (word: string) =>
+    word.charAt(0).toUpperCase() + word.slice(1)
+
+  const capitalizeIfString = (value: string) =>
+    typeof value === 'string'
+      ? value.split('-').map(capitalizeWord).join(' ')
+      : ''
+
+  const carBrand = capitalizeIfString(brand as string)
+  const carModel = capitalizeIfString(model as string)
+  const todayDate = new Date()
+
+  const metaTitle = `Ringkasan Produk ${carBrand} ${carModel} ${todayDate.getFullYear()} - Harga OTR Promo Bulan ${monthId(
+    todayDate.getMonth(),
+  )} dari SEVA di OTO.com`
+  const metaDesc = `Beli mobil ${carBrand} ${carModel} terbaru ${todayDate.getFullYear()} secara kredit dengan Instant Approval*. Cari tau spesifikasi, harga, dan hitung simulasi kredit melalui SEVA di OTO.com`
+
   const getAnnouncementBox = () => {
     try {
       const res: any = api.getAnnouncementBox({
@@ -98,6 +119,7 @@ export default function index({
 
   return (
     <>
+      <Seo title={metaTitle} description={metaDesc} image={defaultSeoImage} />
       <PdpDataOTOLocalContext.Provider
         value={{
           carRecommendationsResDefaultCity: carRecommendationsRes,
@@ -110,12 +132,7 @@ export default function index({
           carArticleReviewRes: carArticleReviewRes,
         }}
       >
-        <div className={styles.mobile}>
-          <PdpMobile isOTO={true} />
-        </div>
-        <div className={styles.desktop}>
-          <PdpDesktop metaTagDataRes={metaTagDataRes} />
-        </div>
+        <PdpMobile isOTO={true} />
       </PdpDataOTOLocalContext.Provider>
     </>
   )
@@ -123,7 +140,7 @@ export default function index({
 export async function getServerSideProps(context: any) {
   context.res.setHeader(
     'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=59',
+    'public, s-maxage=59, stale-while-revalidate=3000',
   )
   try {
     if (context.query.slug?.length > 1) {
