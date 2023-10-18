@@ -35,6 +35,7 @@ import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { createUnverifiedLeadNew } from 'utils/handler/lead'
+import { useCar } from 'services/context/carContext'
 
 const SupergraphicSecondarySmall =
   '/revamp/illustration/supergraphic-secondary-small.webp'
@@ -61,6 +62,7 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [phone, setPhone] = useState<string>('')
   const [isFilled, setIsFilled] = useState<boolean>(false)
+  const { carModelDetails, carVariantDetails } = useCar()
   const [modalOpened, setModalOpened] = useState<
     'leads-form' | 'otp' | 'success-toast' | 'none'
   >('leads-form')
@@ -218,13 +220,16 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
         ...(cityOtr?.id && { cityId: cityOtr.id }),
         platform,
       }
-    } else {
+    } else if (onPage === 'PDP') {
       data = {
         origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_PDP_LEADS_FORM,
         name,
         phoneNumber: phone,
         ...(cityOtr?.id && { cityId: cityOtr.id }),
         platform,
+        carBrand: carModelDetails?.brand,
+        carModelText: carModelDetails?.model,
+        carVariantText: carVariantDetails?.variantDetail.name,
       }
     }
     try {
