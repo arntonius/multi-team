@@ -57,12 +57,12 @@ import {
   saveSessionStorage,
 } from 'utils/handler/sessionStorage'
 import { RouteName } from 'utils/navigate'
-import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useCar } from 'services/context/carContext'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 import { useUtils } from 'services/context/utilsContext'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
 const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
@@ -270,10 +270,12 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
     sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
     setTrackEventMoEngageWithoutValue(EventName.view_homepage)
     setTimeout(() => {
-      if (!isSentCountlyPageView) {
-        trackCountlyPageView()
-      }
-    }, 1000)
+      const timeoutCountlyTracker = setTimeout(() => {
+        if (!isSentCountlyPageView) {
+          trackCountlyPageView()
+        }
+      }, 1000)
+    })
   }, [])
 
   const trackLeadsLPForm = (): LeadsActionParam => {

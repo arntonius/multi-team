@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/inline-script-id */
 import type { AppProps } from 'next/app'
 import localFont from '@next/font/local'
-import { useEffect } from 'react'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
@@ -19,7 +18,6 @@ import { client } from 'utils/helpers/const'
 import { IsSsrMobileContext } from 'services/context/isSsrMobileContext'
 import { useAddUtmTagsToApiCall } from 'utils/hooks/useAddUtmTagsToApiCall/useAddUtmTagsToApiCall'
 import Head from 'next/head'
-import { CityFirst } from 'components/molecules/cityFirst'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { ThirdScript } from 'components/atoms/thirdScript'
 
@@ -117,7 +115,6 @@ export default function App({ Component, pageProps }: AppProps) {
               --open-sans-extra-bold: ${OpenSansExtraBold.style.fontFamily};
             }
           `}</style>
-          <CityFirst />
           <Component {...pageProps} />
         </GlobalContextProvider>
       </IsSsrMobileContext.Provider>
