@@ -57,12 +57,12 @@ import {
   saveSessionStorage,
 } from 'utils/handler/sessionStorage'
 import { RouteName } from 'utils/navigate'
-import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useCar } from 'services/context/carContext'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 import { useUtils } from 'services/context/utilsContext'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
 const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
@@ -125,7 +125,7 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
       const recommendation: any = await api.getRecommendation(params)
       saveRecommendation(recommendation.carRecommendations)
     } catch {
-      saveRecommendation([])
+      saveRecommendation(dataReccomendation)
     }
   }
 
@@ -250,34 +250,33 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
     }
   }
 
-  useAfterInteractive(() => {
-    cityHandler()
-    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
-    setTrackEventMoEngageWithoutValue(EventName.view_homepage)
-
-    const timeoutCountlyTracker = setTimeout(() => {
-      if (!isSentCountlyPageView) {
-        trackCountlyPageView()
-      }
-    }, 1000)
-
-    return () => {
-      cleanEffect(timeoutCountlyTracker)
-    }
-  }, [])
-
   useEffect(() => {
     if (getCity().cityCode !== 'jakarta' || ssr === 'failed') {
       loadCarRecommendation()
       getCarOfTheMonth()
       checkCitiesData()
       getArticles()
+    } else {
+      saveRecommendation(dataReccomendation)
     }
   }, [])
 
   useAfterInteractive(() => {
     getAnnouncementBox()
   }, [dataAnnouncementBox])
+
+  useAfterInteractive(() => {
+    cityHandler()
+    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
+    setTrackEventMoEngageWithoutValue(EventName.view_homepage)
+    setTimeout(() => {
+      const timeoutCountlyTracker = setTimeout(() => {
+        if (!isSentCountlyPageView) {
+          trackCountlyPageView()
+        }
+      }, 1000)
+    })
+  }, [])
 
   const trackLeadsLPForm = (): LeadsActionParam => {
     return {
@@ -322,7 +321,10 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
 
       <main className={styles.main}>
         {enableAnnouncementBoxAleph && (
-          <WebAnnouncementBox onCloseAnnouncementBox={() => null} />
+          <WebAnnouncementBox
+            onCloseAnnouncementBox={() => null}
+            pageOrigination="Homepage"
+          />
         )}
 
         <div className={styles.container}>

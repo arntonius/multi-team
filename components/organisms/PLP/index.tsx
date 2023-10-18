@@ -121,7 +121,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     age,
     sortBy,
   } = router.query as FilterParam
-
   const [minMaxPrice, setMinMaxPrice] = useState<MinMaxPrice>(minmaxPrice)
 
   const [cityOtr] = useLocalStorage<Location | null>(
@@ -170,7 +169,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
   })
   const [isOpenCitySelectorModal, setIsOpenCitySelectorModal] = useState(false)
   const { cities, dataAnnouncementBox } = useUtils()
-  // const [showAnnouncementBox, setIsShowAnnouncementBox] = useState(false)
   const { showAnnouncementBox, saveShowAnnouncementBox } =
     useAnnouncementBoxContext()
   const [isLogin] = useState(!!getToken())
@@ -888,7 +886,9 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
         />
         <CitySelectorModal
           isOpen={isOpenCitySelectorModal}
-          onClickCloseButton={() => setIsOpenCitySelectorModal(false)}
+          onClickCloseButton={() => {
+            setIsOpenCitySelectorModal(false)
+          }}
           cityListFromApi={cities}
           pageOrigination="PLP"
         />
