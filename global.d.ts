@@ -1,5 +1,7 @@
 declare module '@georgedrpg/pannellum-react-next'
 
+declare module '@georgedrpg/pannellum-react-next/es/elements/Pannellum'
+
 declare module 'dompurify'
 
 declare module 'lodash.debounce'
