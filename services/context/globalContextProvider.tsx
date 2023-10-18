@@ -13,6 +13,7 @@ import { SideMenuListContextProvider } from './sideMenuListContext'
 import { SideMenuContextProvider } from './sideMenuContext'
 import { MultiUnitQueryContextProvider } from './multiUnitQueryContext'
 import { GalleryContextProvider } from './galleryContext'
+import { FunnelQueryUsedCarContextProvider } from './funnelQueryUsedCarContext'
 
 const providers: Array<
   React.JSXElementConstructor<React.PropsWithChildren<any>>
@@ -24,6 +25,7 @@ const providers: Array<
   AuthProvider,
   CarProvider,
   FunnelQueryContextProvider,
+  FunnelQueryUsedCarContextProvider,
   AuthProvider,
   CalculatorProvider,
   FormContextProvider,
