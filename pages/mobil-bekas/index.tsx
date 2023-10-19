@@ -101,7 +101,7 @@ type PLPProps = {
   MinMaxPrice: MinMaxPrice
   MinMaxYear: MinMaxYear
   MinMaxMileage: MinMaxMileage
-  carRecommendations: CarRecommendationResponse
+  carRecommendations: UsedCarRecommendationResponse
 }
 
 const getBrand = (brand: string | string[] | undefined) => {
