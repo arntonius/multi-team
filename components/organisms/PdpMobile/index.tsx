@@ -36,7 +36,10 @@ import {
 } from 'utils/handler/sessionStorage'
 import { capitalizeFirstLetter, capitalizeWords } from 'utils/stringUtils'
 import { useRouter } from 'next/router'
-import { PdpDataLocalContext } from 'pages/mobil-baru/[brand]/[model]/[[...slug]]'
+import {
+  PdpDataLocalContext,
+  checkCitySlug,
+} from 'pages/mobil-baru/[brand]/[model]/[[...slug]]'
 import { PdpDataOTOLocalContext } from 'pages/adaSEVAdiOTO/mobil-baru/[brand]/[model]/[[...slug]]'
 import { useQuery } from 'utils/hooks/useQuery'
 import { api } from 'services/api'
@@ -145,13 +148,13 @@ export default function NewCarVariantList({
 
   const brand = router.query.brand as string
   const model = router.query.model as string
-  const slug = router.query.slug as string
-  const lowerTab = Array.isArray(slug) ? slug[0] : undefined
+  const slug = router.query.slug
+  const [upperTabSlug, lowerTabSlug, citySlug] = Array.isArray(slug) ? slug : []
 
-  const [cityOtr] = useLocalStorage<CityOtrOption | null>(
-    LocalStorageKey.CityOtr,
-    null,
-  )
+  const [selectedLowerTab, setSelectedLowerTab] = useState<string>(lowerTabSlug)
+  const [selectedUpperTab, setSelectedUpperTab] = useState<string>(upperTabSlug)
+
+  const [cityOtr, setCityOtr] = useState(getCity())
   const {
     saveCarVariantDetails,
     carModelDetails,
@@ -440,10 +443,10 @@ export default function NewCarVariantList({
 
   const handleAutoscrollOnRender = () => {
     if (
-      lowerTab?.toLowerCase() === 'ringkasan' ||
-      lowerTab?.toLowerCase() === 'spesifikasi' ||
-      lowerTab?.toLowerCase() === 'harga' ||
-      lowerTab?.toLowerCase() === 'kredit'
+      lowerTabSlug?.toLowerCase() === 'ringkasan' ||
+      lowerTabSlug?.toLowerCase() === 'spesifikasi' ||
+      lowerTabSlug?.toLowerCase() === 'harga' ||
+      lowerTabSlug?.toLowerCase() === 'kredit'
     ) {
       const destinationElm = document.getElementById('pdp-lower-content')
       if (destinationElm) {
@@ -453,8 +456,6 @@ export default function NewCarVariantList({
           window.scrollBy({ top: -100, left: 0 })
         }, 250) // use timeout because components take time to render
       }
-    } else {
-      window.scrollTo(0, 0)
     }
   }
   const getFuelRatio = () => {
@@ -486,9 +487,9 @@ export default function NewCarVariantList({
       !!filterStorage?.tenure
 
     let pageOrigination = 'PDP - Ringkasan'
-    if (!!lowerTab && lowerTab.toLowerCase() === 'kredit') {
+    if (!!lowerTabSlug && lowerTabSlug.toLowerCase() === 'kredit') {
       pageOrigination = 'Null'
-    } else if (!!lowerTab) {
+    } else if (!!lowerTabSlug) {
       pageOrigination = defineRouteName(window.location.href)
     }
 
@@ -624,7 +625,7 @@ export default function NewCarVariantList({
       ])
       saveCarVariantDetails(carVariantDetailsResDefaultCity)
     }
-  }, [brand, model, lowerTab])
+  }, [brand, model, lowerTabSlug])
 
   useEffect(() => {
     if (carModelDetails) {
@@ -644,6 +645,29 @@ export default function NewCarVariantList({
       getFuelRatio()
     }
   }, [router, variantIdFuel])
+
+  useEffect(() => {
+    const upperTabUrl = selectedUpperTab
+      ? selectedUpperTab.toLocaleLowerCase()
+      : 'warna'
+    const lowerTabUrl = selectedLowerTab
+      ? selectedLowerTab.toLocaleLowerCase()
+      : 'ringkasan'
+    const urlOTO = isOTO ? '/adaSEVAdiOTO' : ''
+    const cityUrl = citySlug ? `/${citySlug}` : ''
+    window.history.pushState(
+      null,
+      '',
+      `${window.location.origin}${urlOTO}/mobil-baru/${brand}/${model}/${upperTabUrl}/${lowerTabUrl}${cityUrl}`,
+    )
+  }, [selectedLowerTab, selectedUpperTab])
+
+  useEffect(() => {
+    if (cityOtr.cityCode !== getCity().cityCode) {
+      setCityOtr(getCity())
+    }
+    checkCitySlug(citySlug, cities, setCityOtr)
+  }, [citySlug, cities])
 
   const renderContent = () => {
     const parsedModel = capitalizeFirstLetter(model.replace(/-/g, ' '))
@@ -683,12 +707,15 @@ export default function NewCarVariantList({
                 setIsOpenCitySelectorOTRPrice(true)
                 trackCountlyCityOTRClick()
               }}
+              onChangeTab={(value: any) => setSelectedUpperTab(value)}
               onClickShareButton={() => setIsOpenShareModal(true)}
               isShowAnnouncementBox={showAnnouncementBox}
               isOTO={isOTO}
+              cityOtr={cityOtr}
             />
             <PdpLowerSection
               onButtonClick={setIsButtonClick}
+              onChangeTab={(value: any) => setSelectedLowerTab(value)}
               setPromoName={setPromoName}
               videoData={videoData}
               showAnnouncementBox={showAnnouncementBox}

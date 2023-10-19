@@ -5,6 +5,7 @@ import {
   CarModelDetailsResponse,
   CarRecommendation,
   CarVariantDetails,
+  CityOtrOption,
   MainVideoResponseType,
 } from 'utils/types/utils'
 import { InferGetServerSidePropsType } from 'next'
@@ -22,7 +23,7 @@ import {
 import { getModelPriceRange } from 'utils/carModelUtils/carModelUtils'
 import { articleDateFormat, monthId } from 'utils/handler/date'
 import { useRouter } from 'next/router'
-import { getCity } from 'utils/hooks/useGetCity'
+import { getCity, saveCity } from 'utils/hooks/useGetCity'
 import { useCar } from 'services/context/carContext'
 import { capitalizeFirstLetter } from 'utils/stringUtils'
 import { lowerSectionNavigationTab } from 'config/carVariantList.config'
@@ -86,16 +87,19 @@ export default function index({
   } = useUtils()
   const router = useRouter()
   const { model, brand, slug } = router.query
+  const [upperTabSlug, lowerTabSlug, citySlug] = slug?.length
+    ? (slug as Array<string>)
+    : []
   const [isMobile, setIsMobile] = useState(useIsMobileSSr())
   const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const { carModelDetails, recommendation } = useCar()
-  const lowerTab = router.query.slug as string
-  const path = lowerTab ? capitalizeFirstLetter(lowerTab[0]) : ''
+  const path = lowerTabSlug ? capitalizeFirstLetter(lowerTabSlug) : ''
   const [selectedTabValue, setSelectedTabValue] = useState(
     path ||
       lowerSectionNavigationTab.filter((item) => item.label !== 'Kredit')[0]
         .value,
   )
+  const [currentCity, setCurrentCity] = useState(getCity())
 
   const meta = useMemo(() => {
     const title =
@@ -115,6 +119,7 @@ export default function index({
     saveMobileWebFooterMenus(dataFooter)
     saveCities(dataCities)
     getAnnouncementBox()
+    checkCitySlug(citySlug, dataCities, setCurrentCity)
   }, [])
 
   useEffect(() => {
@@ -159,15 +164,11 @@ export default function index({
     if (isMobile) {
       switch (selectedTabValue) {
         case 'Kredit':
-          return `Kredit ${carBrand} ${carModel} ${currentYear}. Simulasi Cicilan OTR ${
-            getCity().cityName
-          } dengan Loan Calculator | SEVA`
+          return `Kredit ${carBrand} ${carModel} ${currentYear}. Simulasi Cicilan OTR ${currentCity.cityName} dengan Loan Calculator | SEVA`
         case 'Spesifikasi':
           return `Spesifikasi ${carBrand} ${carModel} ${currentYear} | SEVA`
         case 'Harga':
-          return `Harga OTR ${carBrand} ${carModel} ${currentYear} ${
-            getCity().cityName
-          } Terbaru | SEVA`
+          return `Harga OTR ${carBrand} ${carModel} ${currentYear} ${currentCity.cityName} Terbaru | SEVA`
         default:
           return `Ringkasan Produk ${carBrand} ${carModel} ${currentYear} - Harga OTR Promo Bulan ${currentMonth} | SEVA`
       }
@@ -176,15 +177,11 @@ export default function index({
         const titles = slug.map((s) => {
           switch (s) {
             case 'kredit':
-              return `Kredit ${carBrand} ${carModel} ${currentYear}. Simulasi Cicilan OTR ${
-                getCity().cityName
-              } dengan Loan Calculator | SEVA`
+              return `Kredit ${carBrand} ${carModel} ${currentYear}. Simulasi Cicilan OTR ${currentCity.cityName} dengan Loan Calculator | SEVA`
             case 'spesifikasi':
               return `Spesifikasi ${carBrand} ${carModel} ${currentYear} | SEVA`
             case 'harga':
-              return `Harga OTR ${carBrand} ${carModel} ${currentYear} ${
-                getCity().cityName
-              } Terbaru | SEVA`
+              return `Harga OTR ${carBrand} ${carModel} ${currentYear} ${currentCity.cityName} Terbaru | SEVA`
             default:
               return `Ringkasan Produk ${carBrand} ${carModel} ${currentYear} - Harga OTR Promo Bulan ${currentMonth} | SEVA`
           }
@@ -243,10 +240,8 @@ export default function index({
   }, [])
 
   const setTabFromDirectUrl = () => {
-    const slug = router.query.slug
-
-    if (slug) {
-      const path = capitalizeFirstLetter(slug[0])
+    if (lowerTabSlug) {
+      const path = capitalizeFirstLetter(lowerTabSlug)
       setSelectedTabValue(path)
     }
   }
@@ -296,7 +291,7 @@ export async function getServerSideProps(context: any) {
     'public, s-maxage=59, stale-while-revalidate=3000',
   )
   try {
-    if (context.query.slug?.length > 1) {
+    if (context.query.slug?.length > 3) {
       return {
         notFound: true,
       }
@@ -718,5 +713,23 @@ const jsonLD = (
         },
       },
     ],
+  }
+}
+
+export const checkCitySlug = (
+  citySlug: string | undefined,
+  dataCities: Array<CityOtrOption>,
+  setState: (city: CityOtrOption) => void,
+) => {
+  if (citySlug) {
+    const cityOtrFromUrl = dataCities.find(
+      (city) =>
+        city.cityName.replace(/[^a-zA-Z]+/g, '').toLocaleLowerCase() ===
+        citySlug.replace(/[^a-zA-Z]+/g, '').toLocaleLowerCase(),
+    )
+    if (cityOtrFromUrl && cityOtrFromUrl?.cityCode !== getCity().cityCode) {
+      saveCity(cityOtrFromUrl)
+      setState(cityOtrFromUrl)
+    }
   }
 }
