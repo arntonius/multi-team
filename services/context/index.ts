@@ -33,11 +33,15 @@ import {
 } from './finnancialQueryContext'
 import { GlobalContextProvider } from './globalContextProvider'
 
+import { UsedCarContext, UsedCarProvider } from './usedCarContext'
+
 export {
   AuthContext,
   AuthProvider,
   CarContext,
   CarProvider,
+  UsedCarContext,
+  UsedCarProvider,
   ConfigContext,
   ConfigProvider,
   SearchWidgetContext,
