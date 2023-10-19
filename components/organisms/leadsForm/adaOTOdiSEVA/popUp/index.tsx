@@ -62,7 +62,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [phone, setPhone] = useState<string>('')
   const [isFilled, setIsFilled] = useState<boolean>(false)
-  const { carModelDetails, carVariantDetails } = useCar()
   const [modalOpened, setModalOpened] = useState<
     'leads-form' | 'otp' | 'success-toast' | 'none'
   >('leads-form')
