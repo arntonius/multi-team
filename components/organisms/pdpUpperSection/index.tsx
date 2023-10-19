@@ -7,7 +7,7 @@ import {
   VideoTab,
   CarOverview,
 } from 'components/organisms'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { upperSectionNavigationTab } from 'config/carVariantList.config'
 import { NavigationTabV2 } from 'components/molecules'
 import { CityOtrOption, VideoDataType } from 'utils/types/utils'
@@ -22,8 +22,6 @@ import {
   CarVariantPhotoParam,
   trackPDPPhotoClick,
 } from 'helpers/amplitude/seva20Tracking'
-import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-import { LocalStorageKey } from 'utils/enum'
 import { useRouter } from 'next/router'
 import { useCar } from 'services/context/carContext'
 import { trackEventCountly } from 'helpers/countly/countly'
