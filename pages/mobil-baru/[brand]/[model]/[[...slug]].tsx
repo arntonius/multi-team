@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react'
+import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { PdpMobile } from 'components/organisms'
 import { api } from 'services/api'
 import {
@@ -96,6 +96,18 @@ export default function index({
         .value,
   )
   const [currentCity, setCurrentCity] = useState(getCity())
+
+  const meta = useMemo(() => {
+    const title =
+      metaTagDataRes.data && metaTagDataRes.data.length > 0
+        ? metaTagDataRes.data[0].attributes.meta_title
+        : 'SEVA'
+    const description =
+      metaTagDataRes.data && metaTagDataRes.data.length > 0
+        ? metaTagDataRes.data[0].attributes.meta_description
+        : ''
+    return { title, description }
+  }, [metaTagDataRes])
 
   useEffect(() => {
     saveDesktopWebTopMenu(dataDesktopMenu)
