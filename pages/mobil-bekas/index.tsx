@@ -101,7 +101,7 @@ type PLPProps = {
   MinMaxPrice: MinMaxPrice
   MinMaxYear: MinMaxYear
   MinMaxMileage: MinMaxMileage
-  carRecommendations: UsedCarRecommendationResponse
+  carRecommendations: CarRecommendationResponse
 }
 
 const getBrand = (brand: string | string[] | undefined) => {
@@ -163,6 +163,7 @@ export const getServerSideProps: GetServerSideProps<{
     mileageRangeGroup,
     tenure,
     transmission,
+    location,
     sortBy,
   } = ctx.query
 
