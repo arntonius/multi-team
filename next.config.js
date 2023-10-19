@@ -46,6 +46,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'drive.google.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.setirkanan.co.id',
+      },
     ],
   },
 
@@ -64,6 +68,5 @@ const nextConfig = {
     ]
   },
 }
-
 
 module.exports = nextConfig
