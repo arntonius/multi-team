@@ -7,7 +7,7 @@ import {
   VideoTab,
   CarOverview,
 } from 'components/organisms'
-import React, { useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { upperSectionNavigationTab } from 'config/carVariantList.config'
 import { NavigationTabV2 } from 'components/molecules'
 import { CityOtrOption, VideoDataType } from 'utils/types/utils'
@@ -119,7 +119,9 @@ export const PdpUpperSection = ({
     return temp
   }
 
-  const [tabItemList] = useState(filterTabItem())
+  const tabItemList = useMemo(() => {
+    return filterTabItem()
+  }, [videoData, carModelDetails])
 
   const trackEventPhoto = (
     event: TrackingEventWebPDPPhoto,
@@ -143,11 +145,6 @@ export const PdpUpperSection = ({
       VISUAL_TAB_CATEGORY: value,
     })
   }
-
-  useEffect(() => {
-    // useEffect to set tab item hidden or not
-    filterTabItem()
-  }, [carModelDetails])
 
   const renderContent = () => {
     switch (selectedTabValue) {
