@@ -353,6 +353,7 @@ const SearchWidget = () => {
 
     saveFunnelWidget({ ...funnelWidget, ...currentFinancial })
     fetchMinMaxPrice()
+    patchFunnelQuery({ filterFincap: false })
   }, [])
 
   useAfterInteractive(() => {
