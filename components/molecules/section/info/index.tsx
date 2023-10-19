@@ -65,12 +65,12 @@ export const Info: React.FC<PropsInfo> = ({
             />
           </div>
         )}
-        <h3
+        <h2
           className={styles.textHeading}
           data-testid={elementId.Text + 'tentang-mobil'}
         >
           {headingText}
-        </h3>
+        </h2>
       </div>
       <div className={styles.desc}>
         <p className={`${styles.textDesc} ${!isExpanded && styles.elipsed}`}>

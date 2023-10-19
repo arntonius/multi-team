@@ -48,7 +48,7 @@ const ArticleWidgetCard = ({
           <p className={styles.textDate}>
             {articleDateFormat(new Date(article.publish_date), LanguageCode.id)}
           </p>
-          <p className={styles.textTitle}>{article.title}</p>
+          <h4 className={styles.textTitle}>{article.title}</h4>
         </div>
       </div>
     </div>

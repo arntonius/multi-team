@@ -312,6 +312,9 @@ const FilterMobile = ({
       brand: !resetTmp && isCheckedBrand.length > 0 ? isCheckedBrand : [],
       tenure: tenureFilter,
       sortBy: funnelQuery.sortBy || 'lowToHigh',
+      filterFincap: Boolean(
+        ageFilter && downPaymentAmount && incomeAmount && tenureFilter,
+      ),
     }
     const paramUrl: ParamsUrl = {
       // sortBy: sortBy,

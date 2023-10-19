@@ -46,6 +46,7 @@ import dynamic from 'next/dynamic'
 import { LeadsActionParam, PageOriginationName } from 'utils/types/props'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 
 const Spin = dynamic(() => import('antd/lib/spin'), { ssr: false })
 const LeadsFormPrimary = dynamic(() =>
@@ -101,7 +102,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     age,
     sortBy,
   } = router.query as FilterParam
-
   const [minMaxPrice, setMinMaxPrice] = useState<MinMaxPrice>(minmaxPrice)
 
   const [cityOtr] = useLocalStorage<Location | null>(
@@ -149,8 +149,9 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     items: recommendation.slice(0, 12),
   })
   const [isOpenCitySelectorModal, setIsOpenCitySelectorModal] = useState(false)
-  const { cities, saveDataAnnouncementBox } = useUtils()
-  const [showAnnouncementBox, setIsShowAnnouncementBox] = useState(false)
+  const { cities, dataAnnouncementBox } = useUtils()
+  const { showAnnouncementBox, saveShowAnnouncementBox } =
+    useAnnouncementBoxContext()
   const [isLogin] = useState(!!getToken())
   const [dataCarForPromo, setDataCarForPromo] = useState({
     brand: '',
@@ -319,29 +320,20 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     trackEventCountly(CountlyEventNames.WEB_PLP_OPEN_SORT_CLICK)
   }
   const getAnnouncementBox = () => {
-    api
-      .getAnnouncementBox({
-        headers: {
-          'is-login': getToken() ? 'true' : 'false',
-        },
-      })
-      .then((res: { data: AnnouncementBoxDataType }) => {
-        if (res.data === undefined) {
-          setIsShowAnnouncementBox(false)
-        } else {
-          saveDataAnnouncementBox(res.data)
-          const sessionAnnouncmentBox = getSessionStorage(
-            getToken()
-              ? SessionStorageKey.ShowWebAnnouncementLogin
-              : SessionStorageKey.ShowWebAnnouncementNonLogin,
-          )
-          if (typeof sessionAnnouncmentBox !== 'undefined') {
-            setIsShowAnnouncementBox(sessionAnnouncmentBox as boolean)
-          } else {
-            setIsShowAnnouncementBox(true)
-          }
-        }
-      })
+    if (dataAnnouncementBox) {
+      const isShowAnnouncement = getSessionStorage(
+        getToken()
+          ? SessionStorageKey.ShowWebAnnouncementLogin
+          : SessionStorageKey.ShowWebAnnouncementNonLogin,
+      )
+      if (typeof isShowAnnouncement !== 'undefined') {
+        saveShowAnnouncementBox(isShowAnnouncement as boolean)
+      } else {
+        saveShowAnnouncementBox(true)
+      }
+    } else {
+      saveShowAnnouncementBox(false)
+    }
   }
 
   const temanSevaStatus = async () => {
@@ -407,7 +399,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
 
   useAfterInteractive(() => {
     getAnnouncementBox()
-  }, [])
+  }, [dataAnnouncementBox])
 
   useAfterInteractive(() => {
     setTimeout(() => {
@@ -452,17 +444,25 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     } else {
       setIsFilter(false)
     }
+  }, [funnelQuery, brand])
 
+  useEffect(() => {
     if (
       funnelQuery.downPaymentAmount &&
       funnelQuery.monthlyIncome &&
       funnelQuery.age
     ) {
       setIsFilterFinancial(true)
+      patchFunnelQuery({ filterFincap: true })
     } else {
       setIsFilterFinancial(false)
+      patchFunnelQuery({ filterFincap: false })
     }
-  }, [funnelQuery, brand])
+  }, [
+    funnelQuery.downPaymentAmount,
+    funnelQuery.monthlyIncome,
+    funnelQuery.age,
+  ])
 
   useEffect(() => {
     if (
@@ -667,7 +667,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
           isActive={isActive}
           setIsActive={setIsActive}
           emitClickCityIcon={() => setIsOpenCitySelectorModal(true)}
-          setShowAnnouncementBox={setIsShowAnnouncementBox}
+          setShowAnnouncementBox={saveShowAnnouncementBox}
           isShowAnnouncementBox={showAnnouncementBox}
           pageOrigination={'PLP'}
           isOTO={isOTO}
@@ -833,7 +833,9 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
         />
         <CitySelectorModal
           isOpen={isOpenCitySelectorModal}
-          onClickCloseButton={() => setIsOpenCitySelectorModal(false)}
+          onClickCloseButton={() => {
+            setIsOpenCitySelectorModal(false)
+          }}
           cityListFromApi={cities}
           pageOrigination="PLP"
         />
@@ -841,7 +843,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
           <AdaOTOdiSEVALeadsForm
             onCancel={closeInterestingBtn}
             trackerProperties={trackLeads()}
-            onPage="LP"
+            onPage="PLP"
           />
         )}
       </div>

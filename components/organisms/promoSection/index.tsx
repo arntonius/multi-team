@@ -49,7 +49,7 @@ const PromoSection = ({
   const router = useRouter()
   const brand = router.query.brand as string
   const model = router.query.model as string
-  const enablePromoCumaDiSeva = false
+  const enablePromoCumaDiSeva = isOTO
 
   const IsShowBadgeCreditOpportunity = getSessionStorage(
     SessionStorageKey.IsShowBadgeCreditOpportunity,
@@ -201,12 +201,12 @@ const PromoSection = ({
                 <h3 className={styles.kanyonMedium}>Promo</h3>
               </div>
             ) : (
-              <p
+              <h2
                 className={styles.kanyonMediumBlue}
                 data-testid={elementId.Homepage.Button.PromoEkslusif}
               >
                 Promo Eksklusif
-              </p>
+              </h2>
             )}
           </div>
           {onPage === 'VariantListPage' ? (

@@ -389,3 +389,31 @@ button {
     box-shadow: 0 0 0 2px #{$primary-red};
   }
 }
+
+[data-rsbs-overlay] {
+  z-index: 99 !important;
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
+  max-width: 570px;
+  margin: 0 auto;
+}
+
+[data-rsbs-header] {
+  padding: 0;
+}
+
+[data-rsbs-has-header='false'] [data-rsbs-header] {
+  padding-top: 24px;
+}
+
+[data-rsbs-header]:before {
+  height: 0;
+}
+
+[data-rsbs-backdrop] {
+  z-index: 98;
+}
+
+.qualification-custom-modal .ant-modal-content {
+  @include centeredWithMaxWidth(343.33px);
+}

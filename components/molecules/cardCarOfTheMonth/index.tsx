@@ -6,7 +6,6 @@ import LogoDaihatsu from '/public/revamp/icon/Logo-Potrait-Daihatsu.webp'
 import LogoIsuzu from '/public/revamp/icon/Logo-Potrait-Isuzu.webp'
 import LogoBmw from '/public/revamp/icon/Logo-Potrait-BMW.webp'
 import LogoPeugeot from '/public/revamp/icon/Logo-Potrait-Peugeot.webp'
-import { CarouselContext } from 'pure-react-carousel'
 import elementId from 'utils/helpers/trackerId'
 import {
   formatBillionPoint,
@@ -35,25 +34,9 @@ type carOfTheMonthData = {
 }
 interface CarOfTheMonthProps {
   item: carOfTheMonthData
-  onCurrentSlide: (slide: number, maxSlide: number) => void
   onSendOffer: () => void
 }
-const CardCarOfTheMonth = ({
-  item,
-  onCurrentSlide,
-  onSendOffer,
-}: CarOfTheMonthProps) => {
-  const carouselContext = useContext(CarouselContext)
-
-  useEffect(() => {
-    function onChange() {
-      const currentSlide = carouselContext.state.currentSlide
-      const maxSlide = carouselContext.state.totalSlides
-      onCurrentSlide(currentSlide, maxSlide)
-    }
-    carouselContext.subscribe(onChange)
-    return () => carouselContext.unsubscribe(onChange)
-  }, [carouselContext])
+const CardCarOfTheMonth = ({ item, onSendOffer }: CarOfTheMonthProps) => {
   const renderBrandLogo = (carBrand: string) => {
     switch (carBrand) {
       case 'Toyota':
@@ -126,7 +109,7 @@ const CardCarOfTheMonth = ({
           <div className={styles.carDetailWrapper}>
             {renderBrandLogo(item.brand)}
             <div>
-              <span className={styles.textModel}>{item.name}</span>
+              <h3 className={styles.textModel}>{item.name}</h3>
               <p
                 className={styles.textOtr}
                 style={{ fontSize: '12px', lineHeight: '18px' }}

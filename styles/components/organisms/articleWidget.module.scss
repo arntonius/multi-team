@@ -1,5 +1,10 @@
 @import '../../abstract/colors';
 @import '../../abstract/mixins';
+
+.tab {
+  z-index: 2 !important;
+}
+
 .wrapperTop {
   background-color: #ffffff;
   padding: 32px 16px 0px 16px;
@@ -10,8 +15,7 @@
 }
 
 .images {
-  border-top-left-radius: '8px';
-  border-top-right-radius: '8px';
+  border-radius: 8px 8px 0px 0px;
   width: 100%;
   height: '258px';
   object-fit: cover;

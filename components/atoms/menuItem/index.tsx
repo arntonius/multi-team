@@ -29,9 +29,9 @@ const MenuItem: React.FC<MenuItemProps> = ({
         false,
         isOTO ? OTONewCarUrl : menuUrl,
       )
+    } else {
+      window.location.href = menuUrl
     }
-
-    window.location.href = menuUrl
   }
 
   return (

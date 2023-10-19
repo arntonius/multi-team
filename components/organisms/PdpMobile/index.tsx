@@ -30,7 +30,10 @@ import {
 } from 'utils/handler/sessionStorage'
 import { capitalizeFirstLetter, capitalizeWords } from 'utils/stringUtils'
 import { useRouter } from 'next/router'
-import { PdpDataLocalContext } from 'pages/mobil-baru/[brand]/[model]/[[...slug]]'
+import {
+  PdpDataLocalContext,
+  checkCitySlug,
+} from 'pages/mobil-baru/[brand]/[model]/[[...slug]]'
 import { PdpDataOTOLocalContext } from 'pages/adaSEVAdiOTO/mobil-baru/[brand]/[model]/[[...slug]]'
 import { useQuery } from 'utils/hooks/useQuery'
 import { useCar } from 'services/context/carContext'
@@ -49,7 +52,6 @@ import { defineRouteName } from 'utils/navigate'
 import { useUtils } from 'services/context/utilsContext'
 import { defaultCity, getCity } from 'utils/hooks/useGetCity'
 import dynamic from 'next/dynamic'
-import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { Currency } from 'utils/handler/calculation'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import {
@@ -59,6 +61,8 @@ import {
 } from 'utils/handler/carRecommendation'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
 const OverlayGallery = dynamic(() =>
   import('components/molecules').then((mod) => mod.OverlayGallery),
@@ -134,13 +138,13 @@ export default function NewCarVariantList({
 
   const brand = router.query.brand as string
   const model = router.query.model as string
-  const slug = router.query.slug as string
-  const lowerTab = Array.isArray(slug) ? slug[0] : undefined
+  const slug = router.query.slug
+  const [upperTabSlug, lowerTabSlug, citySlug] = Array.isArray(slug) ? slug : []
 
-  const [cityOtr] = useLocalStorage<CityOtrOption | null>(
-    LocalStorageKey.CityOtr,
-    null,
-  )
+  const [selectedLowerTab, setSelectedLowerTab] = useState<string>(lowerTabSlug)
+  const [selectedUpperTab, setSelectedUpperTab] = useState<string>(upperTabSlug)
+
+  const [cityOtr, setCityOtr] = useState(getCity())
   const {
     saveCarVariantDetails,
     carModelDetails,
@@ -207,10 +211,8 @@ export default function NewCarVariantList({
   const [isActive, setIsActive] = useState(false)
 
   const loanRankcr = router.query.loanRankCVL ?? ''
-
-  const [showAnnouncementBox, setShowAnnouncementBox] = useState<
-    boolean | null
-  >(false)
+  const { showAnnouncementBox, saveShowAnnouncementBox } =
+    useAnnouncementBoxContext()
   const [variantIdFuel, setVariantIdFuelRatio] = useState<string | undefined>()
   const [variantFuelRatio, setVariantFuelRatio] = useState<string | undefined>()
   // for disable promo popup after change route
@@ -405,10 +407,10 @@ export default function NewCarVariantList({
 
   const handleAutoscrollOnRender = () => {
     if (
-      lowerTab?.toLowerCase() === 'ringkasan' ||
-      lowerTab?.toLowerCase() === 'spesifikasi' ||
-      lowerTab?.toLowerCase() === 'harga' ||
-      lowerTab?.toLowerCase() === 'kredit'
+      lowerTabSlug?.toLowerCase() === 'ringkasan' ||
+      lowerTabSlug?.toLowerCase() === 'spesifikasi' ||
+      lowerTabSlug?.toLowerCase() === 'harga' ||
+      lowerTabSlug?.toLowerCase() === 'kredit'
     ) {
       const destinationElm = document.getElementById('pdp-lower-content')
       if (destinationElm) {
@@ -418,8 +420,6 @@ export default function NewCarVariantList({
           window.scrollBy({ top: -100, left: 0 })
         }, 250) // use timeout because components take time to render
       }
-    } else {
-      window.scrollTo(0, 0)
     }
   }
   const getFuelRatio = () => {
@@ -451,9 +451,9 @@ export default function NewCarVariantList({
       !!filterStorage?.tenure
 
     let pageOrigination = 'PDP - Ringkasan'
-    if (!!lowerTab && lowerTab.toLowerCase() === 'kredit') {
+    if (!!lowerTabSlug && lowerTabSlug.toLowerCase() === 'kredit') {
       pageOrigination = 'Null'
-    } else if (!!lowerTab) {
+    } else if (!!lowerTabSlug) {
       pageOrigination = defineRouteName(window.location.href)
     }
 
@@ -514,12 +514,12 @@ export default function NewCarVariantList({
           : SessionStorageKey.ShowWebAnnouncementNonLogin,
       )
       if (typeof isShowAnnouncement !== 'undefined') {
-        setShowAnnouncementBox(isShowAnnouncement as boolean)
+        saveShowAnnouncementBox(isShowAnnouncement as boolean)
       } else {
-        setShowAnnouncementBox(true)
+        saveShowAnnouncementBox(true)
       }
     } else {
-      setShowAnnouncementBox(false)
+      saveShowAnnouncementBox(false)
     }
   }, [dataAnnouncementBox])
 
@@ -589,7 +589,7 @@ export default function NewCarVariantList({
       ])
       saveCarVariantDetails(carVariantDetailsResDefaultCity)
     }
-  }, [brand, model, lowerTab])
+  }, [brand, model, lowerTabSlug])
 
   useEffect(() => {
     if (carModelDetails) {
@@ -610,6 +610,29 @@ export default function NewCarVariantList({
     }
   }, [router, variantIdFuel])
 
+  useEffect(() => {
+    const upperTabUrl = selectedUpperTab
+      ? selectedUpperTab.toLocaleLowerCase()
+      : 'warna'
+    const lowerTabUrl = selectedLowerTab
+      ? selectedLowerTab.toLocaleLowerCase()
+      : 'ringkasan'
+    const urlOTO = isOTO ? '/adaSEVAdiOTO' : ''
+    const cityUrl = citySlug ? `/${citySlug}` : ''
+    window.history.pushState(
+      null,
+      '',
+      `${window.location.origin}${urlOTO}/mobil-baru/${brand}/${model}/${upperTabUrl}/${lowerTabUrl}${cityUrl}`,
+    )
+  }, [selectedLowerTab, selectedUpperTab])
+
+  useEffect(() => {
+    if (cityOtr.cityCode !== getCity().cityCode) {
+      setCityOtr(getCity())
+    }
+    checkCitySlug(citySlug, cities, setCityOtr)
+  }, [citySlug, cities])
+
   const renderContent = () => {
     const parsedModel = capitalizeFirstLetter(model.replace(/-/g, ' '))
     const brandModel =
@@ -625,7 +648,7 @@ export default function NewCarVariantList({
               message={`${brandModel}  tersedia di`}
             />
             {isOTO ? (
-              <CSAButton onClick={showLeadsForm} />
+              !isPreviewGalleryOpened && <CSAButton onClick={showLeadsForm} />
             ) : (
               <WhatsappButton
                 onClick={onClickFloatingWhatsapp}
@@ -648,18 +671,22 @@ export default function NewCarVariantList({
                 setIsOpenCitySelectorOTRPrice(true)
                 trackCountlyCityOTRClick()
               }}
+              onChangeTab={(value: any) => setSelectedUpperTab(value)}
               onClickShareButton={() => setIsOpenShareModal(true)}
               isShowAnnouncementBox={showAnnouncementBox}
               isOTO={isOTO}
+              cityOtr={cityOtr}
             />
             <PdpLowerSection
               onButtonClick={setIsButtonClick}
+              onChangeTab={(value: any) => setSelectedLowerTab(value)}
               setPromoName={setPromoName}
               videoData={videoData}
               showAnnouncementBox={showAnnouncementBox}
               setVariantIdFuelRatio={setVariantIdFuelRatio}
               variantFuelRatio={variantFuelRatio}
               isOTO={isOTO}
+              isShowAnnouncementBox={showAnnouncementBox}
             />
             <PromoPopup
               onButtonClick={setIsButtonClick}
@@ -667,7 +694,7 @@ export default function NewCarVariantList({
               promoName={promoName}
             />
             {isOTO ? (
-              <CSAButton onClick={showLeadsForm} />
+              !isPreviewGalleryOpened && <CSAButton onClick={showLeadsForm} />
             ) : (
               <WhatsappButton
                 onClick={onClickFloatingWhatsapp}
@@ -684,7 +711,7 @@ export default function NewCarVariantList({
               message={`${brandModel}  tersedia di`}
             />
             {isOTO ? (
-              <CSAButton onClick={showLeadsForm} />
+              !isPreviewGalleryOpened && <CSAButton onClick={showLeadsForm} />
             ) : (
               <WhatsappButton
                 onClick={onClickFloatingWhatsapp}
@@ -705,13 +732,13 @@ export default function NewCarVariantList({
             position: 'fixed',
           }}
           emitClickCityIcon={() => setIsOpenCitySelectorModal(true)}
-          setShowAnnouncementBox={setShowAnnouncementBox}
+          setShowAnnouncementBox={saveShowAnnouncementBox}
           isShowAnnouncementBox={showAnnouncementBox}
           pageOrigination={'PDP - ' + valueMenuTabCategory()}
           isOTO={isOTO}
         />
         <div className={styles.content}>{renderContent()}</div>
-        <FooterMobile pageOrigination="PDP" />
+        <FooterMobile pageOrigination="PDP - " />
       </div>
 
       {isPreviewGalleryOpened && (
@@ -723,12 +750,16 @@ export default function NewCarVariantList({
       )}
       <CitySelectorModal
         isOpen={isOpenCitySelectorModal}
-        onClickCloseButton={() => setIsOpenCitySelectorModal(false)}
+        onClickCloseButton={() => {
+          setIsOpenCitySelectorModal(false)
+        }}
         cityListFromApi={cities}
         pageOrigination="PDP"
         sourceButton={isOpenCitySelectorOTRPrice ? 'OTR Price (PDP)' : ''}
       />
-      {isModalOpenend && <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} />}
+      {isModalOpenend && (
+        <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} onPage="PDP" />
+      )}
       <ShareModal
         open={isOpenShareModal}
         onCancel={() => setIsOpenShareModal(false)}

@@ -4,7 +4,9 @@ import { InferGetServerSidePropsType } from 'next'
 import { defaultSeoImage } from 'utils/helpers/const'
 import styles from 'styles/pages/updateleadsformCM.module.scss'
 import { useEffect, useState } from 'react'
-import { Button, Input } from 'components/atoms'
+import FormDealerSales from 'components/molecules/formUpdateLeadsSevaOTO/formDealerSales'
+import { Button, Input, InputPhone } from 'components/atoms'
+import { LabelWithTooltip } from 'components/molecules'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import dayjs from 'dayjs'
 import { InferType, number, object, string } from 'yup'
@@ -15,7 +17,6 @@ import { useUtils } from 'services/context/utilsContext'
 import { getLeadsDetail } from 'services/leadsSeva'
 import dynamic from 'next/dynamic'
 import FormDBLeads from 'components/molecules/formUpdateLeadsSevaOTO/formDBLeads'
-import FormDealerSales from 'components/molecules/formUpdateLeadsSevaOTO/formDealerSales'
 
 const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
 const LabelTooltipSevaOTO = dynamic(() =>
@@ -27,7 +28,7 @@ const DatePickerCM = dynamic(() =>
   import('components/atoms').then((mod) => mod.DatePickerCM),
 )
 
-interface CsaInput {
+interface CMInput {
   salesId: number
   spkDate: string
   spkNo: string
@@ -37,25 +38,32 @@ interface CsaInput {
 
 interface DataResponse {
   leadId: string
-  csaInput: CsaInput
+  name: string
+  phoneNumber: string
+  cmInput: CMInput
 }
 
 const UpdateLeadsFormCM = ({
   message,
   isValidz,
   dataAgent,
-  csaInput,
+  cmInput,
   leadId,
+  name,
+  phone,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { saveAgent } = useUtils()
   const [isRequiredSPK, setIsRequiredSPK] = useState(false)
   const [isRequiredBSTK, setIsRequiredBSTK] = useState(false)
   const [isOpenToast, setIsOpenToast] = useState(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [toastMessage, setToastMessage] = useState(
     'Lead berhasil diassign ke dealer & sales agent',
   )
   const cmSchema = object().shape({
     dbLeadsId: string(),
+    name: string(),
+    phone: string(),
     salesId: number(),
     noSPK: string(),
     spkDate: string(),
@@ -75,11 +83,13 @@ const UpdateLeadsFormCM = ({
   } = useFormik<CMForm>({
     initialValues: {
       dbLeadsId: leadId || '',
-      salesId: csaInput?.salesId || 0,
-      noSPK: csaInput?.spkNo || '',
-      spkDate: csaInput?.spkDate || '',
-      noBSTK: csaInput?.bstkNo || '',
-      bstkDate: csaInput?.bstkDate || '',
+      name: name || '',
+      phone: phone || '',
+      salesId: cmInput?.salesId || 0,
+      noSPK: cmInput?.spkNo || '',
+      spkDate: cmInput?.spkDate || '',
+      noBSTK: cmInput?.bstkNo || '',
+      bstkDate: cmInput?.bstkDate || '',
     },
     onSubmit: (value) => {
       updateLeadFormCMSEVA({
@@ -115,6 +125,45 @@ const UpdateLeadsFormCM = ({
     }
   }
 
+  const handleClick = async () => {
+    setIsLoading(true)
+
+    if (values.noSPK !== '') {
+      if (values.spkDate === '') {
+        setIsRequiredSPK(true)
+        scrollToElement('update-leads-form-spk-date')
+        setIsLoading(false)
+        return
+      } else {
+        setToastMessage('SPK berhasil diperbaharui')
+      }
+    }
+    if (values.noBSTK !== '') {
+      if (values.bstkDate === '') {
+        setIsRequiredBSTK(true)
+        scrollToElement('update-leads-form-bstk-date')
+        setIsLoading(false)
+        return
+      } else {
+        setToastMessage('BSTK berhasil diperbaharui')
+      }
+    }
+    setIsRequiredBSTK(false)
+    setIsRequiredSPK(false)
+    setIsOpenToast(true)
+    try {
+      handleSubmit()
+      setIsLoading(false)
+      setTimeout(() => {
+        setIsOpenToast(false)
+      }, 3000)
+    } catch (error) {
+      setTimeout(() => {
+        setIsOpenToast(false)
+      }, 3000)
+    }
+  }
+
   return (
     <>
       <Seo
@@ -130,6 +179,16 @@ const UpdateLeadsFormCM = ({
         <div className={styles.formWrapper}>
           <div id="update-leads-form-db-leads">
             <FormDBLeads value={values.dbLeadsId} title="DB Leads ID" />
+          </div>
+          <div id="update-leads-form-name" className={styles.inputName}>
+            <FormDBLeads value={values.name} title="Name" />
+          </div>
+          <div id="update-leads-form-phone" className={styles.inputName}>
+            <InputPhone
+              disabled={true}
+              title="Phone Number"
+              value={values.phone}
+            />
           </div>
           <div id="update-leads-form-dealer-sales-agent">
             <FormDealerSales
@@ -219,29 +278,9 @@ const UpdateLeadsFormCM = ({
             }
             size={ButtonSize.Big}
             disabled={values.salesId === 0}
+            loading={isLoading}
             onClick={() => {
-              if (values.noSPK !== '') {
-                if (values.spkDate === '') {
-                  setIsRequiredSPK(true)
-                  scrollToElement('update-leads-form-spk-date')
-                  return
-                } else {
-                  setToastMessage('SPK berhasil diperbaharui')
-                }
-              }
-              if (values.noBSTK !== '') {
-                if (values.bstkDate === '') {
-                  setIsRequiredBSTK(true)
-                  scrollToElement('update-leads-form-bstk-date')
-                  return
-                } else {
-                  setToastMessage('BSTK berhasil diperbaharui')
-                }
-              }
-              setIsRequiredBSTK(false)
-              setIsRequiredSPK(false)
-              setIsOpenToast(true)
-              handleSubmit()
+              handleClick()
             }}
           >
             Submit
@@ -268,7 +307,7 @@ export async function getServerSideProps(context: any) {
   let valid = true
 
   // TODO: Check Token
-  if (TokenStatic !== 'SEv4Uh4Y') {
+  if (TokenStatic !== 'c2V2YQ==') {
     valid = false
   }
   // TODO: getDetail ID
@@ -277,16 +316,20 @@ export async function getServerSideProps(context: any) {
     const salesRes: any = await Promise.all([api.getAgent()])
     const response = await getLeadsDetail(detailId)
     const data: DataResponse = response.data
-    const csaInput = data.csaInput
+    const cmInput = data.cmInput
     const leadId = data.leadId
+    const name = data.name
+    const phone = data.phoneNumber.slice(3)
 
     return {
       props: {
         message: 'hello',
         isValidz: valid,
         dataAgent: salesRes,
-        csaInput,
+        cmInput,
         leadId,
+        name,
+        phone,
       },
     }
   } catch (error) {

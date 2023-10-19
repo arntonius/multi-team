@@ -12,8 +12,6 @@ import Image from 'next/image'
 import { colors } from 'utils/helpers/style/colors'
 import { Close } from './Close'
 import { getToken } from 'utils/handler/auth'
-import endpoints from 'utils/helpers/endpoints'
-import { api } from 'services/api'
 import { AnnouncementBoxDataType } from 'utils/types/utils'
 import { SessionStorageKey } from 'utils/enum'
 import { useUtils } from 'services/context/utilsContext'
@@ -23,6 +21,8 @@ import {
 } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
+import { useRouter } from 'next/router'
 
 const CustomMobile = '/revamp/images/announcementBox/custom-mobile-right.webp'
 const ChristmasMobileRight =
@@ -57,19 +57,17 @@ export const WebAnnouncementBox = ({
   onCloseAnnouncementBox,
   pageOrigination,
 }: WebAnnouncementBoxProps) => {
-  const [isOpen, setIsOpen] = useState<boolean | null>(
-    getSessionStorage(
-      getToken() === null
-        ? SessionStorageKey.ShowWebAnnouncementLogin
-        : SessionStorageKey.ShowWebAnnouncementNonLogin,
-    ) ?? true,
-  )
-
-  const [announcement, setAnnouncement] = useState<AnnouncementBoxDataType>()
-  const [isError, setIsError] = useState(false)
+  const router = useRouter()
+  const { showAnnouncementBox, saveShowAnnouncementBox } =
+    useAnnouncementBoxContext()
   const { dataAnnouncementBox } = useUtils()
 
-  useAfterInteractive(() => {
+  const [announcement, setAnnouncement] = useState<
+    AnnouncementBoxDataType | undefined
+  >(dataAnnouncementBox)
+  const [isError, setIsError] = useState(false)
+
+  useEffect(() => {
     if (dataAnnouncementBox !== undefined) {
       setIsError(false)
       setAnnouncement(dataAnnouncementBox)
@@ -84,9 +82,7 @@ export const WebAnnouncementBox = ({
         getSessionStorage(SessionStorageKey.ShowWebAnnouncementLogin) === null
       ) {
         saveSessionStorage(SessionStorageKey.ShowWebAnnouncementLogin, 'true')
-        setIsOpen(true)
       }
-      setIsOpen(getSessionStorage(SessionStorageKey.ShowWebAnnouncementLogin))
     } else {
       if (
         getSessionStorage(SessionStorageKey.ShowWebAnnouncementNonLogin) ===
@@ -96,11 +92,7 @@ export const WebAnnouncementBox = ({
           SessionStorageKey.ShowWebAnnouncementNonLogin,
           'true',
         )
-        setIsOpen(true)
       }
-      setIsOpen(
-        getSessionStorage(SessionStorageKey.ShowWebAnnouncementNonLogin),
-      )
     }
   }, [
     getSessionStorage(SessionStorageKey.ShowWebAnnouncementNonLogin),
@@ -109,25 +101,27 @@ export const WebAnnouncementBox = ({
   ])
 
   useAfterInteractive(() => {
-    if (isOpen && announcement) {
-      window.dataLayer.push({
-        event: 'view_promotion',
-        creative_name: announcement.title,
-        creative_slot: null,
-        promotion_id: null,
-        promotion_name: 'announcement_box',
-        eventCategory: 'Announcement Box',
-        eventAction: 'Promotion View',
-        eventLabel: announcement.title,
-      })
-      trackEventCountly(CountlyEventNames.WEB_ANNOUNCEMENT_VIEW, {
-        ANNOUNCEMENT_TITLE: announcement.title,
-        PAGE_ORIGINATION: pageOrigination?.includes('PDP')
-          ? 'PDP - ' + valueMenuTabCategory()
-          : pageOrigination,
-      })
+    if (announcement) {
+      setTimeout(() => {
+        window.dataLayer.push({
+          event: 'view_promotion',
+          creative_name: announcement.title,
+          creative_slot: null,
+          promotion_id: null,
+          promotion_name: 'announcement_box',
+          eventCategory: 'Announcement Box',
+          eventAction: 'Promotion View',
+          eventLabel: announcement.title,
+        })
+        trackEventCountly(CountlyEventNames.WEB_ANNOUNCEMENT_VIEW, {
+          ANNOUNCEMENT_TITLE: announcement.title,
+          PAGE_ORIGINATION: pageOrigination?.includes('PDP')
+            ? 'PDP - ' + valueMenuTabCategory()
+            : pageOrigination,
+        })
+      }, 1000)
     }
-  }, [isOpen, announcement])
+  }, [announcement])
 
   const handleClose = () => {
     window.dataLayer.push({
@@ -149,7 +143,7 @@ export const WebAnnouncementBox = ({
     trackEventCountly(CountlyEventNames.WEB_ANNOUNCEMENT_CLOSE_CLICK, {
       ANNOUNCEMENT_TITLE: announcement?.title,
     })
-    setIsOpen(false)
+    saveShowAnnouncementBox(false)
     onCloseAnnouncementBox && onCloseAnnouncementBox(false)
   }
 
@@ -157,7 +151,7 @@ export const WebAnnouncementBox = ({
 
   return (
     <>
-      {isOpen && announcement ? (
+      {showAnnouncementBox && announcement ? (
         <Wrapper
           bgColor={announcement.backgroundColor}
           bannerDesign={announcement.bannerDesign}
@@ -192,7 +186,9 @@ export const WebAnnouncementBox = ({
                 })
                 trackEventCountly(CountlyEventNames.WEB_ANNOUNCEMENT_CLICK, {
                   ANNOUNCEMENT_TITLE: announcement.title,
-                  PAGE_ORIGINATION: pageOrigination,
+                  PAGE_ORIGINATION: pageOrigination?.includes('PDP')
+                    ? 'PDP - ' + valueMenuTabCategory()
+                    : pageOrigination,
                   PAGE_DIRECTION_URL: announcement.url,
                 })
                 announcement.url &&

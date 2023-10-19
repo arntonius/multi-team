@@ -15,11 +15,14 @@ import {
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { carResultsUrl, loanCalculatorDefaultUrl } from 'utils/helpers/routes'
+import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 
 const CtaWidget = () => {
   const router = useRouter()
+  const { clearQueryFilter } = useFunnelQueryData()
 
   const onClickSearchCar = () => {
+    clearQueryFilter()
     trackEventCountly(CountlyEventNames.WEB_HOMEPAGE_CAR_SEARCH_BUTTON_CLICK, {
       SOURCE_SECTION: 'Bottom section',
       CAR_BRAND: 'Null',
@@ -72,9 +75,9 @@ const CtaWidget = () => {
         </div>
       </div>
       <div className={styles.foreground}>
-        <p className={styles.textCtaHeader}>
+        <h2 className={styles.textCtaHeader}>
           Yuk, SEVA bantu untuk mewujudkan mobil impian kamu
-        </p>
+        </h2>
         <div className={styles.ctaWrapepr}>
           <Button
             version={ButtonVersion.Default}

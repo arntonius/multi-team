@@ -50,6 +50,7 @@ import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { navigateToPLP, PreviousButton } from 'utils/navigate'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
 export const initDataWidget = {
   downPaymentAmount: '',
@@ -80,9 +81,6 @@ const initEmptyDataWidget = {
 
 const SearchWidget = () => {
   const { patchFunnelQuery }: any = useFunnelQueryData()
-  const [state, setState] = useState<FunnelWidget>(initEmptyDataWidget) // assume this state as Context widget, mind about re-render
-  const contextValue = useMemo(() => ({ state, setState }), [state])
-  const router = useRouter()
   const { financialQuery, patchFinancialQuery } = useFinancialQueryData()
   const { funnelWidget, saveFunnelWidget } = useContext(
     SearchWidgetContext,
@@ -149,7 +147,7 @@ const SearchWidget = () => {
     trackEventCountly(
       CountlyEventNames.WEB_HOMEPAGE_FILTER_DP_ADJUST_PRICE_CLICK,
       {
-        DP_INPUT: `Rp${Currency(state.downPaymentAmount)}`,
+        DP_INPUT: `Rp${Currency(funnelWidget.downPaymentAmount)}`,
         DP_SUGGESTION: `Rp${Currency(limitMinimumDp)}`,
       },
     )
@@ -242,16 +240,21 @@ const SearchWidget = () => {
         ? `Rp${Currency(tempPriceRange.split('-')[1])}`
         : 'Null',
       DP_AMOUNT:
-        expandFinancial && !!state.downPaymentAmount
-          ? `Rp${Currency(state.downPaymentAmount)}`
+        expandFinancial && !!funnelWidget.downPaymentAmount
+          ? `Rp${Currency(funnelWidget.downPaymentAmount)}`
           : 'Null',
       TENOR_OPTION:
-        expandFinancial && !!state.tenure ? `${state.tenure} tahun` : 'Null',
-      INCOME_AMOUNT:
-        expandFinancial && !!state.monthlyIncome
-          ? `Rp${Currency(state.monthlyIncome)}`
+        expandFinancial && !!funnelWidget.tenure
+          ? `${funnelWidget.tenure} tahun`
           : 'Null',
-      AGE_RANGE: expandFinancial && !!state.age ? `${state.age} Tahun` : 'Null',
+      INCOME_AMOUNT:
+        expandFinancial && !!funnelWidget.monthlyIncome
+          ? `Rp${Currency(funnelWidget.monthlyIncome)}`
+          : 'Null',
+      AGE_RANGE:
+        expandFinancial && !!funnelWidget.age
+          ? `${funnelWidget.age} Tahun`
+          : 'Null',
     }
   }
 
@@ -300,9 +303,14 @@ const SearchWidget = () => {
 
     if (expandFinancial) {
       patchFinancialQuery(dataFinancial)
-      patchFunnelQuery({ ...state })
+      patchFunnelQuery({ ...funnelWidget, filterFincap: true })
     } else {
-      patchFunnelQuery({ brand, bodyType, priceRangeGroup })
+      patchFunnelQuery({
+        brand,
+        bodyType,
+        priceRangeGroup,
+        filterFincap: false,
+      })
     }
 
     trackCountlyClickCta()
@@ -321,8 +329,12 @@ const SearchWidget = () => {
       currentFinancial.downPaymentAmount = storedFilter.downPaymentAmount
 
     saveFunnelWidget({ ...funnelWidget, ...currentFinancial })
-
     fetchMinMaxPrice()
+    patchFunnelQuery({ filterFincap: false })
+  }, [])
+
+  useAfterInteractive(() => {
+    patchFunnelQuery({ filterFincap: false })
   }, [])
 
   useEffect(() => {
@@ -418,7 +430,8 @@ const SearchWidget = () => {
       FILTER_TYPE: 'Car Brand',
       ...dataForCountlyTrackerOnClick(),
       CAR_BRAND: checkedOption.join(', '),
-      AGE_RANGE: expandFinancial && !!state.age ? `${state.age}` : 'Null',
+      AGE_RANGE:
+        expandFinancial && !!funnelWidget.age ? `${funnelWidget.age}` : 'Null',
     })
   }
 
@@ -427,7 +440,8 @@ const SearchWidget = () => {
       FILTER_TYPE: 'Car Type',
       ...dataForCountlyTrackerOnClick(),
       CAR_TYPE: checkedOption.join(', '),
-      AGE_RANGE: expandFinancial && !!state.age ? `${state.age}` : 'Null',
+      AGE_RANGE:
+        expandFinancial && !!funnelWidget.age ? `${funnelWidget.age}` : 'Null',
     })
   }
 
@@ -437,7 +451,8 @@ const SearchWidget = () => {
       ...dataForCountlyTrackerOnClick(),
       MIN_PRICE: `Rp${Currency(min)}`,
       MAX_PRICE: `Rp${Currency(max)}`,
-      AGE_RANGE: expandFinancial && !!state.age ? `${state.age}` : 'Null',
+      AGE_RANGE:
+        expandFinancial && !!funnelWidget.age ? `${funnelWidget.age}` : 'Null',
     })
   }
 

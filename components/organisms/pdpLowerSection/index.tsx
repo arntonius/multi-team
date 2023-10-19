@@ -8,7 +8,7 @@ import {
   SpecificationTab,
   SummaryTab,
 } from 'components/organisms'
-import { VideoDataType } from 'utils/types/utils'
+import { AnnouncementBoxDataType, VideoDataType } from 'utils/types/utils'
 import { capitalizeFirstLetter } from 'utils/stringUtils'
 import { useRouter } from 'next/router'
 import { trackEventCountly } from 'helpers/countly/countly'
@@ -21,6 +21,7 @@ import {
 } from 'utils/navigate'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { LocalStorageKey } from 'utils/enum'
+import { useUtils } from 'services/context/utilsContext'
 
 type pdpLowerSectionProps = {
   onButtonClick: (value: boolean) => void
@@ -30,6 +31,8 @@ type pdpLowerSectionProps = {
   setVariantIdFuelRatio: (value: string) => void
   variantFuelRatio: string | undefined
   isOTO?: boolean
+  isShowAnnouncementBox?: boolean | null // for track annoucnement box every tab
+  onChangeTab: (value: any) => void
 }
 
 export const PdpLowerSection = ({
@@ -40,10 +43,13 @@ export const PdpLowerSection = ({
   setVariantIdFuelRatio,
   variantFuelRatio,
   isOTO = false,
+  isShowAnnouncementBox,
+  onChangeTab,
 }: pdpLowerSectionProps) => {
   const router = useRouter()
-  const lowerTab = router.query.slug as string
-  const path = lowerTab ? capitalizeFirstLetter(lowerTab[0]) : ''
+  const { slug } = router.query
+  const [upperTabSlug, lowerTabSlug] = Array.isArray(slug) ? slug : []
+  const path = lowerTabSlug ? capitalizeFirstLetter(lowerTabSlug) : ''
   const [selectedTabValue, setSelectedTabValue] = useState(
     path ||
       lowerSectionNavigationTab.filter((item) => item.label !== 'Kredit')[0]
@@ -51,6 +57,8 @@ export const PdpLowerSection = ({
   )
   const { carModelDetails } = useCar()
   const filterStorage: any = getLocalStorage(LocalStorageKey.CarFilter)
+  const [announcement, setAnnouncement] = useState<AnnouncementBoxDataType>()
+  const { dataAnnouncementBox } = useUtils()
 
   const isUsingFilterFinancial =
     !!filterStorage?.age &&
@@ -60,6 +68,14 @@ export const PdpLowerSection = ({
   const loanRankcr = router.query.loanRankCVL ?? ''
   const upperTab = router.query.tab as string
 
+  const trackAnnouncementBoxView = (value: string) => {
+    if (isShowAnnouncementBox && announcement) {
+      trackEventCountly(CountlyEventNames.WEB_ANNOUNCEMENT_VIEW, {
+        ANNOUNCEMENT_TITLE: announcement?.title,
+        PAGE_ORIGINATION: 'PDP - ' + value,
+      })
+    }
+  }
   const trackClickLowerTabCountly = (value: string) => {
     let creditBadge = 'Null'
     if (loanRankcr && loanRankcr.includes(LoanRank.Green)) {
@@ -85,30 +101,10 @@ export const PdpLowerSection = ({
       saveDataForCountlyTrackerPageViewLC(PreviousButton.undefined)
     }
     trackClickLowerTabCountly(value)
+    trackAnnouncementBoxView(value)
     setSelectedTabValue(value)
     const destinationElm = document.getElementById('pdp-lower-content')
-    const urlWithoutSlug = window.location.href
-      .replace('/ringkasan', '')
-      .replace('/spesifikasi', '')
-      .replace('/harga', '')
-      .replace('/kredit', '')
-    const lastIndexUrl = window.location.href.slice(-1)
-
-    if (lastIndexUrl === '/') {
-      window.history.pushState(
-        null,
-        '',
-        urlWithoutSlug + value.toLocaleLowerCase(),
-      )
-    } else {
-      window.history.pushState(
-        null,
-        '',
-        urlWithoutSlug +
-          '/' +
-          (value !== 'Ringkasan' ? value.toLocaleLowerCase() : ''),
-      )
-    }
+    onChangeTab(value)
 
     if (destinationElm) {
       destinationElm.scrollIntoView()
@@ -116,16 +112,25 @@ export const PdpLowerSection = ({
       window.scrollBy({ top: -100, left: 0 })
     }
   }
-
+  const getAnnouncementBox = () => {
+    if (dataAnnouncementBox !== undefined) {
+      setAnnouncement(dataAnnouncementBox)
+    }
+  }
   useEffect(() => {
     setTabFromDirectUrl()
   }, [])
 
+  useEffect(() => {
+    getAnnouncementBox()
+  }, [dataAnnouncementBox, isShowAnnouncementBox])
+
   const setTabFromDirectUrl = () => {
     const slug = router.query.slug
+    const [upperTabSlug, lowerTabSlug] = Array.isArray(slug) ? slug : []
 
-    if (slug) {
-      const path = capitalizeFirstLetter(slug[0])
+    if (lowerTabSlug) {
+      const path = capitalizeFirstLetter(lowerTabSlug)
       setSelectedTabValue(path)
     }
   }
@@ -145,7 +150,7 @@ export const PdpLowerSection = ({
           />
         )
       case 'Spesifikasi':
-        return <SpecificationTab />
+        return <SpecificationTab isOTO={isOTO} />
 
       case 'Harga':
         return (

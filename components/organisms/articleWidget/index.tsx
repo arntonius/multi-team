@@ -84,6 +84,7 @@ const ArticleWidget = ({
           setCategory(value)
           trackCountlyClickTab(value)
         }}
+        className={styles.tab}
         isShowAnnouncementBox={false}
         onPage={'LC'}
       />

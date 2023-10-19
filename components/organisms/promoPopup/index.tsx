@@ -1,6 +1,6 @@
 import { BottomSheet } from 'react-spring-bottom-sheet'
 import 'react-spring-bottom-sheet/dist/style.css'
-import React from 'react'
+import React, { useEffect } from 'react'
 import styles from 'styles/components/organisms/promoPopupPdp.module.scss'
 import { IconClose } from 'components/atoms'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
@@ -14,6 +14,7 @@ import { useRouter } from 'next/router'
 import { LoanRank } from 'utils/types/models'
 import Image from 'next/image'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
+import { isIphone } from 'utils/window'
 
 const promoBannerTSO = '/revamp/illustration/PromoTSO.webp'
 const promoBannerCumaDiSEVA = '/revamp/illustration/PromoCumaDiSEVA.webp'
@@ -80,6 +81,8 @@ const PromoPopup = ({
           src={promoBannerCumaDiSEVA}
           alt="promo banner cuma di seva"
           className={styles.promoBanner}
+          width={373}
+          height={280}
         />
       </div>
       <div>
@@ -129,8 +132,7 @@ const PromoPopup = ({
           src={promoBannerTSO}
           alt="promo banner TSO"
           className={styles.promoBanner}
-          width={716}
-          height={537.6}
+          fill={true}
         />
       </div>
       <div>
@@ -150,7 +152,7 @@ const PromoPopup = ({
             href="https://www.seva.id/info/promo/toyota-spektakuler/"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackClickPromoSK('Toyota Spektakuler', 2)}
+            onClick={() => trackClickPromoSK('Toyota Spektakuler', 1)} // because promo "cuma di seva" hidden
           >
             {' '}
             Lihat S&K.
@@ -172,6 +174,7 @@ const PromoPopup = ({
           src={promoBannerTradeIn}
           alt="promo banner trade In"
           className={styles.promoBanner}
+          fill={true}
         />
       </div>
       <div>
@@ -190,7 +193,7 @@ const PromoPopup = ({
             href="https://www.seva.id/info/promo/promo-trade-in-daihatsu/"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackClickPromoSK('Promo Trade-In Daihatsu', 3)}
+            onClick={() => trackClickPromoSK('Promo Trade-In Daihatsu', 2)} // because promo "cuma di seva" hidden
           >
             {' '}
             Lihat S&K.
@@ -212,12 +215,25 @@ const PromoPopup = ({
         return <PromoCumanDiSeva />
     }
   }
+
+  useEffect(() => {
+    window.addEventListener('popstate', () => {
+      onButtonClick && onButtonClick(false)
+    })
+
+    return () => {
+      window.removeEventListener('popstate', () => {
+        onButtonClick && onButtonClick(false)
+      })
+    }
+  }, [])
   return (
     <div>
       <BottomSheet
         open={isButtonClick || false}
         onDismiss={() => onClickClose()}
         className={styles.bottomSheet}
+        scrollLocking={!isIphone}
       >
         {renderPromoSection(promoName)}
       </BottomSheet>
