@@ -21,11 +21,14 @@ import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
 import { carResultsUrl, loanCalculatorDefaultUrl } from 'utils/helpers/routes'
+import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 
 const HowToUse = () => {
   const router = useRouter()
+  const { clearQueryFilter } = useFunnelQueryData()
 
   const onClickDreamCar = () => {
+    clearQueryFilter()
     sendAmplitudeData(AmplitudeEventName.WEB_LP_HOW_TO_USE_SEVA_CLICK, {
       Page_Direction_URL:
         'https://' + window.location.host + urls.internalUrls.carResultsUrl,
@@ -101,11 +104,13 @@ const HowToUse = () => {
           data-testid={elementId.Homepage.PilihMobilImpian}
         >
           <div>
-            <p className={styles.cardTextBold}>Pilih Mobil</p>
-            <div className={styles.row}>
-              <p className={styles.headerText}>Impian</p>
-              <IconCar2 width={24} height={24} color={'#B4231E'} />
-            </div>
+            <h3>
+              <p className={styles.cardTextBold}>Pilih Mobil </p>
+              <div className={styles.row}>
+                <p className={styles.headerText}>Impian</p>
+                <IconCar2 width={24} height={24} color={'#B4231E'} />
+              </div>
+            </h3>
             <div className={styles.row}>
               <p className={styles.textGrey}>
                 Pilih mobil impian kamu dari berbagai merek dengan jaminan
@@ -123,11 +128,13 @@ const HowToUse = () => {
           data-testid={elementId.Homepage.HitungKemampuan}
         >
           <div>
-            <p className={styles.cardTextBold}>Hitung</p>
-            <div className={styles.row}>
-              <p className={styles.headerText}>Kemampuan</p>
-              <IconCalculator width={24} height={24} color={'#B4231E'} />
-            </div>
+            <h3>
+              <p className={styles.cardTextBold}>Hitung </p>
+              <div className={styles.row}>
+                <p className={styles.headerText}>Kemampuan</p>
+                <IconCalculator width={24} height={24} color={'#B4231E'} />
+              </div>
+            </h3>
             <div className={styles.row}>
               <p className={styles.textGrey}>
                 Dapatkan hasil perhitungan cicilan mobil yang sesuai dengan
@@ -145,13 +152,15 @@ const HowToUse = () => {
           data-testid={elementId.Homepage.KualifikasiKredit}
         >
           <div>
-            <div className={styles.row} style={{ marginBottom: '0px' }}>
-              <p className={styles.cardTextBold}>Kualifikasi</p>
-              <IconFast width={24} height={24} color={'#B4231E'} />
-            </div>
-            <div className={styles.row}>
-              <p className={styles.headerText}>Kredit</p>
-            </div>
+            <h3>
+              <div className={styles.row} style={{ marginBottom: '0px' }}>
+                <p className={styles.cardTextBold}>Kualifikasi </p>
+                <IconFast width={24} height={24} color={'#B4231E'} />
+              </div>
+              <div className={styles.row}>
+                <p className={styles.headerText}>Kredit</p>
+              </div>
+            </h3>
             <div className={styles.row}>
               <p className={styles.textGrey}>
                 Cek kualifikasi kredit kamu sebelum mengajukan pinjaman mobil.

@@ -18,11 +18,14 @@ import { trackCTAWidgetDirection } from 'helpers/amplitude/seva20Tracking'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { carResultsUrl, loanCalculatorDefaultUrl } from 'utils/helpers/routes'
+import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 
 const CtaWidget = () => {
   const router = useRouter()
+  const { clearQueryFilter } = useFunnelQueryData()
 
   const onClickSearchCar = () => {
+    clearQueryFilter()
     sendAmplitudeData(AmplitudeEventName.WEB_PAGE_DIRECTION_WIDGET_CTA_CLICK, {
       Page_Direction_URL:
         'https://' + window.location.host + urls.internalUrls.carResultsUrl,
@@ -90,9 +93,9 @@ const CtaWidget = () => {
         </div>
       </div>
       <div className={styles.foreground}>
-        <p className={styles.textCtaHeader}>
+        <h2 className={styles.textCtaHeader}>
           Yuk, SEVA bantu untuk mewujudkan mobil impian kamu
-        </p>
+        </h2>
         <div className={styles.ctaWrapepr}>
           <Button
             version={ButtonVersion.Default}

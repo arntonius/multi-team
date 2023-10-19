@@ -97,8 +97,10 @@ import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { Currency } from 'utils/handler/calculation'
 import { useUtils } from 'services/context/utilsContext'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -161,7 +163,6 @@ export default function LoanCalculatorPage() {
   const model = getSlug(router.query, 2)
   const variant = getSlug(router.query, 3)
   const loanRankcr = router.query.loanRankCVL ?? ''
-
   const { financialQuery, patchFinancialQuery } = useFinancialQueryData()
   const [isActive, setIsActive] = useState(false)
   const [isHasCarParameter] = useState(
@@ -260,6 +261,7 @@ export default function LoanCalculatorPage() {
     saveDesktopWebTopMenu,
     saveMobileWebFooterMenus,
     saveDataAnnouncementBox,
+    dataAnnouncementBox,
   } = useUtils()
 
   const getAutofilledCityData = () => {
@@ -344,15 +346,8 @@ export default function LoanCalculatorPage() {
     }
   }
 
-  const [showAnnouncementBox, setShowAnnouncementBox] = useState<
-    boolean | null
-  >(
-    getSessionStorage(
-      getToken()
-        ? SessionStorageKey.ShowWebAnnouncementLogin
-        : SessionStorageKey.ShowWebAnnouncementNonLogin,
-    ) ?? true,
-  )
+  const { showAnnouncementBox, saveShowAnnouncementBox } =
+    useAnnouncementBoxContext()
   const [articles, setArticles] = useState<Article[]>([])
 
   const fetchArticles = async () => {
@@ -371,31 +366,17 @@ export default function LoanCalculatorPage() {
     }
   }
 
-  const getAnnouncementBox = () => {
-    api
-      .getAnnouncementBox({
+  const getAnnouncementBox = async () => {
+    try {
+      const res: any = await api.getAnnouncementBox({
         headers: {
           'is-login': getToken() ? 'true' : 'false',
         },
       })
-      .then((res: { data: AnnouncementBoxDataType }) => {
-        if (res.data === undefined) {
-          setShowAnnouncementBox(false)
-        } else {
-          saveDataAnnouncementBox(res.data)
-          const sessionAnnouncmentBox = getSessionStorage(
-            getToken()
-              ? SessionStorageKey.ShowWebAnnouncementLogin
-              : SessionStorageKey.ShowWebAnnouncementNonLogin,
-          )
-          if (typeof sessionAnnouncmentBox !== 'undefined') {
-            setShowAnnouncementBox(sessionAnnouncmentBox as boolean)
-          } else {
-            setShowAnnouncementBox(true)
-          }
-        }
-      })
+      saveDataAnnouncementBox(res.data)
+    } catch (error) {}
   }
+
   const checkPromoCode = async () => {
     if (!forms.promoCode) {
       setPromoCodeSessionStorage('')
@@ -705,6 +686,23 @@ export default function LoanCalculatorPage() {
     autofillCarVariantData()
     checkReffcode()
   }, [carVariantList])
+
+  useAfterInteractive(() => {
+    if (dataAnnouncementBox) {
+      const isShowAnnouncement = getSessionStorage(
+        getToken()
+          ? SessionStorageKey.ShowWebAnnouncementLogin
+          : SessionStorageKey.ShowWebAnnouncementNonLogin,
+      )
+      if (typeof isShowAnnouncement !== 'undefined') {
+        saveShowAnnouncementBox(isShowAnnouncement as boolean)
+      } else {
+        saveShowAnnouncementBox(true)
+      }
+    } else {
+      saveShowAnnouncementBox(false)
+    }
+  }, [dataAnnouncementBox])
 
   const AgeList: Option<string>[] = [
     {
@@ -1696,7 +1694,7 @@ export default function LoanCalculatorPage() {
             position: 'fixed',
           }}
           emitClickCityIcon={() => setIsOpenCitySelectorModal(true)}
-          setShowAnnouncementBox={setShowAnnouncementBox}
+          setShowAnnouncementBox={saveShowAnnouncementBox}
           isShowAnnouncementBox={showAnnouncementBox}
         />
         <div
@@ -1727,6 +1725,7 @@ export default function LoanCalculatorPage() {
                 name="city"
                 onOpenTooltip={onOpenTooltipCityField}
                 onShowDropdown={onShowDropdownCityField}
+                isError={isValidatingEmptyField && !forms.city}
               />
               {isValidatingEmptyField && !forms.city
                 ? renderErrorMessageEmpty()
@@ -1746,6 +1745,10 @@ export default function LoanCalculatorPage() {
                 allModelCarList={allModelCarList}
                 setModelError={setModelError}
                 onShowDropdown={onShowDropdownModelField}
+                overrideIsErrorFieldOnly={
+                  isValidatingEmptyField &&
+                  (!forms.model?.modelId || !forms.model.modelName)
+                }
               />
               {isValidatingEmptyField &&
               (!forms.model?.modelId || !forms.model.modelName)
@@ -1761,6 +1764,10 @@ export default function LoanCalculatorPage() {
                 value={forms.variant || variantEmptyValue}
                 modelError={modelError}
                 onShowDropdown={onShowDropdownVariantField}
+                isError={
+                  isValidatingEmptyField &&
+                  (!forms.variant?.variantId || !forms.variant.variantName)
+                }
               />
               {isValidatingEmptyField &&
               (!forms.variant?.variantId || !forms.variant.variantName)
@@ -1774,7 +1781,10 @@ export default function LoanCalculatorPage() {
                 value={Number(forms.monthlyIncome)}
                 defaultValue={Number(forms.monthlyIncome)}
                 handleChange={handleChange}
-                isErrorTooLow={isIncomeTooLow}
+                isError={
+                  isIncomeTooLow ||
+                  (isValidatingEmptyField && !forms.monthlyIncome)
+                }
                 emitOnBlurInput={onBlurIncomeInput}
                 onFocus={onFocusIncomeField}
               />
@@ -1839,6 +1849,7 @@ export default function LoanCalculatorPage() {
                 handleChange={handleChange}
                 defaultValue={forms.age}
                 onShowDropdown={onShowDropdownAgeField}
+                isError={isValidatingEmptyField && !forms.age}
               />
               {isValidatingEmptyField && !forms.age
                 ? renderErrorMessageEmpty()
@@ -1864,17 +1875,8 @@ export default function LoanCalculatorPage() {
             <Button
               // not using "disabled" attrib because some func need to be run
               // when disabled button is clicked
-              version={
-                isDisableCtaCalculate
-                  ? ButtonVersion.Disable
-                  : ButtonVersion.PrimaryDarkBlue
-              }
+              version={ButtonVersion.PrimaryDarkBlue}
               secondaryClassName={styles.buttonSubmit}
-              disabled={
-                isDisableCtaCalculate ||
-                isLoadingCalculation ||
-                isLoadingInsuranceAndPromo
-              }
               size={ButtonSize.Big}
               onClick={onClickCalculate}
               data-testid={elementId.LoanCalculator.Button.HitungKemampuan}
@@ -1915,15 +1917,18 @@ export default function LoanCalculatorPage() {
                 setFinalLoan={setFinalLoan}
                 pageOrigination={getPageOriginationForCountlyTracker()}
               />
-              <CarRecommendations
-                carRecommendationList={carRecommendations}
-                title="Rekomendasi Sesuai
+
+              {carRecommendations.length > 0 && (
+                <CarRecommendations
+                  carRecommendationList={carRecommendations}
+                  title="Rekomendasi Sesuai
 Kemampuan Finansialmu"
-                onClick={() => {
-                  return
-                }}
-                selectedCity={forms?.city?.cityName}
-              />
+                  onClick={() => {
+                    return
+                  }}
+                  selectedCity={forms?.city?.cityName}
+                />
+              )}
               <CreditCualificationBenefit />
               <Articles
                 articles={articles}
@@ -1941,7 +1946,9 @@ Kemampuan Finansialmu"
 
         <CitySelectorModal
           isOpen={isOpenCitySelectorModal}
-          onClickCloseButton={() => setIsOpenCitySelectorModal(false)}
+          onClickCloseButton={() => {
+            setIsOpenCitySelectorModal(false)
+          }}
           cityListFromApi={cityListApi}
         />
 

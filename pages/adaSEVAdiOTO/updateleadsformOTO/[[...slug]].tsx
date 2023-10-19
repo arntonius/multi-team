@@ -13,7 +13,7 @@ import { variantEmptyValue } from 'components/molecules/form/formSelectCarVarian
 import { ModelVariant } from 'utils/types/carVariant'
 import { CityOtrOption } from 'utils/types'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
+import { LocalStorageKey } from 'utils/enum'
 import { CarModel } from 'utils/types/carModel'
 import { Button, InputPhone } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
