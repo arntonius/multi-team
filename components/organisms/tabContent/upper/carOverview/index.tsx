@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import styles from 'styles/components/organisms/carOverView.module.scss'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import {
@@ -41,12 +41,14 @@ import {
 } from 'utils/navigate'
 import { PdpDataOTOLocalContext } from 'pages/adaSEVAdiOTO/mobil-baru/[brand]/[model]/[[...slug]]'
 import { AdaOTOdiSEVALeadsForm } from 'components/organisms/leadsForm/adaOTOdiSEVA/popUp'
+import { getCity } from 'utils/hooks/useGetCity'
 
 interface Props {
   onClickCityOtrCarOverview: () => void
   onClickShareButton: () => void
   currentTabMenu: string
   isOTO?: boolean
+  cityOtr?: CityOtrOption
 }
 
 export const CarOverview = ({
@@ -54,6 +56,7 @@ export const CarOverview = ({
   onClickShareButton,
   currentTabMenu,
   isOTO = false,
+  cityOtr,
 }: Props) => {
   const {
     dataCombinationOfCarRecomAndModelDetailDefaultCity,
@@ -61,10 +64,7 @@ export const CarOverview = ({
   } = useContext(isOTO ? PdpDataOTOLocalContext : PdpDataLocalContext)
 
   const { carModelDetails, carVariantDetails } = useCar()
-  const [cityOtr] = useLocalStorage<CityOtrOption | null>(
-    LocalStorageKey.CityOtr,
-    null,
-  )
+  const [currentCityOtr, setCurrentCityOtr] = useState(cityOtr ?? getCity())
 
   const [isModalOpenend, setIsModalOpened] = useState<boolean>(false)
 
@@ -82,9 +82,10 @@ export const CarOverview = ({
   })
   const { funnelQuery } = useFunnelQueryData()
   const router = useRouter()
-  const brand = router.query.brand as string
-  const model = router.query.model as string
-  const upperTab = router.query.tab as string
+  const { model, brand, slug } = router.query
+  const [upperTabSlug, lowerTabSlug, citySlug] = slug?.length
+    ? (slug as Array<string>)
+    : []
   const loanRankcr = router.query.loanRankCVL ?? ''
 
   const sortedCarModelVariant = useMemo(() => {
@@ -94,6 +95,10 @@ export const CarOverview = ({
       }) || []
     )
   }, [modelDetail])
+
+  useEffect(() => {
+    if (cityOtr) setCurrentCityOtr(cityOtr)
+  }, [cityOtr])
 
   const closeLeadsForm = () => {
     setIsModalOpened(false)
@@ -107,9 +112,9 @@ export const CarOverview = ({
     onClickCityOtrCarOverview()
   }
 
-  const getCity = () => {
-    if (cityOtr && cityOtr.cityName) {
-      return cityOtr.cityName
+  const getCityWithDefault = () => {
+    if (currentCityOtr && currentCityOtr.cityName) {
+      return currentCityOtr.cityName
     } else {
       return 'Jakarta Pusat'
     }
@@ -181,7 +186,7 @@ export const CarOverview = ({
       //   modelDetail?.variants[0].priceValue as number,
       //   LanguageCode.id,
       // )}`,
-      City: cityOtr?.cityName || 'null',
+      City: currentCityOtr?.cityName || 'null',
       Page_Origination_URL: window.location.href,
     })
   }
@@ -197,7 +202,7 @@ export const CarOverview = ({
       trackDownloadBrosurClick({
         Car_Brand: modelDetail?.brand as string,
         Car_Model: modelDetail?.model as string,
-        City: cityOtr?.cityName || 'null',
+        City: currentCityOtr?.cityName || 'null',
       })
     }
   }
@@ -211,7 +216,7 @@ export const CarOverview = ({
     const properties: CarVariantHitungKemampuanParam = {
       Car_Brand: modelDetail?.brand as string,
       Car_Model: modelDetail?.model as string,
-      City: cityOtr?.cityName || 'null',
+      City: currentCityOtr?.cityName || 'null',
       DP: `Rp${Currency(String(currentDp))}`,
       Cicilan: `Rp${getMonthlyInstallment()}`,
       Tenure: `${getTenure()} tahun`,
@@ -255,25 +260,14 @@ export const CarOverview = ({
     trackClickBrochureCountly()
   }
 
-  const queryParamForPDP = () => {
-    const params = new URLSearchParams({
-      ...(upperTab && { tab: `${upperTab}` }),
-      ...(loanRankcr &&
-        typeof loanRankcr === 'string' && { loanRankCVL: loanRankcr }),
-    })
-
-    return params
-  }
-
   const onClickCalculateCta = () => {
     trackHitungKemampuan()
     trackClickCtaCountly()
     saveDataForCountlyTrackerPageViewLC(PreviousButton.MainTopCta)
-    window.location.href =
-      variantListUrl
-        .replace(':brand', brand)
-        .replace(':model', model)
-        .replace(':tab', 'kredit') + queryParamForPDP()
+    window.location.href = variantListUrl
+      .replace(':brand', brand as string)
+      .replace(':model', model as string)
+      .replace(':tab', `${upperTabSlug ?? 'Warna'}/Kredit`)
   }
 
   if (!modelDetail || !variantDetail) return <></>
@@ -326,7 +320,7 @@ export const CarOverview = ({
               onClick={onClickOtrCity}
               data-testid={elementId.PDP.CarOverview.CityOtr}
             >
-              {getCity()}
+              {getCityWithDefault()}
             </span>
           </span>
           <button

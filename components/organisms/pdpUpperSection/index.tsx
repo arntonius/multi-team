@@ -7,7 +7,7 @@ import {
   VideoTab,
   CarOverview,
 } from 'components/organisms'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { upperSectionNavigationTab } from 'config/carVariantList.config'
 import { NavigationTabV2 } from 'components/molecules'
 import { CityOtrOption, VideoDataType } from 'utils/types/utils'
@@ -22,12 +22,12 @@ import {
   CarVariantPhotoParam,
   trackPDPPhotoClick,
 } from 'helpers/amplitude/seva20Tracking'
-import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-import { LocalStorageKey } from 'utils/enum'
 import { useRouter } from 'next/router'
 import { useCar } from 'services/context/carContext'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { getCity } from 'utils/hooks/useGetCity'
+import { capitalizeFirstLetter } from 'utils/stringUtils'
 
 interface Props {
   emitActiveIndex: (e: number) => void
@@ -39,6 +39,8 @@ interface Props {
   onClickShareButton: () => void
   isShowAnnouncementBox: boolean | null
   isOTO?: boolean
+  onChangeTab: (value: any) => void
+  cityOtr?: CityOtrOption
 }
 
 export const PdpUpperSection = ({
@@ -51,19 +53,22 @@ export const PdpUpperSection = ({
   onClickShareButton,
   isShowAnnouncementBox,
   isOTO = false,
+  onChangeTab,
+  cityOtr,
 }: Props) => {
   const router = useRouter()
-
-  const upperTab = router.query.tab as string
-
+  const { slug } = router.query
+  const [upperTabSlug] = Array.isArray(slug) ? slug : []
+  const [currentCityOtr, setCurrentCityOtr] = useState(cityOtr ?? getCity())
   const [selectedTabValue, setSelectedTabValue] = useState(
-    upperTab || upperSectionNavigationTab[0].value,
+    upperTabSlug
+      ? capitalizeSlugIf360(upperTabSlug)
+      : upperSectionNavigationTab[0].value,
   )
 
-  const [cityOtr] = useLocalStorage<CityOtrOption | null>(
-    LocalStorageKey.CityOtr,
-    null,
-  )
+  useEffect(() => {
+    if (cityOtr) setCurrentCityOtr(cityOtr)
+  }, [cityOtr])
 
   const getImageExterior360 = () => {
     const currentUrlPathname = router.asPath
@@ -125,9 +130,18 @@ export const PdpUpperSection = ({
       Car_Model: carModelDetails?.model as string,
       Page_Origination_URL: window.location.href.replace('https://www.', ''),
       Photo_Type: photoType,
-      City: cityOtr?.cityName || 'null',
+      City: currentCityOtr?.cityName || 'null',
     }
     trackPDPPhotoClick(event, trackProperties)
+  }
+
+  const onSelectTab = (value: any) => {
+    setSelectedTabValue(value)
+    onChangeTab(value)
+    trackEventPhoto(TrackingEventName.WEB_PDP_TAB_PHOTO_CLICK, value)
+    trackEventCountly(CountlyEventNames.WEB_PDP_VISUAL_TAB_CLICK, {
+      VISUAL_TAB_CATEGORY: value,
+    })
   }
 
   const renderContent = () => {
@@ -189,19 +203,8 @@ export const PdpUpperSection = ({
       <div className={styles.upperSpacing} />
       <NavigationTabV2
         itemList={tabItemList}
-        onSelectTab={(value: any) => {
-          setSelectedTabValue(value)
-          router.replace({
-            query: {
-              ...router.query,
-              tab: value,
-            },
-          })
-          trackEventPhoto(TrackingEventName.WEB_PDP_TAB_PHOTO_CLICK, value)
-          trackEventCountly(CountlyEventNames.WEB_PDP_VISUAL_TAB_CLICK, {
-            VISUAL_TAB_CATEGORY: value,
-          })
-        }}
+        initialTab={upperTabSlug && capitalizeSlugIf360(upperTabSlug)}
+        onSelectTab={(value: any) => onSelectTab(value)}
         isShowAnnouncementBox={isShowAnnouncementBox}
         onPage={'PDP'}
       />
@@ -213,9 +216,17 @@ export const PdpUpperSection = ({
             onClickShareButton={onClickShareButton}
             currentTabMenu={selectedTabValue}
             isOTO={isOTO}
+            cityOtr={currentCityOtr}
           />
         </>
       </div>
     </div>
   )
+}
+
+const capitalizeSlugIf360 = (slug: string) => {
+  if (slug.toLocaleLowerCase() == '360º eksterior') {
+    return slug.slice(0, 4) + ' ' + slug.charAt(5).toUpperCase() + slug.slice(6)
+  }
+  return capitalizeFirstLetter(slug)
 }
