@@ -5,7 +5,7 @@ import { UsedCarRecommendation } from 'utils/types/context'
 import { COMData } from 'utils/types/models'
 import { CarModelDetailsResponse, CarRecommendation } from 'utils/types/props'
 
-export interface CarContextType {
+export interface UsedCarContextType {
   car: CarDetail | null
   saveCar: (data: CarDetail) => void
   carOfTheMonth: COMData[] | []
@@ -18,15 +18,17 @@ export interface CarContextType {
   saveCarModelDetails: (data: CarModelDetailsResponse) => void
   carVariantDetails: CarVariantDetails | null
   saveCarVariantDetails: (data: CarVariantDetails) => void
-  recommendation: CarRecommendation[] | []
-  saveRecommendation: (data: CarRecommendation[] | []) => void
+  recommendation: UsedCarRecommendation[] | []
+  saveRecommendation: (data: UsedCarRecommendation[] | []) => void
   recommendationToyota: CarRecommendation[] | []
   saveRecommendationToyota: (data: CarRecommendation[] | []) => void
+  totalItems: number | null
+  saveTotalItems: (data: number) => void
 }
 
-export interface CarContextProps
+export interface UsedCarContextProps
   extends Pick<
-    CarContextType,
+    UsedCarContextType,
     | 'car'
     | 'carOfTheMonth'
     | 'typeCar'
@@ -35,11 +37,12 @@ export interface CarContextProps
     | 'carVariantDetails'
     | 'recommendation'
     | 'recommendationToyota'
+    | 'totalItems'
   > {
   children: React.ReactNode
 }
 
-export const CarContext = createContext<CarContextType>({
+export const UsedCarContext = createContext<UsedCarContextType>({
   car: null,
   saveCar: () => {},
   carOfTheMonth: [],
@@ -56,9 +59,11 @@ export const CarContext = createContext<CarContextType>({
   saveRecommendation: () => {},
   recommendationToyota: [],
   saveRecommendationToyota: () => {},
+  totalItems: null,
+  saveTotalItems: () => {},
 })
 
-export const CarProvider = ({
+export const UsedCarProvider = ({
   children,
   car = null,
   carOfTheMonth = [],
@@ -68,7 +73,8 @@ export const CarProvider = ({
   carVariantDetails = null,
   recommendation = [],
   recommendationToyota = [],
-}: CarContextProps) => {
+  totalItems = null,
+}: UsedCarContextProps) => {
   const [currentCar, setCar] = useState<CarDetail | null>(car)
   const [currentCarofTheMonth, setCarofTheMonth] = useState<COMData[] | []>(
     carOfTheMonth,
@@ -82,11 +88,12 @@ export const CarProvider = ({
   const [currentCarVariantDetails, setCarVariantDetails] =
     useState<CarVariantDetails | null>(carVariantDetails)
   const [currentRecommendation, setRecommendation] = useState<
-    CarRecommendation[] | []
+    UsedCarRecommendation[] | []
   >(recommendation)
   const [currentRecommendationToyota, setRecommendationToyota] = useState<
     CarRecommendation[] | []
   >(recommendationToyota)
+  const [currentTotalItems, setTotalItems] = useState<number | null>(totalItems)
 
   const saveCar = (car: CarDetail) => {
     setCar(car)
@@ -110,7 +117,9 @@ export const CarProvider = ({
   const saveCarVariantDetails = (carVariantDetailsData: CarVariantDetails) =>
     setCarVariantDetails(carVariantDetailsData)
 
-  const saveRecommendation = (recommendationData: CarRecommendation[] | []) => {
+  const saveRecommendation = (
+    recommendationData: UsedCarRecommendation[] | [],
+  ) => {
     setRecommendation(recommendationData)
   }
 
@@ -120,8 +129,12 @@ export const CarProvider = ({
     setRecommendationToyota(recommendationData)
   }
 
+  const saveTotalItems = (totalItems: number | null) => {
+    setTotalItems(totalItems)
+  }
+
   return (
-    <CarContext.Provider
+    <UsedCarContext.Provider
       value={{
         car: currentCar,
         saveCar,
@@ -139,11 +152,13 @@ export const CarProvider = ({
         saveRecommendation,
         recommendationToyota: currentRecommendationToyota,
         saveRecommendationToyota,
+        totalItems: currentTotalItems,
+        saveTotalItems,
       }}
     >
       {children}
-    </CarContext.Provider>
+    </UsedCarContext.Provider>
   )
 }
 
-export const useCar = () => useContext(CarContext)
+export const usedCar = () => useContext(UsedCarContext)

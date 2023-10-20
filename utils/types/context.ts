@@ -51,6 +51,10 @@ export interface FilterParam extends NextParsedUrlQuery {
   monthlyIncome: string
   tenure: string
   priceRangeGroup: string
+  priceStart?: string
+  priceEnd?: string
+  yearStart?: string
+  yearEnd?: string
   age: string
   sortBy: string
 }
@@ -62,6 +66,18 @@ export interface FunnelQuery extends Filter {
   category?: string[]
   minPrice?: string
   maxPrice?: string
+  minYear?: string
+  maxYear?: string
+  minMileage?: string
+  maxMileage?: string
+  yearStart?: string
+  yearEnd?: string
+  mileageStart?: string
+  mileageEnd?: string
+  transmission?: string
+  city_id?: string[]
+  priceStart?: string
+  priceEnd?: string
   priceRangeGroup?: string
   phoneNumber?: string
   isDefaultTenureChanged?: boolean
@@ -140,10 +156,52 @@ export interface MinMaxPrice {
   minPriceValue: number
 }
 
+export interface MinMaxYear {
+  maxYearValue: number
+  minYearValue: number
+}
+
+export interface MinMaxMileage {
+  maxMileageValue: number
+  minMileageValue: number
+}
+
 export interface CarButtonProps {
   key: string
   icon: JSX.Element
   value: string
   isChecked?: boolean
   hide?: boolean
+}
+
+export interface UsedCarMedia {
+  mediaCode: string
+  order: number
+  url: string
+}
+
+export interface UsedCarSpecification {
+  specCode: string
+  value: string
+}
+
+export type UsedCarRecommendation = {
+  carId: string
+  mainImage: string
+  carSpecifications: UsedCarSpecification[]
+  cityCode: number
+  cityId: number
+  cityName: string
+  model: string
+  priceFormatedValue: string
+  sevaUrl: string
+  skuCode: string
+  variantName: string
+  mileage: number
+  year: number
+}
+
+export interface UsedCarRecommendationResponse {
+  carRecommendations: UsedCarRecommendation[]
+  totalItems: number
 }

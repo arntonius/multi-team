@@ -238,6 +238,30 @@ const postUpdateLeadsCM = (
 const postCheckTemanSeva = (body: CheckTemanSeva) =>
   post(collections.temanSeva.checkTemanSeva, body)
 
+const getUsedCars = (params?: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.usedCars + params, config)
+
+const getUsedCarCityList = (config?: AxiosRequestConfig) =>
+  get(collections.usedCar.cityList, config)
+
+const getMinMaxPriceUsedCar = (params: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.pricing + params, config)
+
+const getMinMaxYearsUsedCar = (params: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.years + params, config)
+
+const getMinMaxMileageUsedCar = (params: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.mileage + params, config)
+
+const getBrandList = (params: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.brandList + params, config)
+
+const getUsedCarBySKU = (
+  id: string,
+  params: string,
+  config?: AxiosRequestConfig,
+) => get(collections.usedCar.skuCode.replace(':sku_code', id) + params, config)
+
 export const api = {
   getMenu,
   getCities,
@@ -268,8 +292,15 @@ export const api = {
   getCustomerSpouseKtpSeva,
   getAvailableNIK,
   getLeadsDetail,
-  postUpdateLeadsOTO,
+  getUsedCars,
+  getUsedCarCityList,
+  getMinMaxPriceUsedCar,
+  getMinMaxYearsUsedCar,
+  getMinMaxMileageUsedCar,
+  getUsedCarBySKU,
+  getBrandList,
 
+  postUpdateLeadsOTO,
   postUnverifiedLeadsNew,
   postRefreshToken,
   postSendSMSGeneration,

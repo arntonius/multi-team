@@ -2,7 +2,14 @@ import { PLP } from 'components/organisms'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
-import { CarRecommendationResponse, MinMaxPrice } from 'utils/types/context'
+import {
+  CarRecommendationResponse,
+  MinMaxMileage,
+  MinMaxPrice,
+  MinMaxYear,
+  UsedCarRecommendation,
+  UsedCarRecommendationResponse,
+} from 'utils/types/context'
 import {
   CityOtrOption,
   FooterSEOAttributes,
@@ -16,13 +23,14 @@ import { defaultSeoImage } from 'utils/helpers/const'
 import { useUtils } from 'services/context/utilsContext'
 import { MobileWebFooterMenuType } from 'utils/types/props'
 import styles from 'styles/pages/plpUsed.module.scss'
-import { CarProvider } from 'services/context'
+import { CarProvider, UsedCarProvider } from 'services/context'
 import { monthId } from 'utils/handler/date'
 import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
 import { useMediaQuery } from 'react-responsive'
 import { useRouter } from 'next/router'
+import { getCity } from 'utils/hooks/useGetCity'
 import { PLPUsedCar } from 'components/organisms/PLPUsedCar'
-import { getNewFunnelRecommendations } from 'utils/handler/funnel'
+import { getUsedCarFunnelRecommendations } from 'utils/handler/funnel'
 
 const UsedCarResultPage = ({
   meta,
@@ -33,12 +41,12 @@ const UsedCarResultPage = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter()
   const todayDate = new Date()
-  const carBrand = meta.carRecommendations.carRecommendations[0]?.brand
-  const metaTitle = `Harga OTR ${carBrand} - Harga OTR dengan Promo Cicilan bulan ${monthId(
+  const brand = router.query.brand
+  const metaTitle = `Beli Mobil Terbaru ${todayDate.getFullYear()} - Harga OTR dengan Promo Cicilan bulan ${monthId(
     todayDate.getMonth(),
   )} | SEVA`
   const metaDesc = `Beli mobil ${todayDate.getFullYear()} terbaru di SEVA. Beli mobil secara kredit dengan Instant Approval*.`
-  const metaBrandDesc = `Beli mobil ${carBrand} ${todayDate.getFullYear()} terbaru secara kredit dengan Instant Approval*. Cari tau spesifikasi, harga, promo, dan kredit di SEVA`
+  const metaBrandDesc = `Beli mobil ${brand} ${todayDate.getFullYear()} terbaru secara kredit dengan Instant Approval*. Cari tau spesifikasi, harga, promo, dan kredit di SEVA`
   const descTag = router.query.brand ? metaBrandDesc : metaDesc
   const [isMobile, setIsMobile] = useState(isSsrMobileLocal)
   const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
@@ -61,7 +69,7 @@ const UsedCarResultPage = ({
   return (
     <>
       <Seo title={metaTitle} description={descTag} image={defaultSeoImage} />
-      <CarProvider
+      <UsedCarProvider
         car={null}
         carOfTheMonth={[]}
         typeCar={null}
@@ -70,11 +78,16 @@ const UsedCarResultPage = ({
         carVariantDetails={null}
         recommendation={meta.carRecommendations.carRecommendations}
         recommendationToyota={[]}
+        totalItems={meta.carRecommendations.totalItems}
       >
         <div className={styles.mobile}>
-          <PLPUsedCar minmaxPrice={meta.MinMaxPrice} />
+          <PLPUsedCar
+            minmaxPrice={meta.MinMaxPrice}
+            minmaxMileage={meta.MinMaxMileage}
+            minmaxYear={meta.MinMaxYear}
+          />
         </div>
-      </CarProvider>
+      </UsedCarProvider>
     </>
   )
 }
@@ -86,7 +99,9 @@ type PLPProps = {
   description: string
   footer: FooterSEOAttributes
   MinMaxPrice: MinMaxPrice
-  carRecommendations: CarRecommendationResponse
+  MinMaxYear: MinMaxYear
+  MinMaxMileage: MinMaxMileage
+  carRecommendations: UsedCarRecommendationResponse
 }
 
 const getBrand = (brand: string | string[] | undefined) => {
@@ -133,21 +148,25 @@ export const getServerSideProps: GetServerSideProps<{
       publishedAt: '',
     },
     MinMaxPrice: { maxPriceValue: 0, minPriceValue: 0 },
+    MinMaxYear: { maxYearValue: 0, minYearValue: 0 },
+    MinMaxMileage: { maxMileageValue: 0, minMileageValue: 0 },
     carRecommendations: {
       carRecommendations: [],
-      lowestCarPrice: 0,
-      highestCarPrice: 0,
+      totalItems: 0,
     },
   }
 
   const {
-    downPaymentAmount,
     brand,
-    bodyType,
-    priceRangeGroup,
-    age,
+    priceStart,
+    priceEnd,
+    yearStart,
+    yearEnd,
+    mileageStart,
+    mileageEnd,
     tenure,
-    monthlyIncome,
+    transmission,
+    city_id,
     sortBy,
   } = ctx.query
 
@@ -168,37 +187,65 @@ export const getServerSideProps: GetServerSideProps<{
 
     const footerData = fetchFooter.data.data
 
-    if (!priceRangeGroup) {
-      const minmax = await api.getMinMaxPrice('')
-      const minmaxPriceData = minmax
+    if (!priceStart && !priceEnd) {
+      const minmax = await api.getMinMaxPriceUsedCar('')
+      const minmaxPriceData = minmax.data
       meta.MinMaxPrice = {
-        minPriceValue: minmaxPriceData.minPriceValue,
-        maxPriceValue: minmaxPriceData.maxPriceValue,
+        minPriceValue: minmaxPriceData.minPrice,
+        maxPriceValue: minmaxPriceData.maxPrice,
+      }
+    }
+    if (!yearStart && !yearEnd) {
+      const minmax = await api.getMinMaxYearsUsedCar('')
+      const minmaxYearData = minmax.data
+
+      meta.MinMaxYear = {
+        minYearValue: minmaxYearData.minYears,
+        maxYearValue: minmaxYearData.maxYears,
+      }
+    }
+
+    if (!mileageStart && !mileageEnd) {
+      const minmax = await api.getMinMaxMileageUsedCar('')
+      const minmaxMileageData = minmax.data
+      meta.MinMaxMileage = {
+        minMileageValue: minmaxMileageData.minMileages,
+        maxMileageValue: minmaxMileageData.maxMileages,
       }
     }
 
     const queryParam: any = {
-      ...(downPaymentAmount && { downPaymentType: 'amount' }),
-      ...(downPaymentAmount && { downPaymentAmount }),
       ...(brand && {
         brand: String(brand)
           ?.split(',')
           .map((item) => getCarBrand(item)),
       }),
-      ...(bodyType && { bodyType: String(bodyType)?.split(',') }),
-      ...(priceRangeGroup
-        ? { priceRangeGroup }
+      ...(priceStart && priceEnd
+        ? { priceStart, priceEnd }
         : {
-            priceRangeGroup: `${meta.MinMaxPrice.minPriceValue}-${meta.MinMaxPrice.maxPriceValue}`,
+            priceStart: meta.MinMaxPrice.minPriceValue,
+            priceEnd: meta.MinMaxPrice.maxPriceValue,
           }),
-      ...(age && { age }),
+      ...(yearStart && yearEnd
+        ? { yearStart, yearEnd }
+        : {
+            yearStart: meta.MinMaxYear.minYearValue,
+            yearEnd: meta.MinMaxYear.maxYearValue,
+          }),
+      ...(mileageStart && mileageEnd
+        ? { mileageStart, mileageEnd }
+        : {
+            mileageStart: meta.MinMaxMileage.minMileageValue,
+            mileageEnd: meta.MinMaxMileage.maxMileageValue,
+          }),
       ...(tenure && { tenure }),
-      ...(monthlyIncome && { monthlyIncome }),
+      ...(transmission && { transmission }),
+      ...(city_id && { city_id }),
       ...(sortBy && { sortBy }),
     }
 
     const [funnel] = await Promise.all([
-      getNewFunnelRecommendations({ ...queryParam }),
+      getUsedCarFunnelRecommendations({ ...queryParam }),
     ])
 
     const recommendation = funnel
