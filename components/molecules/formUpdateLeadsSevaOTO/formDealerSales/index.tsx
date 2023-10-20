@@ -1,5 +1,4 @@
 import Fuse from 'fuse.js'
-import elementId from 'helpers/elementIds'
 import React, { useEffect, useRef, useState } from 'react'
 import {
   IconChevronDown,
@@ -7,10 +6,7 @@ import {
   InputSelect,
   Label,
 } from 'components/atoms'
-import { LabelWithTooltip } from 'components/molecules'
-import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { FormControlValue, Location, Option } from 'utils/types'
-import { LocalStorageKey } from 'utils/enum'
 import styles from 'styles/components/molecules/formUpdateLeadsSevaOTO/formDealerSales.module.scss'
 import { SalesAgent } from 'utils/types/utils'
 import { getAgent } from 'services/agents'

@@ -1,4 +1,5 @@
-import { AES, enc } from 'crypto-js'
+import AES from 'crypto-js/aes'
+import Utf8 from 'crypto-js/enc-utf8'
 
 const encryptionKey =
   process.env.NEXT_PUBLIC_LOCAL_STORAGE_ENCRYPTION_KEY ??
@@ -17,5 +18,5 @@ export const decryptValue = (input: string) => {
   return AES.decrypt(
     input.replace(encryptedPrefix, ''),
     encryptionKey,
-  ).toString(enc.Utf8)
+  ).toString(Utf8)
 }

@@ -2,11 +2,6 @@ import React, { useState } from 'react'
 import styles from 'styles/components/molecules/faq.module.scss'
 import { IconQuestion } from 'components/atoms/icon'
 import { IconChevronDown, IconChevronUp } from 'components/atoms'
-import {
-  CarVariantFAQParam,
-  trackFAQExpandClick,
-} from 'helpers/amplitude/seva20Tracking'
-import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import elementId from 'helpers/elementIds'
 import { useCar } from 'services/context/carContext'
 import { trackEventCountly } from 'helpers/countly/countly'
@@ -32,37 +27,14 @@ export const Faq: React.FC<PropsInfo> = ({
   const [collIndex, setCollIndex] = useState<number[]>([-1]) //collection index
   const [expandItem, setExpandItem] = useState<number[]>([-1]) //collection expand item
   const [expandList, setExpandList] = useState(false) //expand "lihat pertanyaan lainnya"
-  // const [isOpenFaq, setIsOpenFaq] = useState(false)
-  // const expandRef = useRef() as React.MutableRefObject<HTMLDivElement>
-
-  const trackExpandFaq = (order: string, expand: boolean) => {
-    const originationUrl = window.location.href.replace('https://www.', '')
-    const trackProperties: CarVariantFAQParam = {
-      Car_Brand: carModelDetails?.brand,
-      Car_Model: carModelDetails?.model,
-      FAQ_Order: order,
-      Page_Origination_URL: originationUrl,
-    }
-    trackFAQExpandClick(
-      expand
-        ? TrackingEventName.WEB_PDP_FAQ_CLICK_EXPAND
-        : TrackingEventName.WEB_PDP_FAQ_CLICK_CLOSE,
-      trackProperties,
-    )
-  }
 
   const onChooseItem = (index: number) => {
     if (collIndex.includes(index)) {
       const removeItem = collIndex.filter((item) => item !== index)
       setCollIndex([...removeItem])
-      trackExpandFaq(String(index + 1), false)
-      return setTimeout(() => {
-        setExpandItem([...removeItem])
-      }, 450)
     }
     // setIsOpenFaq(!isOpenFaq)
     setCollIndex([...collIndex, index])
-    trackExpandFaq(String(index + 1), true)
     setExpandItem([...expandItem, index])
     trackEventCountly(CountlyEventNames.WEB_PDP_FAQ_CLICK, {
       FAQ_ORDER: index + 1,
@@ -70,17 +42,6 @@ export const Faq: React.FC<PropsInfo> = ({
       CAR_MODEL: carModelDetails?.model,
     })
   }
-
-  // useEffect(() => {
-  //   if (isOpenFaq) {
-  //     setTimeout(() => {
-  //       expandRef.current?.scrollIntoView({
-  //         behavior: 'smooth',
-  //         block: 'center',
-  //       })
-  //     }, 500)
-  //   }
-  // }, [isOpenFaq])
 
   return (
     <div className={styles.wrapper}>

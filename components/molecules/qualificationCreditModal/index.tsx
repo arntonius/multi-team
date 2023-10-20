@@ -1,4 +1,3 @@
-import { Modal } from 'antd'
 import React, { useEffect } from 'react'
 import styles from 'styles/components/molecules/qualifacationModal.module.scss'
 import { Button } from 'components/atoms'
@@ -8,16 +7,15 @@ import { getToken } from 'utils/handler/auth'
 import { LoginSevaUrl, creditQualificationUrl } from 'utils/helpers/routes'
 import { savePageBeforeLogin } from 'utils/loginUtils'
 import { IconClose } from 'components/atoms'
-import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
-import { LanguageCode } from 'utils/enum'
 import { FormLCState, SpecialRateList } from 'utils/types/utils'
-import { trackLCKualifikasiKreditPopUpCtaClick } from 'helpers/amplitude/seva20Tracking'
 import elementId from 'helpers/elementIds'
 import { SessionStorageKey } from 'utils/enum'
 import { LoanRank } from 'utils/types/models'
 import { saveSessionStorage } from 'utils/handler/sessionStorage'
 import { navigateToKK } from 'utils/navigate'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 const MainImage = '/revamp/illustration/loan-calculator.webp'
 
@@ -44,35 +42,7 @@ export const QualificationCreditModal: React.FC<
     return ''
   }
 
-  const getDataForAmplitude = () => {
-    return {
-      Car_Brand: formData?.model?.brandName || '',
-      Car_Model: formData?.model?.modelName || '',
-      Car_Variant: formData.variant?.variantName || '',
-      City: formData.city.cityName,
-      DP: `Rp${replacePriceSeparatorByLocalization(
-        formData.downPaymentAmount,
-        LanguageCode.id,
-      )}`,
-      Age: `${formData.age} Tahun`,
-      Angsuran_Type: formData.paymentOption,
-      Promo: formData.promoCode,
-      Tenure: `${selectedLoan?.tenure ?? ''} Tahun`,
-      Total_DP: `Rp${replacePriceSeparatorByLocalization(
-        selectedLoan?.dpAmount ?? 0,
-        LanguageCode.id,
-      )}`,
-      Monthly_Installment: `Rp${replacePriceSeparatorByLocalization(
-        selectedLoan?.installment ?? 0,
-        LanguageCode.id,
-      )}`,
-      Page_Origination: window.location.href,
-      Peluang_Kredit: getLoanRank(selectedLoan?.loanRank ?? ''),
-    }
-  }
-
   const handleClickCredit = () => {
-    trackLCKualifikasiKreditPopUpCtaClick(getDataForAmplitude())
     saveSessionStorage(
       SessionStorageKey.KalkulatorKreditForm,
       JSON.stringify(formData),

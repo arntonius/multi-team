@@ -1,4 +1,5 @@
 import {
+  CheckTemanSeva,
   CreateProbeTrackRequest,
   CustomerKtpSeva,
   DeleteAccountRequestType,
@@ -20,7 +21,7 @@ import {
   SpecialRateRequest,
 } from 'utils/types/utils'
 import environments from 'helpers/environments'
-import { AES } from 'crypto-js'
+import AES from 'crypto-js/aes'
 // import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 // import { getLocalStorage } from 'utils/handler/localStorage'
 // import { UTMTagsData } from 'utils/types/props'
@@ -136,6 +137,8 @@ const getCustomerSpouseKtpSeva = (config: AxiosRequestConfig) =>
   get(collections.ktp.customerSpouse, config)
 const getAvailableNIK = (config?: AxiosRequestConfig) =>
   get(collections.utils.checkNIKAvailable, config)
+const getLeadsDetail = (id: string) =>
+  get(collections.omnicom.check.replace(':id', id))
 
 // post request
 const postUnverifiedLeadsNew = (body: any) => {
@@ -224,19 +227,16 @@ const postUpdateProfile = (
   body: UpdateProfileType,
   config: AxiosRequestConfig,
 ) => post(collections.profile.updateProfile, body, config)
-
-const getLeadsDetail = (id: string) =>
-  get(collections.omnicom.check.replace(':id', id))
-
 const postUpdateLeadsOTO = (
   body: updateLeadFormOTO,
   config: AxiosRequestConfig,
 ) => post(collections.omnicom.updateLeads, body, config)
-
 const postUpdateLeadsCM = (
   body: updateLeadFormCM,
   config: AxiosRequestConfig,
 ) => post(collections.omnicom.updateLeadsCM, body, config)
+const postCheckTemanSeva = (body: CheckTemanSeva) =>
+  post(collections.temanSeva.checkTemanSeva, body)
 
 export const api = {
   getMenu,
@@ -293,4 +293,5 @@ export const api = {
   postDeleteAccount,
   postUpdateProfile,
   postUpdateLeadsCM,
+  postCheckTemanSeva,
 }

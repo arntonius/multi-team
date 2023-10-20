@@ -4,21 +4,19 @@ import localFont from '@next/font/local'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import { initAmplitude } from 'services/amplitude/'
 import TagManager from 'react-gtm-module'
 import { GlobalContextProvider } from 'services/context'
-import Script from 'next/script'
-import 'react-spring-bottom-sheet/dist/style.css'
-import 'react-lazy-load-image-component/src/effects/blur.css'
-import 'styles/index.css'
-import 'styles/global.scss'
-
 import { FBPixelStandardEvent, FB_PIXEL_ID } from 'helpers/facebookPixel'
 import { client } from 'utils/helpers/const'
 import { IsSsrMobileContext } from 'services/context/isSsrMobileContext'
 import { useAddUtmTagsToApiCall } from 'utils/hooks/useAddUtmTagsToApiCall/useAddUtmTagsToApiCall'
 import Head from 'next/head'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
+import Script from 'next/script'
+import 'react-spring-bottom-sheet/dist/style.css'
+import 'react-lazy-load-image-component/src/effects/blur.css'
+import 'styles/index.css'
+import 'styles/global.scss'
 import { ThirdScript } from 'components/atoms/thirdScript'
 
 const kanyonLight = localFont({
@@ -68,7 +66,6 @@ const OpenSansExtraBold = localFont({
 
 export default function App({ Component, pageProps }: AppProps) {
   useAfterInteractive(() => {
-    initAmplitude()
     if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'staging') {
       TagManager.initialize({ gtmId: 'GTM-K2P73CT' })
     } else {

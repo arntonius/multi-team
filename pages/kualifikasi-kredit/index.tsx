@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styles from 'styles/pages/kualifikasi-kredit.module.scss'
-import { Modal, Progress } from 'antd'
+import Progress from 'antd/lib/progress'
 import {
   IconChevronDown,
   InputSelect,
@@ -27,13 +27,6 @@ import { FormControlValue, SimpleCarVariantDetail } from 'utils/types/utils'
 import { getToken } from 'utils/handler/auth'
 import { isIsoDateFormat } from 'utils/handler/regex'
 import {
-  CreditQualificationFlowParam,
-  trackKualifikasiKreditCarDetailClick,
-  trackKualifikasiKreditCarDetailClose,
-  trackKualifikasiKreditFormPageCTAClick,
-  trackKualifikasiKreditFormPageView,
-} from 'helpers/amplitude/seva20Tracking'
-import {
   formatNumberByLocalization,
   replacePriceSeparatorByLocalization,
 } from 'utils/handler/rupiah'
@@ -49,8 +42,13 @@ import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import Image from 'next/image'
 import { checkReferralCode, getCustomerInfoSeva } from 'utils/handler/customer'
-import { temanSevaUrlPath } from 'utils/types/props'
+import {
+  CreditQualificationFlowParam,
+  temanSevaUrlPath,
+} from 'utils/types/props'
 import { getCarVariantDetailsById } from 'utils/handler/carRecommendation'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 const searchOption = {
   keys: ['label'],
@@ -294,7 +292,6 @@ const CreditQualificationPage = () => {
   }
 
   const trackAmplitudeAndMoengagePageView = () => {
-    trackKualifikasiKreditFormPageView(getDataForTracker())
     setTrackEventMoEngage(
       MoengageEventName.view_kualifikasi_kredit_form_page,
       getDataForTracker(),
@@ -316,10 +313,7 @@ const CreditQualificationPage = () => {
   })
 
   const onClickCtaNext = async () => {
-    trackKualifikasiKreditFormPageCTAClick(getCreditCualficationDataTracker())
-
     const refCodeValidity = await checkRefCode(referralCodeInput)
-
     if (refCodeValidity) {
       const qualificationData = {
         modelId: simpleCarVariantDetails?.modelId,
@@ -357,12 +351,10 @@ const CreditQualificationPage = () => {
   }
 
   const handleOpenModal = () => {
-    trackKualifikasiKreditCarDetailClick(getCreditCualficationDataTracker())
     setOpenModal(true)
   }
 
   const handleCloseModal = () => {
-    trackKualifikasiKreditCarDetailClose(getCreditCualficationDataTracker())
     setOpenModal(false)
   }
 

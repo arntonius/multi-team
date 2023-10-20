@@ -1,11 +1,10 @@
-import { Modal } from 'antd'
 import React, {
   TextareaHTMLAttributes,
   useEffect,
   useMemo,
   useState,
 } from 'react'
-import type { ModalProps } from 'antd'
+import type { ModalProps } from 'antd/lib/modal'
 import { colors } from 'styles/colors'
 import { IconClose } from 'components/atoms'
 import styles from '../../../styles/components/organisms/popupPromo.module.scss'
@@ -15,9 +14,10 @@ import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
-import { LoanRank } from 'utils/types/models'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
 import { getBrandAndModelValue } from 'utils/handler/getBrandAndModel'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 const initPromoList: PopupPromoDataItemType[] = [
   // {

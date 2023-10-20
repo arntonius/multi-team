@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styles from '../../../../styles/components/molecules/form/formSelectBrandCar.module.scss'
-import { Space } from 'antd'
+import Space from 'antd/lib/space'
 import {
   IconMPV,
   IconSUV,

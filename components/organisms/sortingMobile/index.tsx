@@ -3,12 +3,9 @@ import React from 'react'
 import { BottomSheetProps } from 'react-spring-bottom-sheet'
 import { BottomSheet } from 'components/atoms'
 import { BottomSheetList } from 'components/molecules'
-import { trackPLPSortClick } from 'helpers/amplitude/seva20Tracking'
 import elementId from 'helpers/elementIds'
 import { FormControlValue } from 'utils/types'
 import { sortOptions } from 'utils/config/funnel.config'
-import { trackEventCountly } from 'helpers/countly/countly'
-import { CountlyEventNames } from 'helpers/countly/eventNames'
 import styles from 'styles/components/organisms/sortingMobile.module.scss'
 
 interface SortingMobileProps extends Omit<BottomSheetProps, 'children'> {
@@ -29,7 +26,6 @@ const SortingMobile = ({
 
   const onChooseOption = (value: FormControlValue, label: FormControlValue) => {
     patchFunnelQuery({ sortBy: value as string })
-    trackPLPSortClick(label as string)
     onPickClose(value, label as string)
   }
   return (

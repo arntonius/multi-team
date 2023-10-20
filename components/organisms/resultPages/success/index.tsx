@@ -6,13 +6,6 @@ import { getSessionStorage } from 'utils/handler/sessionStorage'
 import styles from 'styles/components/organisms/success.module.scss'
 import urls from 'helpers/urls'
 import clsx from 'clsx'
-import {
-  CreditQualificationReviewParam,
-  trackKualifikasiKreditDownloadAndroidClick,
-  trackKualifikasiKreditDownloadIosClick,
-  trackKualifikasiKreditSuccessResultPageView,
-  trackKualifikasiKreditWaDirectClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import dayjs from 'dayjs'
 import endpoints from 'helpers/endpoints'
@@ -29,7 +22,7 @@ import { isIsoDateFormat } from 'utils/handler/regex'
 import { HeaderMobile } from 'components/organisms'
 import { BannerCard } from 'components/molecules/card/bannerCard'
 import { Gap, IconCSA, IconDownload } from 'components/atoms'
-import { CitySelectorModal, FooterMobile } from 'components/molecules'
+import { FooterMobile } from 'components/molecules'
 import { api } from 'services/api'
 import { getToken } from 'utils/handler/auth'
 import { formatNumberByLocalization } from 'utils/handler/rupiah'
@@ -37,11 +30,17 @@ import { TrackerFlag } from 'utils/types/models'
 import Image from 'next/image'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { CreditQualificationReviewParam } from 'utils/types/props'
+import dynamic from 'next/dynamic'
 
 const ApprovalImageAcc = '/revamp/illustration/approve-acc.webp'
 const ApprovalImageTaf = '/revamp/illustration/approve-taf.webp'
 const LogoGooglePlay = '/revamp/icon/google-play.webp'
 const LogoAppStore = '/revamp/icon/app-store.webp'
+
+const CitySelectorModal = dynamic(() =>
+  import('components/molecules').then((mod) => mod.CitySelectorModal),
+)
 
 export const CreditQualificationSuccess = () => {
   const titleText = 'Instant Approval Kamu Disetujui'
@@ -110,7 +109,6 @@ export const CreditQualificationSuccess = () => {
   }
 
   const redirectWhatsapp = async () => {
-    trackKualifikasiKreditWaDirectClick(getDataForTracker())
     const loanTenure = resultPreApproval?.loanTenure
     const promoCode: string | undefined = resultPreApproval?.promoCode
     const brandModel = `${resultPreApproval?.modelDetail?.brand} ${resultPreApproval?.modelDetail?.model} ${resultPreApproval?.variantDetail?.name}`
@@ -138,14 +136,6 @@ export const CreditQualificationSuccess = () => {
     window.open(`${whatsAppUrl}?text=${encodeURI(finalMessage)}`, '_blank')
   }
 
-  const onClickPlayStore = () => {
-    trackKualifikasiKreditDownloadAndroidClick(getDataForTracker())
-  }
-
-  const onClickAppStore = () => {
-    trackKualifikasiKreditDownloadIosClick(getDataForTracker())
-  }
-
   const DownloadApp: React.FC = (): JSX.Element => (
     <div className={styles.slot}>
       <a
@@ -153,7 +143,6 @@ export const CreditQualificationSuccess = () => {
         target="_blank"
         rel="noreferrer"
         className={styles.wrapperLogoGooglePlay}
-        onClick={onClickPlayStore}
       >
         <Image
           src={LogoGooglePlay}
@@ -166,7 +155,6 @@ export const CreditQualificationSuccess = () => {
         target="_blank"
         rel="noreferrer"
         className={styles.wrapperLogoAppStore}
-        onClick={onClickAppStore}
       >
         <Image
           src={LogoAppStore}
@@ -234,12 +222,6 @@ export const CreditQualificationSuccess = () => {
   }
 
   const trackAmplitudeAndMoengagePageView = () => {
-    trackKualifikasiKreditSuccessResultPageView({
-      ...getDataForTracker(),
-      Total_Income: undefined,
-      Page_Origination: undefined,
-      Income: formattedIncome(String(resultPreApproval?.monthlyIncome ?? 0)),
-    })
     setTrackEventMoEngage(
       MoengageEventName.view_kualifikasi_kredit_success_result_page,
       {

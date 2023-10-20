@@ -3,12 +3,10 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import type { Swiper as SwiperType } from 'swiper'
 import { FreeMode, Thumbs, Navigation } from 'swiper'
 import styles from 'styles/components/molecules/gallery.module.scss'
-
 import 'swiper/css'
 import 'swiper/css/free-mode'
 import 'swiper/css/navigation'
 import 'swiper/css/thumbs'
-
 import {
   IconChevronDown,
   IconChevronLeft,
@@ -16,17 +14,8 @@ import {
   IconChevronUp,
   IconExpand,
 } from 'components/atoms'
-import {
-  CarVariantPhotoParam,
-  trackPDPPhotoClick,
-  trackPDPPhotoSwipe,
-} from 'helpers/amplitude/seva20Tracking'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { LocalStorageKey } from 'utils/enum'
-import {
-  TrackingEventName,
-  TrackingEventWebPDPPhoto,
-} from 'helpers/amplitude/eventTypes'
 import { isIphone } from 'utils/window'
 import elementId from 'helpers/elementIds'
 import { CityOtrOption } from 'utils/types/utils'
@@ -131,11 +120,6 @@ export const Gallery: React.FC<PropsGallery> = ({
         emitDataImages(items)
         emitActiveIndex(flagIndex)
         setThumbsSwiper(null)
-        trackEventPhoto(
-          onTab,
-          url,
-          TrackingEventName.WEB_PDP_GALLERY_MAIN_PHOTO_CLICK,
-        )
         trackCountlyMainImage()
       }}
       data-testid={elementId.MainPicture}
@@ -161,36 +145,6 @@ export const Gallery: React.FC<PropsGallery> = ({
     )
   }
 
-  const trackEventPhoto = (
-    photoType: string | undefined,
-    imgUrl: string,
-    eventName: TrackingEventWebPDPPhoto,
-  ) => {
-    const trackProperties: CarVariantPhotoParam = {
-      Car_Brand: carModelDetails?.brand as string,
-      Car_Model: carModelDetails?.model as string,
-      Page_Origination_URL: window.location.href.replace('https://www.', ''),
-      Photo_Type: photoType,
-      City: cityOtr?.cityName || 'null',
-      Image_URL: imgUrl,
-    }
-    trackPDPPhotoClick(eventName, trackProperties)
-  }
-
-  const trackEventSwipePhoto = (
-    photoType: string | undefined,
-    eventName: TrackingEventWebPDPPhoto,
-  ) => {
-    const trackProperties: CarVariantPhotoParam = {
-      Car_Brand: carModelDetails?.brand as string,
-      Car_Model: carModelDetails?.model as string,
-      Page_Origination_URL: window.location.href.replace('https://www.', ''),
-      Photo_Type: photoType,
-      City: cityOtr?.cityName || 'null',
-    }
-    trackPDPPhotoSwipe(eventName, trackProperties)
-  }
-
   return (
     <div className={styles.wrapper}>
       <div className={styles.wrapperMain}>
@@ -199,10 +153,6 @@ export const Gallery: React.FC<PropsGallery> = ({
             className={`icon-gallery-prev ${styles.buttonPrevMain}`}
             onClick={() => {
               setOnClickMainArrowPhoto(true)
-              trackEventSwipePhoto(
-                onTab,
-                TrackingEventName.WEB_PDP_GALLERY_MAIN_PHOTO_SWIPE,
-              )
             }}
             data-testid={elementId.PDP.Button.PreviousMainPicture}
           >
@@ -212,10 +162,6 @@ export const Gallery: React.FC<PropsGallery> = ({
             className={`icon-gallery-next ${styles.buttonNextMain}`}
             onClick={() => {
               setOnClickMainArrowPhoto(true)
-              trackEventSwipePhoto(
-                onTab,
-                TrackingEventName.WEB_PDP_GALLERY_MAIN_PHOTO_SWIPE,
-              )
             }}
             data-testid={elementId.PDP.Button.NextMainPicture}
           >
@@ -240,14 +186,6 @@ export const Gallery: React.FC<PropsGallery> = ({
             if (!isIphone) {
               setOnClickSubPhoto(false)
               setOnClickMainArrowPhoto(false)
-            }
-          }}
-          onSlideChangeTransitionEnd={() => {
-            if (!onClickSubPhoto && !onClickMainArrowPhoto) {
-              trackEventSwipePhoto(
-                onTab,
-                TrackingEventName.WEB_PDP_GALLERY_MAIN_PHOTO_SWIPE,
-              )
             }
           }}
           onActiveIndexChange={(swiper: SwiperType) => {
@@ -275,34 +213,10 @@ export const Gallery: React.FC<PropsGallery> = ({
       <div className={styles.wrapperPagination}>
         <>
           <div className={`icon-thumbs-prev ${styles.buttonPrevPagination}`}>
-            <IconChevronUp
-              width={16}
-              height={16}
-              color="#FFFFFF"
-              onClick={() => {
-                if (!onClickSubPhoto) {
-                  trackEventSwipePhoto(
-                    onTab,
-                    TrackingEventName.WEB_PDP_CAROUSEL_PHOTO_SWIPE,
-                  )
-                }
-              }}
-            />
+            <IconChevronUp width={16} height={16} color="#FFFFFF" />
           </div>
           <div className={`icon-thumbs-next ${styles.buttonNextPagination}`}>
-            <IconChevronDown
-              width={16}
-              height={16}
-              color="#FFFFFF"
-              onClick={() => {
-                if (!onClickSubPhoto) {
-                  trackEventSwipePhoto(
-                    onTab,
-                    TrackingEventName.WEB_PDP_CAROUSEL_PHOTO_SWIPE,
-                  )
-                }
-              }}
-            />
+            <IconChevronDown width={16} height={16} color="#FFFFFF" />
           </div>
         </>
         {items.length > 0 && (
@@ -329,25 +243,12 @@ export const Gallery: React.FC<PropsGallery> = ({
             freeMode={true}
             modules={[FreeMode, Navigation, Thumbs]}
             onTouchMove={() => setOnClickSubPhoto(false)}
-            onSlideChangeTransitionEnd={() => {
-              if (!onClickSubPhoto) {
-                trackEventSwipePhoto(
-                  onTab,
-                  TrackingEventName.WEB_PDP_CAROUSEL_PHOTO_SWIPE,
-                )
-              }
-            }}
           >
             {items?.map((item: string, key: number) => (
               <SwiperSlide
                 key={key}
                 onClick={() => {
                   setOnClickSubPhoto(true)
-                  trackEventPhoto(
-                    onTab,
-                    item,
-                    TrackingEventName.WEB_PDP_CAROUSEL_PHOTO_CLICK,
-                  )
                   trackCountlyCarouselImage(key)
                 }}
               >

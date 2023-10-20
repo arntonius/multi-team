@@ -1,6 +1,7 @@
 import React from 'react'
 
-import { Col, Row } from 'antd'
+import Col from 'antd/lib/col'
+import Row from 'antd/lib/row'
 import { IconInfo, Overlay } from 'components/atoms'
 import clsx from 'clsx'
 import styles from 'styles/components/atoms/tooltipSevaOTO.module.scss'

@@ -4,10 +4,6 @@ import { saveOtpIsSent, saveOtpTimerIsStart } from 'utils/otpUtils'
 import { encryptValue } from 'utils/encryptionUtils'
 import { IconLoading, Modal } from 'components/atoms'
 import styles from '../../../styles/components/organisms/otp.module.scss'
-import {
-  trackOtpClose,
-  trackOtpResendClick,
-} from 'helpers/amplitude/seva20Tracking'
 import elementId from 'helpers/elementIds'
 import {
   HTTPResponseStatusCode,
@@ -283,7 +279,6 @@ export const OTP = ({
   }
 
   const resendOtp = async () => {
-    trackOtpResendClick({ Page_Origination: window.location.href })
     trackEventCountly(CountlyEventNames.WEB_OTP_RESEND_CLICK, {
       PAGE_ORIGINATION: pageOrigination,
     })
@@ -321,7 +316,6 @@ export const OTP = ({
   }
 
   const handleCloseModal = (): void => {
-    trackOtpClose({ Page_Origination: window.location.href })
     sessionStorage.removeItem('lastOtpSent')
     sessionStorage.removeItem('lastOtpSentPhoneNumber')
     closeModal()

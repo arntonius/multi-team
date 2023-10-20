@@ -7,8 +7,6 @@ import {
   filterNonDigitCharacters,
   onlyLettersAndSpaces,
 } from 'utils/handler/stringManipulation'
-import { AmplitudeEventName } from 'services/amplitude/types'
-import { sendAmplitudeData } from 'services/amplitude'
 import { decryptValue, encryptValue } from 'utils/handler/encryption'
 import { getLocalStorage, saveLocalStorage } from 'utils/handler/localStorage'
 import elementId from 'utils/helpers/trackerId'
@@ -104,10 +102,6 @@ const LeadsFormTertiary: React.FC<PropsLeadsForm> = ({}: any) => {
 
   const sendOtpCode = async () => {
     setIsLoading(true)
-    sendAmplitudeData(AmplitudeEventName.WEB_LEADS_FORM_SUBMIT, {
-      Page_Origination: PageOriginationName.LPLeadsForm,
-      ...(cityOtr && { City: cityOtr.cityName }),
-    })
     const dataLeads = checkDataFlagLeads()
     if (dataLeads) {
       if (phone === dataLeads.phone && name === dataLeads.name) {
@@ -177,10 +171,6 @@ const LeadsFormTertiary: React.FC<PropsLeadsForm> = ({}: any) => {
         }
       }
       await api.postUnverifiedLeadsNew(data)
-      sendAmplitudeData(AmplitudeEventName.WEB_LEADS_FORM_SUCCESS, {
-        Page_Origination: PageOriginationName.LPLeadsForm,
-        ...(cityOtr && { City: cityOtr.cityName }),
-      })
       trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
         PAGE_ORIGINATION: 'Homepage - Bottom Section',
         LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
@@ -197,10 +187,6 @@ const LeadsFormTertiary: React.FC<PropsLeadsForm> = ({}: any) => {
   }
 
   const onSubmitLeadSuccess = (): void => {
-    sendAmplitudeData(AmplitudeEventName.SELECT_HOME_SEND_DETAILS, {})
-    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_LEADS_FORM_SUBMIT, {
-      WA_Chat: false,
-    })
     setTrackEventMoEngageWithoutValue('leads_created')
 
     if (typeof window !== undefined) {

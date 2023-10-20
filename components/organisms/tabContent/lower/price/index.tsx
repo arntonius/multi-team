@@ -1,6 +1,4 @@
-import { formatNumberByLocalization, rupiah } from 'utils/handler/rupiah'
-import { TrackVariantList } from 'utils/types/tracker'
-import { trackWebPDPPriceTab } from 'helpers/amplitude/seva20Tracking'
+import { rupiah } from 'utils/handler/rupiah'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import React, { useEffect, useMemo, useState } from 'react'
 import { LeadsFormSecondary } from 'components/organisms'
@@ -20,10 +18,10 @@ import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import { useCar } from 'services/context/carContext'
 import { LanguageCode, LocalStorageKey } from 'utils/enum'
 import { TrackerFlag, InstallmentTypeOptions } from 'utils/types/models'
-import dynamic from 'next/dynamic'
 import { getNewFunnelLoanSpecialRate } from 'utils/handler/funnel'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
-const Modal = dynamic(() => import('antd').then((mod) => mod.Modal))
 const PopupVariantDetail = dynamic(
   () => import('components/organisms/popupVariantDetail/index'),
 )
@@ -92,36 +90,15 @@ export const PriceTab = ({
 
   useEffect(() => {
     if (carModelDetails && flag === TrackerFlag.Init) {
-      sendAmplitude()
       setFlag(TrackerFlag.Sent)
     }
   }, [carModelDetails])
+
   useEffect(() => {
     if (variantView) {
       setVariantIdFuelRatio(variantView.id)
     }
   }, [variantView])
-  const sendAmplitude = (): void => {
-    const data: TrackVariantList = {
-      Car_Brand: carModelDetails?.brand || '',
-      Car_Model: carModelDetails?.model || '',
-      DP: `Rp${formatNumberByLocalization(
-        sortedCarModelVariant[0].dpAmount,
-        LanguageCode.id,
-        1000000,
-        10,
-      )} Juta`,
-      Monthly_Installment: `Rp${formatNumberByLocalization(
-        sortedCarModelVariant[0].monthlyInstallment,
-        LanguageCode.id,
-        1000000,
-        10,
-      )} jt/bln`,
-      Tenure: `${sortedCarModelVariant[0].tenure} Tahun`,
-      City: cityOtr?.cityName || '',
-    }
-    trackWebPDPPriceTab(data)
-  }
 
   const getDimenssion = (payload: any) => {
     return payload.filter((car: any) => car.id === carModelDetails?.id)[0]

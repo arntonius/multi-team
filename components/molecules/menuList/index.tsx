@@ -1,8 +1,6 @@
 import axios from 'axios'
 import React from 'react'
 import styles from 'styles/components/molecules/menuList.module.scss'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { saveLocalStorage } from 'utils/handler/localStorage'
 import urls from 'utils/helpers/url'
 import { MenuItem } from 'components/atoms'
@@ -10,12 +8,9 @@ import { useRouter } from 'next/router'
 import { getToken } from 'utils/handler/auth'
 import { IconAccount, IconHistory, IconWishlist } from 'components/atoms/icon'
 import { MobileWebTopMenuType, CustomerInfoSeva } from 'utils/types/utils'
-import { trackBurgerMenuClick } from 'helpers/amplitude/seva20Tracking'
 import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
-import { PreviousButton, navigateToPLP } from 'utils/navigate'
-import { getPageName } from 'utils/pageName'
 import { saveSessionStorage } from 'utils/handler/sessionStorage'
 
 type MenuListProps = {
@@ -74,10 +69,6 @@ export const MenuList: React.FC<MenuListProps> = ({
   }
 
   const handleClickMenu = (menuUrl: string, menuName: string) => {
-    sendAmplitudeData(AmplitudeEventName.WEB_BURGER_MENU_CLICK, {
-      Page_Origination_URL: window.location.href,
-      Menu: menuName,
-    })
     trackEventCountly(CountlyEventNames.WEB_HAMBURGER_MENU_CLICK, {
       PAGE_ORIGINATION: pageOrigination,
       PAGE_DIRECTION_URL: menuUrl.includes('www')

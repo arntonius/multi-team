@@ -19,16 +19,10 @@ import {
 import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { savePreviouslyViewed } from 'utils/carUtils'
-
 import { decryptValue } from 'utils/encryptionUtils'
 import { CSAButton, WhatsappButton } from 'components/atoms'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import elementId from 'helpers/elementIds'
-import {
-  CarSearchPageMintaPenawaranParam,
-  trackCarVariantPageWaChatbot,
-} from 'helpers/amplitude/seva20Tracking'
-// import { usePreApprovalCarNotAvailable } from 'pages/component/PreApprovalCarNotAvalable/useModalCarNotAvalable'
 import {
   getSessionStorage,
   removeSessionStorage,
@@ -42,13 +36,9 @@ import {
 } from 'pages/mobil-baru/[brand]/[model]/[[...slug]]'
 import { PdpDataOTOLocalContext } from 'pages/adaSEVAdiOTO/mobil-baru/[brand]/[model]/[[...slug]]'
 import { useQuery } from 'utils/hooks/useQuery'
-import { api } from 'services/api'
 import { useCar } from 'services/context/carContext'
 import { getToken } from 'utils/handler/auth'
-import {
-  formatNumberByLocalization,
-  replacePriceSeparatorByLocalization,
-} from 'utils/handler/rupiah'
+import { formatNumberByLocalization } from 'utils/handler/rupiah'
 import { LoanRank } from 'utils/types/models'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import {
@@ -324,31 +314,6 @@ export default function NewCarVariantList({
     )
   }
 
-  const trackFloatingWhatsapp = () => {
-    if (!modelDetail) return
-
-    const trackerProperty: CarSearchPageMintaPenawaranParam = {
-      Car_Brand: brand,
-      Car_Model: model,
-      OTR: `Rp${replacePriceSeparatorByLocalization(
-        modelDetail?.variants[0].priceValue,
-        LanguageCode?.id,
-      )}`,
-      DP: `Rp${getDp()} Juta`,
-      Cicilan: `Rp${getMonthlyInstallment()} jt/bln`,
-      Tenure: `${funnelQuery?.tenure || 5} Tahun`, // convert string
-      City: cityOtr?.cityName || 'Jakarta Pusat',
-      Peluang_Kredit:
-        funnelQuery?.monthlyIncome && funnelQuery?.age && loanRankcr
-          ? loanRankcr === LoanRank.Green
-            ? 'Mudah'
-            : loanRankcr === LoanRank.Red
-            ? 'Sulit'
-            : 'Null'
-          : 'Null',
-    }
-    trackCarVariantPageWaChatbot(trackerProperty)
-  }
   const trackCountlyFloatingWhatsapp = async () => {
     let temanSevaStatus = 'No'
     if (referralCodeFromUrl) {
@@ -394,7 +359,6 @@ export default function NewCarVariantList({
   const onClickFloatingWhatsapp = async () => {
     let message = ''
     trackCountlyFloatingWhatsapp()
-    trackFloatingWhatsapp()
     const parsedModel = capitalizeFirstLetter(model.replace(/-/g, ' '))
     const brandModel =
       capitalizeFirstLetter(brand.replace(/-/g, ' ')) +

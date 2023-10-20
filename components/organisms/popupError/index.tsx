@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from 'styles/components/organisms/popupError.module.scss'
-import type { ModalProps } from 'antd'
+import type { ModalProps } from 'antd/lib/modal'
 import elementId from 'helpers/elementIds'
 import { Button, Modal } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'

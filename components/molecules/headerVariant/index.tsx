@@ -1,5 +1,4 @@
 import { SearchInput } from 'components/atoms'
-import { trackSearchBarSuggestionClick } from 'helpers/amplitude/seva20Tracking'
 import { findAll } from 'highlight-words-core'
 import debounce from 'lodash.debounce'
 import { useRouter } from 'next/router'
@@ -187,11 +186,6 @@ export default function HeaderVariant({
       CAR_MODEL: modelValue,
       PAGE_DIRECTION_URL: window.location.origin + urlDestination,
     })
-    trackSearchBarSuggestionClick({
-      Page_Origination_URL: window.location.href,
-      Page_Direction_URL: window.location.origin + urlDestination,
-    })
-
     // use window location to reload page
     if (item.value.length > 0) {
       window.location.href = urlDestination

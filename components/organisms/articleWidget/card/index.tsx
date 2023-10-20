@@ -2,8 +2,6 @@ import React from 'react'
 import styles from 'styles/components/organisms/articleWidget.module.scss'
 import { Article } from 'utils/types'
 import Image from 'next/image'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { articleDateFormat } from 'utils/handler/date'
 import { LanguageCode } from 'utils/enum'
 import { trackEventCountly } from 'helpers/countly/countly'
@@ -24,11 +22,6 @@ const ArticleWidgetCard = ({
       <div
         className={styles.cardArticle}
         onClick={() => {
-          sendAmplitudeData(AmplitudeEventName.WEB_LP_MAIN_ARTICLE_CLICK, {
-            Article_Category: currentTab,
-            Article_Title: article.title,
-            Article_URL: article.url,
-          })
           trackEventCountly(CountlyEventNames.WEB_ARTICLE_CLICK, {
             PAGE_ORIGINATION: 'Homepage',
             ARTICLE_SECTION: 'Main article',

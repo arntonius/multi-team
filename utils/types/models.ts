@@ -783,15 +783,6 @@ export enum SizeType {
   Small = 'small',
 }
 
-export enum AmplitudeRejectReason {
-  DP_Capacity_Not_In_Range = '001',
-  Occupation_Blacklisted = '002',
-  EKYC_Failed = '004',
-  COVADEX_Blacklisted = '005',
-  Bank_Link_Result_Fail = '006',
-  Unsupported_Province = '007',
-}
-
 export enum CrmBussinessUnits {
   ACC = 'ACC',
   TAF = 'TAF',

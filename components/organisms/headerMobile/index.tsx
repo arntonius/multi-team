@@ -8,12 +8,6 @@ import {
 } from 'components/atoms'
 import { rootOTOUrl, rootUrl } from 'utils/helpers/routes'
 import clsx from 'clsx'
-import {
-  trackCitySelectorOpen,
-  trackOpenBurgerMenu,
-  trackSearchbarOpen,
-  trackSevaLogoClick,
-} from 'helpers/amplitude/seva20Tracking'
 import getCurrentEnvironment from 'helpers/environments'
 import elementId from 'helpers/elementIds'
 import { useRouter } from 'next/router'
@@ -93,9 +87,6 @@ export const HeaderMobile = ({
 
   const handleClickCityIcon = () => {
     if (!isActive) {
-      trackCitySelectorOpen({
-        Page_Origination_URL: window.location.href,
-      })
       trackEventCountly(CountlyEventNames.WEB_CITY_SELECTOR_OPEN_CLICK, {
         PAGE_ORIGINATION:
           getPageName() === 'PLP'
@@ -111,9 +102,6 @@ export const HeaderMobile = ({
   const handleSearch = () => {
     if (!isActive) {
       setIsOpenSearchModal(true)
-      trackSearchbarOpen({
-        Page_Origination_URL: window.location.href,
-      })
       if (pageOrigination && pageOrigination.length !== 0) {
         trackEventCountly(CountlyEventNames.WEB_CAR_SEARCH_ICON_CLICK, {
           PAGE_ORIGINATION: pageOrigination.includes('PDP')
@@ -126,9 +114,6 @@ export const HeaderMobile = ({
 
   const handleToggleBurgerMenu = () => {
     if (!isActive) {
-      trackOpenBurgerMenu({
-        Page_Origination_URL: window.location.href,
-      })
       if (pageOrigination && pageOrigination.length !== 0) {
         const track = {
           PAGE_ORIGINATION: pageOrigination.includes('PDP')
@@ -145,9 +130,6 @@ export const HeaderMobile = ({
   }
 
   const handleLogoClick = () => {
-    trackSevaLogoClick({
-      Page_Origination_URL: window.location.href,
-    })
     if (pageOrigination && pageOrigination.length !== 0) {
       trackEventCountly(CountlyEventNames.WEB_SEVA_LOGO_CLICK, {
         PAGE_ORIGINATION: pageOrigination.includes('PDP')

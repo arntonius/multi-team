@@ -1,20 +1,24 @@
 import { AxiosResponse } from 'axios'
-import { CitySelectorModal } from 'components/molecules'
 import { FooterMobile, HeaderMobile } from 'components/organisms'
 import React, { useState, useEffect } from 'react'
 import { api } from 'services/api'
-
 import { SessionStorageKey } from 'utils/enum'
 import { getToken } from 'utils/handler/auth'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
 import { CityOtrOption } from 'utils/types'
 import { AnnouncementBoxDataType } from 'utils/types/utils'
 import styles from 'styles/components/templates/pageLayout.module.scss'
+import dynamic from 'next/dynamic'
 
 type PageLayoutProps = {
   children: React.ReactNode
   footer?: boolean
 }
+
+const CitySelectorModal = dynamic(
+  () => import('components/molecules').then((mod) => mod.CitySelectorModal),
+  { ssr: false },
+)
 
 const PageLayout = ({ children, footer = true }: PageLayoutProps) => {
   const [isActive, setIsActive] = useState(false)

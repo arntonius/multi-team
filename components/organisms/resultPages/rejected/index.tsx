@@ -1,16 +1,9 @@
 /* eslint-disable react/no-children-prop */
 import React, { useEffect, useState } from 'react'
 import styles from 'styles/components/organisms/rejected.module.scss'
-
 import { getSessionStorage } from 'utils/handler/sessionStorage'
 import clsx from 'clsx'
-
 import { getLocalStorage } from 'utils/handler/localStorage'
-import {
-  CreditQualificationReviewParam,
-  trackKualifikasiKreditRejectResultPageView,
-  trackKualifikasiKreditWaDirectClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { AxiosResponse } from 'axios'
 import { useRouter } from 'next/router'
@@ -26,11 +19,10 @@ import { million, ten } from 'utils/helpers/const'
 import { BannerCard } from 'components/molecules/card/bannerCard'
 import { Gap, IconCSA } from 'components/atoms'
 import { IconHome } from 'components/atoms/icon/Home'
-import { CitySelectorModal, FooterMobile } from 'components/molecules'
 import { getToken } from 'utils/handler/auth'
 import { formatNumberByLocalization } from 'utils/handler/rupiah'
 import { TrackerFlag } from 'utils/types/models'
-import { HeaderMobile } from 'components/organisms'
+import { FooterMobile, HeaderMobile } from 'components/organisms'
 import {
   PreviousButton,
   saveDataForCountlyTrackerPageViewHomepage,
@@ -38,8 +30,13 @@ import {
 import Image from 'next/image'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
+import { CreditQualificationReviewParam } from 'utils/types/props'
+import dynamic from 'next/dynamic'
 
 const RejectedImage = '/revamp/illustration/rejected-approval.webp'
+const CitySelectorModal = dynamic(() =>
+  import('components/molecules').then((mod) => mod.CitySelectorModal),
+)
 
 export const CreditQualificationRejected = () => {
   const titleText = 'Terima kasih, Agen SEVA akan segera menghubungimu'
@@ -154,7 +151,6 @@ export const CreditQualificationRejected = () => {
   }
 
   const redirectWhatsapp = async () => {
-    trackKualifikasiKreditWaDirectClick(getDataForTracker())
     const loanTenure = resultPreApproval?.loanTenure
     const promoCode: string | undefined = resultPreApproval?.promoCode
     const brandModel = `${resultPreApproval?.modelDetail?.brand} ${resultPreApproval?.modelDetail?.model} ${resultPreApproval?.variantDetail?.name}`
@@ -191,12 +187,6 @@ export const CreditQualificationRejected = () => {
   }
 
   const trackAmplitudeAndMoengagePageView = () => {
-    trackKualifikasiKreditRejectResultPageView({
-      ...getDataForTracker(),
-      Total_Income: undefined,
-      Page_Origination: undefined,
-      Income: formattedIncome(String(resultPreApproval?.monthlyIncome ?? 0)),
-    })
     setTrackEventMoEngage(
       MoengageEventName.view_kualifikasi_kredit_reject_result_page,
       {
@@ -290,7 +280,6 @@ export const CreditQualificationRejected = () => {
         </div>
       </div>
       <FooterMobile />
-
       <CitySelectorModal
         isOpen={isOpenCitySelectorModal}
         onClickCloseButton={() => setIsOpenCitySelectorModal(false)}

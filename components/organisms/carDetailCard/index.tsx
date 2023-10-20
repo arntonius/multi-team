@@ -1,7 +1,6 @@
 import { Button, CardShadow, IconInfo, Overlay } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { LabelMudah, LabelPromo, LabelSulit } from 'components/molecules'
-import { trackPLPCarClick } from 'helpers/amplitude/seva20Tracking'
 import elementId from 'helpers/elementIds'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -211,15 +210,6 @@ export const CarDetailCard = ({
   }
   const trackCarClick = (index: number, detailClick = true, url?: string) => {
     const peluangKredit = getPeluangKredit(recommendation)
-    trackPLPCarClick({
-      Car_Brand: recommendation.brand,
-      Car_Model: recommendation.model,
-      Peluang_Kredit: getPeluangKredit(recommendation),
-      DP: `Rp${lowestDp} Juta`,
-      Tenure: `${funnelQuery.tenure || 5}`,
-      Cicilan: `Rp${lowestInstallment} jt/bln`,
-      ...(cityOtr && { City: cityOtr?.cityName }),
-    })
     setCarModelLoanRankPLP(recommendation.loanRank)
     const datatrack = {
       CAR_BRAND: recommendation.brand,

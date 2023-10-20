@@ -17,11 +17,6 @@ import {
 } from 'components/atoms'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import {
-  trackCarVariantPricelistClick,
-  trackCarVariantPricelistClickCta,
-  trackChangeLayoutClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { million, ten } from 'utils/helpers/const'
 import { variantListUrl } from 'utils/helpers/routes'
 import elementId from 'helpers/elementIds'
@@ -91,37 +86,6 @@ const TabContentLowerVariant = ({
   const tab = router.query.tab as string
   const loanRankcr = router.query.loanRankCVL ?? ''
 
-  const { funnelQuery } = useFunnelQueryData()
-  const getDataForAmplitude = (carVariant: CarVariantRecommendation) => {
-    return {
-      Car_Brand: carModelDetails.brand ?? '',
-      Car_Model: carModelDetails.model ?? '',
-      OTR:
-        'RP' +
-        replacePriceSeparatorByLocalization(
-          carVariant.priceValue,
-          LanguageCode.id,
-        ),
-      City: cityOtr?.cityName || 'null',
-      Car_Variant: carVariant.name,
-      Page_Origination_URL: window.location.href,
-      ...(funnelQuery.downPaymentAmount && {
-        DP: 'RP' + funnelQuery.downPaymentAmount + ' Juta',
-      }),
-      ...(funnelQuery.age && {
-        Age_Group: funnelQuery.age.toString(),
-      }),
-      Cicilan: `Rp${formatNumberByLocalization(
-        carVariant.monthlyInstallment,
-        LanguageCode.id,
-        million,
-        ten,
-      ).toString()} jt/bln`,
-      ...(funnelQuery.tenure && {
-        Tenure: funnelQuery.tenure.toString(),
-      }),
-    }
-  }
   const removeToneColor = (variantName: string) => {
     const variantSplice =
       variantName[variantName.length - 1] === ' '
@@ -166,7 +130,6 @@ const TabContentLowerVariant = ({
     carVariant: CarVariantRecommendation,
     index: number,
   ) => {
-    trackCarVariantPricelistClickCta(getDataForAmplitude(carVariant))
     trackClickCtaCountly(carVariant, index)
     saveDataCarForLoginPageView(carVariant.name)
     saveDataForCountlyTrackerPageViewLC(PreviousButton.VariantPriceList)
@@ -228,9 +191,6 @@ const TabContentLowerVariant = ({
 
   const onClickHorizontalView = () => {
     setToggleHorizontal(true)
-    trackChangeLayoutClick({
-      Page_Origination_URL: window.location.href,
-    })
     trackEventCountly(CountlyEventNames.WEB_PDP_VARIANT_LIST_LAYOUT_CLICK, {
       LIST_TYPE: 'Horizontal list',
     })
@@ -238,9 +198,6 @@ const TabContentLowerVariant = ({
 
   const onClickVerticalView = () => {
     setToggleHorizontal(false)
-    trackChangeLayoutClick({
-      Page_Origination_URL: window.location.href,
-    })
     trackEventCountly(CountlyEventNames.WEB_PDP_VARIANT_LIST_LAYOUT_CLICK, {
       LIST_TYPE: 'Vertical list',
     })
@@ -253,7 +210,6 @@ const TabContentLowerVariant = ({
     setOpenModal(true)
     setViewVariant(carVariant)
     onCardClick(carVariant)
-    trackCarVariantPricelistClick(getDataForAmplitude(carVariant))
     trackOpenPopupCountly(carVariant, index)
   }
 
@@ -595,9 +551,6 @@ const TabContentLowerVariant = ({
                         onClick={() => {
                           setViewVariant(carVariant)
                           onCardClick(carVariant)
-                          trackCarVariantPricelistClick(
-                            getDataForAmplitude(carVariant),
-                          )
                         }}
                       >
                         <div

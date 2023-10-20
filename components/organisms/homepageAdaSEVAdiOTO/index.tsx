@@ -3,8 +3,6 @@ import { useInView } from 'react-intersection-observer'
 import CSAButton from 'components/atoms/floatButton/CSAButton'
 import { setTrackEventMoEngageWithoutValue } from 'services/moengage'
 import { EventName } from 'services/moengage/type'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { LeadsActionParam, PageOriginationName } from 'utils/types/tracker'
 import { AlephArticleCategoryType, Article, CityOtrOption } from 'utils/types'
 import { COMData, COMDataTracking } from 'utils/types/models'
@@ -45,9 +43,6 @@ import logoSEVA from '/public/revamp/images/logo/seva-header.png'
 import supergraphic from '/public/revamp/illustration/supergraphic-crop.webp'
 
 const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
-  useEffect(() => {
-    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
-  }, [])
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
     HomePageDataLocalContext,
   )

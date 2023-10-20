@@ -1,17 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import styles from 'styles/pages/kk-waiting-result.module.scss'
-
 import { fetchCustomerDetails } from 'utils/httpUtils/customerUtils'
-
 import urls from 'helpers/urls'
-
-import {
-  CreditQualificationReviewParam,
-  trackKualifikasiKreditCariMobilClick,
-  trackKualifikasiKreditDownloadAndroidClick,
-  trackKualifikasiKreditDownloadIosClick,
-  trackKualifikasiKreditWaitingResultPageView,
-} from 'helpers/amplitude/seva20Tracking'
 import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { useProtectPage } from 'utils/hooks/useProtectPage/useProtectPage'
 import { useRouter } from 'next/router'
@@ -33,7 +23,6 @@ import { getToken } from 'utils/handler/auth'
 import { FooterMobile, HeaderMobile } from 'components/organisms'
 import { Button } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
-import { CitySelectorModal } from 'components/molecules'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
@@ -42,10 +31,16 @@ import Image from 'next/image'
 import { api } from 'services/api'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getCarVariantDetailsById } from 'utils/handler/carRecommendation'
+import { CreditQualificationReviewParam } from 'utils/types/props'
+import dynamic from 'next/dynamic'
 
 const KualifikasiKreditImage = '/revamp/illustration/kualifikasi-kredit.webp'
 const PlayStoreImage = '/revamp/images/profile/google-play.webp'
 const AppStoreImage = '/revamp/images/profile/app-store.webp'
+
+const CitySelectorModal = dynamic(() =>
+  import('components/molecules').then((mod) => mod.CitySelectorModal),
+)
 
 const CreditQualificationProcess = () => {
   useProtectPage()
@@ -97,7 +92,6 @@ const CreditQualificationProcess = () => {
   }
 
   const gotoPLP = () => {
-    trackKualifikasiKreditCariMobilClick(getDataForTracker())
     const urlParam = new URLSearchParams({
       ...(age && { age: String(age) }),
       ...(monthlyIncome && { monthlyIncome: String(monthlyIncome) }),
@@ -207,12 +201,6 @@ const CreditQualificationProcess = () => {
   }, [customerDetail?.phoneNumber])
 
   const trackAmplitudeAndMoengagePageView = () => {
-    trackKualifikasiKreditWaitingResultPageView({
-      ...getDataForTracker(),
-      Total_Income: undefined,
-      Page_Origination: undefined,
-      Income: formattedIncome(String(financialQuery?.monthlyIncome ?? 0)),
-    })
     setTrackEventMoEngage(
       MoengageEventName.view_kualifikasi_kredit_waiting_result_page,
       {
@@ -235,12 +223,10 @@ const CreditQualificationProcess = () => {
   }
 
   const onClickPlayStore = () => {
-    trackKualifikasiKreditDownloadAndroidClick(getDataForTracker())
     window.open(urls.googlePlayHref, '_blank')
   }
 
   const onClickAppStore = () => {
-    trackKualifikasiKreditDownloadIosClick(getDataForTracker())
     window.open(urls.appStoreHerf, '_blank')
   }
 
