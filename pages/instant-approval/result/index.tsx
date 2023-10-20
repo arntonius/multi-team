@@ -36,7 +36,6 @@ const CreditQualificationPageRejected = ({
         description={head.description}
         image={defaultSeoImage}
       />
-
       <div className={styles.container}>
         <CreditQualificationRejected />
       </div>

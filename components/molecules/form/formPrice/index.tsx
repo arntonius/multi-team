@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import styles from '../../../../styles/components/molecules/form/formPrice.module.scss'
-import { Input, Slider } from 'antd'
+import Input from 'antd/lib/input'
+import Slider from 'antd/lib/slider'
 import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
 import { filterNonDigitCharacters } from 'utils/stringUtils'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'

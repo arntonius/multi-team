@@ -18,15 +18,6 @@ import {
 } from 'components/molecules/form/formSelectCarVariant'
 import { HeaderMobile } from 'components/organisms'
 import { CalculationResultEmpty } from 'components/organisms/calculationResultEmpty'
-import {
-  trackLCCTAHitungKemampuanClick,
-  trackLCCtaWaDirectClick,
-  trackLCKualifikasiKreditClick,
-  trackLCKualifikasiKreditPopUpClose,
-  trackRegularCalculatorPage,
-  trackVariantListPageCodeFailed,
-  trackVariantListPageCodeSuccess,
-} from 'helpers/amplitude/seva20Tracking'
 import elementId from 'helpers/elementIds'
 import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { useRouter } from 'next/router'
@@ -100,6 +91,7 @@ import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { Currency } from 'utils/handler/calculation'
 import { useUtils } from 'services/context/utilsContext'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -149,7 +141,7 @@ export interface FormLCState {
   leasingOption?: string
 }
 
-const getSlug = (query: any, index: number) => {
+export const getSlug = (query: any, index: number) => {
   return (
     query.slug && query.slug.length > index && (query.slug[index] as string)
   )
@@ -162,7 +154,6 @@ export default function LoanCalculatorPage() {
   const model = getSlug(router.query, 2)
   const variant = getSlug(router.query, 3)
   const loanRankcr = router.query.loanRankCVL ?? ''
-
   const { financialQuery, patchFinancialQuery } = useFinancialQueryData()
   const [isActive, setIsActive] = useState(false)
   const [isHasCarParameter] = useState(
@@ -311,42 +302,8 @@ export default function LoanCalculatorPage() {
     isValidPromoCode: true,
   })
 
-  const getDataForAmplitude = () => {
-    return {
-      Car_Brand: brand ? capitalizeFirstLetter(brand) : '',
-      Car_Model: model ? capitalizeFirstLetter(model.replaceAll('-', ' ')) : '',
-      Car_Variant: variant
-        ? variant
-            .toUpperCase()
-            .replaceAll('-', ' ')
-            .replaceAll(' AT ', ' A/T ')
-            .replaceAll(' MT ', ' M/T ')
-        : '',
-      DP:
-        storedFilter && storedFilter?.downPaymentAmount?.length > 0
-          ? `Rp${formatNumberByLocalization(
-              parseInt(storedFilter?.downPaymentAmount.toString()),
-              LanguageCode.id,
-              1000000,
-              10,
-            )} Juta`
-          : '',
-      Income:
-        storedFilter && storedFilter?.monthlyIncome?.length > 0
-          ? `Rp${formatNumberByLocalization(
-              parseInt(storedFilter?.monthlyIncome.toString()),
-              LanguageCode.id,
-              1000000,
-              10,
-            )} Juta`
-          : '',
-      Age:
-        storedFilter && storedFilter?.age?.length > 0 ? storedFilter?.age : '',
-      City: cityOtr?.cityName || '',
-    }
-  }
-
-  const [showAnnouncementBox, setShowAnnouncementBox] = useState<boolean>(false)
+  const { showAnnouncementBox, saveShowAnnouncementBox } =
+    useAnnouncementBoxContext()
   const [articles, setArticles] = useState<Article[]>([])
 
   const fetchArticles = async () => {
@@ -389,7 +346,6 @@ export default function LoanCalculatorPage() {
       setIsLoadingPromoCode(false)
 
       if (result.message === 'valid promo code') {
-        trackVariantListPageCodeSuccess(forms.promoCode)
         if (result.citySelector) {
           const citygias = {
             cityName: result.citySelector.cityName,
@@ -404,14 +360,12 @@ export default function LoanCalculatorPage() {
         handlePromoCodeValidResult(true)
         return true
       }
-      trackVariantListPageCodeFailed(forms.promoCode)
       setIsErrorPromoCode(true)
       setisSuccessPromoCode(false)
       handlePromoCodeValidResult(false)
       return false
     } catch (err: any) {
       setIsLoadingPromoCode(false)
-      trackVariantListPageCodeFailed(forms.promoCode)
       setIsErrorPromoCode(true)
       setisSuccessPromoCode(false)
       handlePromoCodeValidResult(false)
@@ -617,7 +571,6 @@ export default function LoanCalculatorPage() {
 
   useEffect(() => {
     trackMoengage()
-    trackRegularCalculatorPage(getDataForAmplitude())
     checkCitiesData()
     fetchAllCarModels()
     fetchArticles()
@@ -694,12 +647,12 @@ export default function LoanCalculatorPage() {
           : SessionStorageKey.ShowWebAnnouncementNonLogin,
       )
       if (typeof isShowAnnouncement !== 'undefined') {
-        setShowAnnouncementBox(isShowAnnouncement as boolean)
+        saveShowAnnouncementBox(isShowAnnouncement as boolean)
       } else {
-        setShowAnnouncementBox(true)
+        saveShowAnnouncementBox(true)
       }
     } else {
-      setShowAnnouncementBox(false)
+      saveShowAnnouncementBox(false)
     }
   }, [dataAnnouncementBox])
 
@@ -1049,21 +1002,6 @@ export default function LoanCalculatorPage() {
     if (promoCodeValidity) {
       setIsLoadingCalculation(true)
 
-      trackLCCTAHitungKemampuanClick({
-        Age: `${forms.age} Tahun`,
-        Angsuran_Type: forms.paymentOption,
-        Car_Brand: forms?.model?.brandName || '',
-        Car_Model: forms?.model?.modelName || '',
-        Car_Variant: forms.variant?.variantName || '',
-        City: forms.city.cityName,
-        DP: `Rp${replacePriceSeparatorByLocalization(
-          forms.downPaymentAmount,
-          LanguageCode.id,
-        )}`,
-        Page_Origination: window.location.href,
-        Promo: forms.promoCode,
-      })
-
       const dataFinancial = {
         ...financialQuery,
         downPaymentAmount: dpValue,
@@ -1172,50 +1110,10 @@ export default function LoanCalculatorPage() {
     }
   }, [])
 
-  const getLoanRank = (rank: string) => {
-    if (rank === LoanRank.Green) {
-      return 'Mudah'
-    } else if (rank === LoanRank.Red) {
-      return 'Sulit'
-    }
-
-    return ''
-  }
-
-  const getDataForAmplitudeQualification = (
-    loan: SpecialRateListWithPromoType | null,
-  ) => {
-    return {
-      Age: `${forms.age} Tahun`,
-      Angsuran_Type: forms.paymentOption,
-      Car_Brand: forms?.model?.brandName || '',
-      Car_Model: forms?.model?.modelName || '',
-      Car_Variant: forms.variant?.variantName || '',
-      City: forms.city.cityName,
-      DP: `Rp${replacePriceSeparatorByLocalization(
-        forms.downPaymentAmount,
-        LanguageCode.id,
-      )}`,
-      Page_Origination: window.location.href,
-      Promo: forms.promoCode,
-      Monthly_Installment: `Rp${replacePriceSeparatorByLocalization(
-        loan?.installment ?? 0,
-        LanguageCode.id,
-      )}`,
-      Peluang_Kredit: getLoanRank(loan?.loanRank ?? ''),
-      Tenure: `${loan?.tenure ?? ''} Tahun`,
-      Total_DP: `Rp${replacePriceSeparatorByLocalization(
-        loan?.dpAmount ?? 0,
-        LanguageCode.id,
-      )}`,
-    }
-  }
-
   const handleClickButtonQualification = (
     loan: SpecialRateListWithPromoType,
   ) => {
     trackCountlyClickCheckQualification(loan)
-    trackLCKualifikasiKreditClick(getDataForAmplitudeQualification(loan))
     setIsQualificationModalOpen(true)
 
     const selectedPromoTenure = insuranceAndPromoForAllTenure.filter(
@@ -1382,7 +1280,6 @@ export default function LoanCalculatorPage() {
   const handleRedirectToWhatsapp = async (
     loan: SpecialRateListWithPromoType,
   ) => {
-    trackLCCtaWaDirectClick(getDataForAmplitudeQualification(loan))
     if (selectedLoan) {
       trackCountlyDirectToWhatsapp(selectedLoan.tenure)
     }
@@ -1436,9 +1333,6 @@ export default function LoanCalculatorPage() {
 
   const onCloseQualificationPopUp = () => {
     trackCountlyOnCloseQualificationModal()
-    trackLCKualifikasiKreditPopUpClose(
-      getDataForAmplitudeQualification(selectedLoan),
-    )
     setIsQualificationModalOpen(false)
   }
 
@@ -1693,7 +1587,7 @@ export default function LoanCalculatorPage() {
             position: 'fixed',
           }}
           emitClickCityIcon={() => setIsOpenCitySelectorModal(true)}
-          setShowAnnouncementBox={setShowAnnouncementBox}
+          setShowAnnouncementBox={saveShowAnnouncementBox}
           isShowAnnouncementBox={showAnnouncementBox}
         />
         <div
@@ -1724,6 +1618,7 @@ export default function LoanCalculatorPage() {
                 name="city"
                 onOpenTooltip={onOpenTooltipCityField}
                 onShowDropdown={onShowDropdownCityField}
+                isError={isValidatingEmptyField && !forms.city}
               />
               {isValidatingEmptyField && !forms.city
                 ? renderErrorMessageEmpty()
@@ -1743,6 +1638,10 @@ export default function LoanCalculatorPage() {
                 allModelCarList={allModelCarList}
                 setModelError={setModelError}
                 onShowDropdown={onShowDropdownModelField}
+                overrideIsErrorFieldOnly={
+                  isValidatingEmptyField &&
+                  (!forms.model?.modelId || !forms.model.modelName)
+                }
               />
               {isValidatingEmptyField &&
               (!forms.model?.modelId || !forms.model.modelName)
@@ -1758,6 +1657,10 @@ export default function LoanCalculatorPage() {
                 value={forms.variant || variantEmptyValue}
                 modelError={modelError}
                 onShowDropdown={onShowDropdownVariantField}
+                isError={
+                  isValidatingEmptyField &&
+                  (!forms.variant?.variantId || !forms.variant.variantName)
+                }
               />
               {isValidatingEmptyField &&
               (!forms.variant?.variantId || !forms.variant.variantName)
@@ -1771,7 +1674,10 @@ export default function LoanCalculatorPage() {
                 value={Number(forms.monthlyIncome)}
                 defaultValue={Number(forms.monthlyIncome)}
                 handleChange={handleChange}
-                isErrorTooLow={isIncomeTooLow}
+                isError={
+                  isIncomeTooLow ||
+                  (isValidatingEmptyField && !forms.monthlyIncome)
+                }
                 emitOnBlurInput={onBlurIncomeInput}
                 onFocus={onFocusIncomeField}
               />
@@ -1836,6 +1742,7 @@ export default function LoanCalculatorPage() {
                 handleChange={handleChange}
                 defaultValue={forms.age}
                 onShowDropdown={onShowDropdownAgeField}
+                isError={isValidatingEmptyField && !forms.age}
               />
               {isValidatingEmptyField && !forms.age
                 ? renderErrorMessageEmpty()
@@ -1861,17 +1768,8 @@ export default function LoanCalculatorPage() {
             <Button
               // not using "disabled" attrib because some func need to be run
               // when disabled button is clicked
-              version={
-                isDisableCtaCalculate
-                  ? ButtonVersion.Disable
-                  : ButtonVersion.PrimaryDarkBlue
-              }
+              version={ButtonVersion.PrimaryDarkBlue}
               secondaryClassName={styles.buttonSubmit}
-              disabled={
-                isDisableCtaCalculate ||
-                isLoadingCalculation ||
-                isLoadingInsuranceAndPromo
-              }
               size={ButtonSize.Big}
               onClick={onClickCalculate}
               data-testid={elementId.LoanCalculator.Button.HitungKemampuan}
@@ -1941,7 +1839,9 @@ Kemampuan Finansialmu"
 
         <CitySelectorModal
           isOpen={isOpenCitySelectorModal}
-          onClickCloseButton={() => setIsOpenCitySelectorModal(false)}
+          onClickCloseButton={() => {
+            setIsOpenCitySelectorModal(false)
+          }}
           cityListFromApi={cityListApi}
         />
 

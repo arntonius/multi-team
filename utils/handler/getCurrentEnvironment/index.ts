@@ -7,9 +7,6 @@ import {
 type EnvironmentConfig = {
   name: string
   displayDebugErrors: boolean
-  amplitude: {
-    apiKey: string
-  }
   firebaseConfigs: {
     apiKey: string | undefined
     authDomain: string
@@ -34,9 +31,6 @@ const environments = {
   localhost: {
     name: 'Localhost',
     displayDebugErrors: true,
-    amplitude: {
-      apiKey: '4e67ca5fd44e8a8e7e7773bc3ababa00',
-    },
     firebaseConfigs: {
       apiKey: 'AIzaSyBi0MBSiB88xCvbti1T8plNTreX-bzZfAw',
       authDomain: 'torq-308606.firebaseapp.com',
@@ -58,9 +52,6 @@ const environments = {
   development: {
     name: 'Development',
     displayDebugErrors: true,
-    amplitude: {
-      apiKey: '4e67ca5fd44e8a8e7e7773bc3ababa00',
-    },
     firebaseConfigs: {
       apiKey: 'AIzaSyBi0MBSiB88xCvbti1T8plNTreX-bzZfAw',
       authDomain: 'torq-308606.firebaseapp.com',
@@ -82,9 +73,6 @@ const environments = {
   staging: {
     name: 'Staging',
     displayDebugErrors: true,
-    amplitude: {
-      apiKey: '4e58240672792efc470e5d1322804d20',
-    },
     firebaseConfigs: {
       apiKey: FirebaseAPIKey,
       authDomain: 'torq-staging-310201.firebaseapp.com',
@@ -105,9 +93,6 @@ const environments = {
   production: {
     name: 'Production',
     displayDebugErrors: false,
-    amplitude: {
-      apiKey: '86bd0da4661aa24a7d2c9f658197b49a',
-    },
     firebaseConfigs: {
       apiKey: FirebaseAPIKey,
       authDomain: 'torq-prod.firebaseapp.com',

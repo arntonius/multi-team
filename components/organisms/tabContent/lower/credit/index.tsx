@@ -12,15 +12,6 @@ import {
   SpecialRateListWithPromoType,
   trackDataCarType,
 } from 'utils/types/utils'
-import {
-  trackLCCTAHitungKemampuanClick,
-  trackLCCtaWaDirectClick,
-  trackLCKualifikasiKreditClick,
-  trackLCKualifikasiKreditPopUpClose,
-  trackVariantListPageCodeFailed,
-  trackVariantListPageCodeSuccess,
-  trackWebPDPCreditTab,
-} from 'helpers/amplitude/seva20Tracking'
 import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import {
@@ -541,44 +532,9 @@ export const CreditTab = () => {
 
   useEffect(() => {
     if (carModelDetails && flag === TrackerFlag.Init) {
-      sendAmplitude()
       setFlag(TrackerFlag.Sent)
     }
   }, [carModelDetails])
-
-  const sendAmplitude = (): void => {
-    if (!carModelDetails) return
-
-    const data: TrackVariantList = {
-      Car_Brand: carModelDetails?.brand || '',
-      Car_Model: carModelDetails?.model || '',
-      Car_Variant:
-        passedVariantData.length > 0 ? passedVariantData[0].name : '',
-      DP: `Rp${formatNumberByLocalization(
-        sortedCarModelVariant[0].dpAmount,
-        LanguageCode.id,
-        1000000,
-        10,
-      )} Juta`,
-      Monthly_Installment: `Rp${formatNumberByLocalization(
-        sortedCarModelVariant[0].monthlyInstallment,
-        LanguageCode.id,
-        1000000,
-        10,
-      )} jt/bln`,
-      Income:
-        storedFilter && storedFilter?.monthlyIncome?.length > 0
-          ? storedFilter?.monthlyIncome.toString()
-          : '',
-      Age:
-        storedFilter && storedFilter?.age?.length > 0
-          ? storedFilter?.age.toString()
-          : '',
-      Tenure: `${sortedCarModelVariant[0].tenure} Tahun`,
-      City: cityOtr?.cityName || '',
-    }
-    trackWebPDPCreditTab(data)
-  }
 
   const trackEventMoengage = () => {
     if (
@@ -922,7 +878,6 @@ export const CreditTab = () => {
       setIsLoadingPromoCode(false)
 
       if (result.message === 'valid promo code') {
-        trackVariantListPageCodeSuccess(forms.promoCode)
         if (result.citySelector) {
           const citygias = {
             id: result.citySelector.id,
@@ -938,14 +893,12 @@ export const CreditTab = () => {
         handlePromoCodeValidResult(true)
         return true
       }
-      trackVariantListPageCodeFailed(forms.promoCode)
       setIsErrorPromoCode(true)
       setisSuccessPromoCode(false)
       handlePromoCodeValidResult(false)
       return false
     } catch (err: any) {
       setIsLoadingPromoCode(false)
-      trackVariantListPageCodeFailed(forms.promoCode)
       setIsErrorPromoCode(true)
       setisSuccessPromoCode(false)
       handlePromoCodeValidResult(false)
@@ -1110,21 +1063,6 @@ export const CreditTab = () => {
     if (promoCodeValidity) {
       setIsLoadingCalculation(true)
 
-      trackLCCTAHitungKemampuanClick({
-        Age: `${forms.age} Tahun`,
-        Angsuran_Type: forms.paymentOption,
-        Car_Brand: forms?.model?.brandName || '',
-        Car_Model: forms?.model?.modelName || '',
-        Car_Variant: forms.variant?.variantName || '',
-        City: forms.city.cityName,
-        DP: `Rp${replacePriceSeparatorByLocalization(
-          forms.downPaymentAmount,
-          LanguageCode.id,
-        )}`,
-        Page_Origination: window.location.href,
-        Promo: forms.promoCode,
-      })
-
       const dataFinancial = {
         ...financialQuery,
         downPaymentAmount: dpValue,
@@ -1254,7 +1192,6 @@ export const CreditTab = () => {
         temanSevaStatus = 'Yes'
       }
     }
-    trackLCCtaWaDirectClick(getDataForAmplitudeQualification(loan))
     trackEventCountly(CountlyEventNames.WEB_WA_DIRECT_CLICK, {
       PAGE_ORIGINATION: 'PDP - Kredit',
       SOURCE_BUTTON: 'CTA button Hubungi Agen SEVA',
@@ -1295,7 +1232,6 @@ export const CreditTab = () => {
     loan: SpecialRateListWithPromoType,
   ) => {
     trackCountlyClickCheckQualification(loan)
-    trackLCKualifikasiKreditClick(getDataForAmplitudeQualification(loan))
     setIsQualificationModalOpen(true)
 
     const selectedPromoTenure = insuranceAndPromoForAllTenure.filter(
@@ -1452,40 +1388,8 @@ export const CreditTab = () => {
     return ''
   }
 
-  const getDataForAmplitudeQualification = (
-    loan: SpecialRateListWithPromoType | null,
-  ) => {
-    return {
-      Age: `${forms.age} Tahun`,
-      Angsuran_Type: forms.paymentOption,
-      Car_Brand: forms?.model?.brandName || '',
-      Car_Model: forms?.model?.modelName || '',
-      Car_Variant: forms.variant?.variantName || '',
-      City: forms.city.cityName,
-      DP: `Rp${replacePriceSeparatorByLocalization(
-        forms.downPaymentAmount,
-        LanguageCode.id,
-      )}`,
-      Page_Origination: window.location.href,
-      Promo: forms.promoCode,
-      Monthly_Installment: `Rp${replacePriceSeparatorByLocalization(
-        loan?.installment ?? 0,
-        LanguageCode.id,
-      )}`,
-      Peluang_Kredit: getLoanRank(loan?.loanRank ?? ''),
-      Tenure: `${loan?.tenure ?? ''} Tahun`,
-      Total_DP: `Rp${replacePriceSeparatorByLocalization(
-        loan?.dpAmount ?? 0,
-        LanguageCode.id,
-      )}`,
-    }
-  }
-
   const onCloseQualificationPopUp = () => {
     trackCountlyOnCloseQualificationModal()
-    trackLCKualifikasiKreditPopUpClose(
-      getDataForAmplitudeQualification(selectedLoan),
-    )
     setIsQualificationModalOpen(false)
   }
 
@@ -1750,7 +1654,10 @@ export const CreditTab = () => {
               isHasCarParameter={false}
               handleChange={handleChange}
               name="city"
-              isError={forms?.city?.cityCode ? modelError : false}
+              isError={
+                (modelError && !!forms.city?.cityCode) ||
+                (isValidatingEmptyField && !forms.city)
+              }
               onOpenTooltip={onOpenTooltipCityField}
               onShowDropdown={onShowDropdownCityField}
             />
@@ -1772,6 +1679,10 @@ export const CreditTab = () => {
               isCheckForError={false}
               isShowArrow={false}
               onShowDropdown={onShowDropdownModelField}
+              overrideIsErrorFieldOnly={
+                isValidatingEmptyField &&
+                (!forms.model?.modelId || !forms.model.modelName)
+              }
             />
             {isValidatingEmptyField &&
             (!forms.model?.modelId || !forms.model.modelName)
@@ -1787,6 +1698,10 @@ export const CreditTab = () => {
               value={forms.variant || variantEmptyValue}
               modelError={modelError}
               onShowDropdown={onShowDropdownVariantField}
+              isError={
+                isValidatingEmptyField &&
+                (!forms.variant?.variantId || !forms.variant.variantName)
+              }
             />
             {isValidatingEmptyField &&
             (!forms.variant?.variantId || !forms.variant.variantName)
@@ -1800,7 +1715,10 @@ export const CreditTab = () => {
               value={Number(forms.monthlyIncome)}
               defaultValue={Number(forms.monthlyIncome)}
               handleChange={handleChange}
-              isErrorTooLow={isIncomeTooLow}
+              isError={
+                isIncomeTooLow ||
+                (isValidatingEmptyField && !forms.monthlyIncome)
+              }
               emitOnBlurInput={onBlurIncomeInput}
               onFocus={onFocusIncomeField}
             />
@@ -1858,6 +1776,7 @@ export const CreditTab = () => {
               handleChange={handleChange}
               defaultValue={forms.age}
               onShowDropdown={onShowDropdownAgeField}
+              isError={isValidatingEmptyField && !forms.age}
             />
             {isValidatingEmptyField && !forms.age
               ? renderErrorMessageEmpty()
@@ -1882,18 +1801,9 @@ export const CreditTab = () => {
           <Button
             // not using "disabled" attrib because some func need to be run
             // when disabled button is clicked
-            version={
-              isDisableCtaCalculate
-                ? ButtonVersion.Disable
-                : ButtonVersion.PrimaryDarkBlue
-            }
+            version={ButtonVersion.PrimaryDarkBlue}
             size={ButtonSize.Big}
             onClick={onClickCalculate}
-            disabled={
-              isDisableCtaCalculate ||
-              isLoadingCalculation ||
-              isLoadingInsuranceAndPromo
-            }
             style={{ marginTop: 32 }}
             data-testid={elementId.PDP.Button.HitungKemampuan}
           >

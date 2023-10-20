@@ -21,16 +21,20 @@ import { FormSelectModelCarSevaOTO } from 'components/molecules/formUpdateLeadsS
 import { FormSelectCarVariantSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectCarVariant'
 import { getLeadsDetail, updateLeadFormOTO } from 'services/leadsSeva'
 import { FormSelectBrandCarSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectBrandCarSevaOTO'
-import { LabelTooltipSevaOTO } from 'components/molecules/label/labelTooltipSevaOTO'
 import { InputVersionType } from 'utils/enum'
 import { Input } from 'antd'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { api } from 'services/api'
-const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
+import CarSillhouete from '/public/revamp/illustration/car-sillhouete.webp'
 
-const CarSillhouete = '/revamp/illustration/car-sillhouete.webp'
+const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
+const LabelTooltipSevaOTO = dynamic(() =>
+  import('components/molecules/label/labelTooltipSevaOTO').then(
+    (mod) => mod.LabelTooltipSevaOTO,
+  ),
+)
 
 interface FormDataState {
   leadId: string
@@ -151,7 +155,7 @@ const UpdateLeadsFormOTO = ({
     name: name,
     phone: phoneNumber.slice(3),
     city: {
-      cityCode: '',
+      cityCode: csaInput?.cityId.toString() ? csaInput?.cityId.toString() : '',
       cityName: '',
       province: '',
       id: csaInput?.cityId == null ? '' : csaInput?.cityId.toString(),
@@ -243,7 +247,7 @@ const UpdateLeadsFormOTO = ({
 
   useEffect(() => {
     if (isCheckedBrand.length > 0) fetchAllCarModels()
-  }, [isCheckedBrand])
+  }, [isCheckedBrand, forms.city?.id])
 
   useEffect(() => {
     if (forms.model?.modelId !== '' && forms.city?.id !== '') fetchCarVariant()
@@ -315,8 +319,6 @@ const UpdateLeadsFormOTO = ({
         data.leadResponse === true &&
         data.isLeadQualified == true
       ) {
-        setIsCheckedBrand([])
-        setNotes('')
         setForms({
           ...forms,
           city: {
@@ -351,10 +353,38 @@ const UpdateLeadsFormOTO = ({
         return
       }
 
+      if (
+        data.carVariantId === '' &&
+        data.leadResponse === true &&
+        data.isLeadQualified == true
+      ) {
+        setForms({
+          ...forms,
+          variant: {
+            variantId: '',
+            variantName: '',
+            otr: '',
+            discount: 0,
+          },
+        })
+        setToastMessage(
+          'Update form gagal diperbaharui, silahkan lengkapi form terlebih dahulu',
+        )
+        setIsOpenToast(true)
+        setTypeToast(false)
+        setTimeout(() => {
+          scrollToTitleRef()
+          setIsOpenToast(false)
+        }, 3000)
+        setIsLoading(false)
+        return
+      }
+
       try {
         const res = await updateLeadFormOTO(data)
 
         if (res.code === 'SUCCESS') {
+          setToastMessage('Update form telah berhasil diperbaharui')
           setIsOpenToast(true)
           setIsLoading(false)
           setTypeToast(true)
@@ -494,6 +524,7 @@ const UpdateLeadsFormOTO = ({
                   ? false
                   : true
               }
+              isCheckedBrand={isCheckedBrand}
               setIsCheckedBrand={setIsCheckedBrand}
               isButtonClick={false}
               isResetFilter={isOpenToast}
@@ -532,7 +563,7 @@ const UpdateLeadsFormOTO = ({
                 name="carVariant"
                 required={true}
                 content={
-                  'Sebelum mengisi car variant wajib mengisi city name terlebih dahulu'
+                  'Sebelum mengisi car variant wajib mengisi car model terlebih dahulu'
                 }
               />
             </div>

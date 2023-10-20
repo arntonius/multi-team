@@ -3,8 +3,6 @@ import SupergraphicLeft from '/public/revamp/illustration/supergraphic-small.web
 import SupergraphicRight from '/public/revamp/illustration/supergraphic-large.webp'
 import styles from 'styles/components/organisms/ctaWidget.module.scss'
 import Image from 'next/image'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { Button } from 'components/atoms'
 import urls from 'utils/helpers/url'
 import { useRouter } from 'next/router'
@@ -14,19 +12,17 @@ import {
   navigateToPLP,
   saveDataForCountlyTrackerPageViewLC,
 } from 'utils/navigate'
-import { trackCTAWidgetDirection } from 'helpers/amplitude/seva20Tracking'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { carResultsUrl, loanCalculatorDefaultUrl } from 'utils/helpers/routes'
+import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 
 const CtaWidget = () => {
   const router = useRouter()
+  const { clearQueryFilter } = useFunnelQueryData()
 
   const onClickSearchCar = () => {
-    sendAmplitudeData(AmplitudeEventName.WEB_PAGE_DIRECTION_WIDGET_CTA_CLICK, {
-      Page_Direction_URL:
-        'https://' + window.location.host + urls.internalUrls.carResultsUrl,
-    })
+    clearQueryFilter()
     trackEventCountly(CountlyEventNames.WEB_HOMEPAGE_CAR_SEARCH_BUTTON_CLICK, {
       SOURCE_SECTION: 'Bottom section',
       CAR_BRAND: 'Null',
@@ -38,9 +34,7 @@ const CtaWidget = () => {
       INCOME_AMOUNT: 'Null',
       AGE_RANGE: 'Null',
     })
-    trackCTAWidgetDirection({
-      Page_Direction_URL: 'https://' + window.location.host + carResultsUrl,
-    })
+
     navigateToPLP(PreviousButton.BottomSection, history)
   }
 
@@ -51,19 +45,10 @@ const CtaWidget = () => {
       CAR_MODEL: 'Null',
       CAR_ORDER: 'Null',
     })
-    sendAmplitudeData(AmplitudeEventName.WEB_PAGE_DIRECTION_WIDGET_CTA_CLICK, {
-      Page_Direction_URL:
-        'https://' +
-        window.location.host +
-        urls.internalUrls.loanCalculatorDefaultUrl,
-    })
     saveDataForCountlyTrackerPageViewLC(
       PreviousButton.SevaBelowSectionCalculate,
     )
-    trackCTAWidgetDirection({
-      Page_Direction_URL:
-        'https://' + window.location.host + loanCalculatorDefaultUrl,
-    })
+
     router.push(loanCalculatorDefaultUrl)
   }
 
@@ -90,9 +75,9 @@ const CtaWidget = () => {
         </div>
       </div>
       <div className={styles.foreground}>
-        <p className={styles.textCtaHeader}>
+        <h2 className={styles.textCtaHeader}>
           Yuk, SEVA bantu untuk mewujudkan mobil impian kamu
-        </p>
+        </h2>
         <div className={styles.ctaWrapepr}>
           <Button
             version={ButtonVersion.Default}

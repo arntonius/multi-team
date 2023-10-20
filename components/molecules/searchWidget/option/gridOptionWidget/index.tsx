@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, MouseEvent } from 'react'
 import styles from '/styles/components/molecules/form/formSelectBrandCar.module.scss'
 import stylec from '/styles/components/molecules/searchWidget/gridOptionWidget.module.scss'
-import { Space } from 'antd'
+import Space from 'antd/lib/space'
 import LogoToyota from '/public/revamp/icon/logo-toyota.webp'
 import LogoDaihatsu from '/public/revamp/icon/logo-daihatsu.webp'
 import Isuzu from '/public/revamp/icon/logo-isuzu.webp'

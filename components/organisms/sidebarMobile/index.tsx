@@ -4,10 +4,6 @@ import { MenuList } from 'components/molecules'
 import styles from '../../../styles/components/organisms/sidebarMobile.module.scss'
 import { LoginSevaUrl } from 'utils/helpers/routes'
 import { getToken } from 'utils/handler/auth'
-import {
-  trackLoginButtonClick,
-  trackProfileAkunSayaClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { savePageBeforeLogin } from 'utils/loginUtils'
 import clsx from 'clsx'
 import { saveLocalStorage } from 'utils/handler/localStorage'
@@ -79,9 +75,6 @@ const sidebarMobile = ({
   }, [customerDetail])
 
   const handleLogin = () => {
-    trackLoginButtonClick({
-      Page_Origination_URL: window.location.href,
-    })
     if (pageOrigination && pageOrigination.length !== 0) {
       trackEventCountly(CountlyEventNames.WEB_HAMBURGER_LOGIN_REGISTER_CLICK, {
         PAGE_ORIGINATION: pageOrigination,
@@ -100,9 +93,6 @@ const sidebarMobile = ({
   }
 
   const handleClickMyAccount = (url: string) => {
-    trackProfileAkunSayaClick({
-      Page_Origination_URL: window.location.href,
-    })
     trackEventCountly(CountlyEventNames.WEB_HAMBURGER_ACCOUNT_CLICK, {
       PAGE_ORIGINATION: pageOrigination,
       SOURCE_SECTION: 'Top',

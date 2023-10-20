@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styles from '../../../../styles/components/molecules/form/formSelectBrandCar.module.scss'
-import { Space } from 'antd'
+import Space from 'antd/lib/space'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import elementId from 'helpers/elementIds'
 import Image from 'next/image'
@@ -13,6 +13,7 @@ const Peugeot = '/revamp/icon/logo-peugeot.webp'
 
 export interface FilterMobileProps {
   setIsCheckedBrand: any
+  isCheckedBrand: any
   isResetFilter?: boolean
   isApplied?: boolean
   brand?: any
@@ -29,6 +30,7 @@ interface CarButtonProps {
 
 export const FormSelectBrandCarSevaOTO = ({
   setIsCheckedBrand,
+  isCheckedBrand,
   isResetFilter,
   isApplied,
   isSelected,
@@ -37,7 +39,9 @@ export const FormSelectBrandCarSevaOTO = ({
   isButtonClick,
 }: FilterMobileProps) => {
   const { funnelQuery } = useFunnelQueryData()
-  const [isCheckedBrandQuery, setIsCheckedBrandQuery] = useState<string[]>([])
+
+  const [isCheckedBrandQuery, setIsCheckedBrandQuery] =
+    useState<string[]>(isCheckedBrand)
 
   // setIsCheckedBrand(isCheckedBrandQuery)
   const carList: CarButtonProps[] = [
@@ -124,6 +128,9 @@ export const FormSelectBrandCarSevaOTO = ({
     }
   }
   useEffect(() => {
+    if (isCheckedBrand) {
+      setIsCheckedBrandQuery(isCheckedBrand)
+    }
     if (isResetFilter) {
       setIsCheckedBrandQuery([])
       // setResetTmp(false)
@@ -157,11 +164,17 @@ export const FormSelectBrandCarSevaOTO = ({
     ) {
       setIsCheckedBrandQuery([])
     }
-  }, [isResetFilter, isApplied, isButtonClick])
+  }, [
+    isResetFilter,
+    isApplied,
+    isButtonClick,
+    isCheckedBrand,
+    setIsCheckedBrand,
+  ])
   const paramQuery = funnelQuery
 
   return (
-    <div className={styles.container}>
+    <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
       <Space size={[16, 16]} wrap>
         {carList.map(({ key, icon, value, isChecked }) => {
           return (

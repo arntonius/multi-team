@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import styles from '../../../styles/pages/navigationfiltermobile.module.scss'
 import {
   IconFilter,
@@ -50,8 +50,11 @@ export const NavigationFilterMobile = ({
   const { funnelQuery, patchFunnelQuery } = useFunnelQueryData()
   const { sortBy } = funnelQuery
   const router = useRouter()
-  const filterSortOption = sortOptions.filter((x) => x.value === sortBy)[0]
-  const sortFilter = filterSortOption?.label || ''
+
+  const sortFilter = useMemo(() => {
+    const filterSortOption = sortOptions.filter((x) => x.value === sortBy)[0]
+    return filterSortOption?.label || ''
+  }, [funnelQuery])
   const summaryCar = carlist?.length || 0
   const onClickOK = () => {
     onButtonClick && onButtonClick(true)

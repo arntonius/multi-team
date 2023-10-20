@@ -1,14 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '/styles/components/molecules/citySelectorModal.module.scss'
 import Fuse from 'fuse.js'
-import {
-  trackCityListClick,
-  trackCitySelectorApply,
-  trackCitySelectorCancel,
-} from 'helpers/amplitude/seva20Tracking'
 import { Button, InputSelect } from 'components/atoms'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import elementId from 'utils/helpers/trackerId'
 import { getLocalStorage, saveLocalStorage } from 'utils/handler/localStorage'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
@@ -34,6 +27,8 @@ import { getSessionStorage } from 'utils/handler/sessionStorage'
 import { RouteName } from 'utils/navigate'
 import { removeCarBrand } from 'utils/handler/removeCarBrand'
 import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
+import { useCityFirst } from 'utils/hooks/useCityFirst'
 
 const searchOption = {
   keys: ['label'],
@@ -52,10 +47,6 @@ interface Props {
   brandName?: string
 }
 
-const Modal = dynamic(() => import('antd').then((mod) => mod.Modal), {
-  ssr: false,
-})
-
 const CitySelectorModal = ({
   onClickCloseButton,
   cityListFromApi,
@@ -65,6 +56,7 @@ const CitySelectorModal = ({
   modelName,
   brandName,
 }: Props) => {
+  const { showCity, onCloseCity } = useCityFirst()
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -121,15 +113,13 @@ const CitySelectorModal = ({
       setInputValue(cityOtr.cityName)
       setLastChoosenValue(cityOtr.cityName)
     }
-    sendAmplitudeData(AmplitudeEventName.WEB_CITYSELECTOR_CANCEL, {
-      Page_Origination_URL: window.location.href,
-    })
     trackEventCountly(CountlyEventNames.WEB_CITY_SELECTOR_BANNER_LATER_CLICK, {
       PAGE_ORIGINATION:
         pageOrigination && pageOrigination.toLowerCase().includes('pdp')
           ? 'PDP - ' + valueMenuTabCategory()
           : getPathname(),
     })
+    onCloseCity()
     onClickCloseButton()
   }
 
@@ -148,21 +138,6 @@ const CitySelectorModal = ({
       LocalStorageKey.LastTimeSelectCity,
       new Date().toISOString(),
     )
-    sendAmplitudeData(
-      AmplitudeEventName.WEB_CITY_SELECTOR_POPUP_SUGGESTION_CLICK,
-      {
-        Page_Origination_URL: window.location.href.replace('https://www.', ''),
-        City: inputValue,
-      },
-    )
-    sendAmplitudeData(AmplitudeEventName.WEB_CITYSELECTOR_APPLY, {
-      Page_Origination_URL: window.location.href,
-      City: inputValue,
-    })
-    trackCitySelectorApply({
-      Page_Origination_URL: window.location.href,
-      City: inputValue,
-    })
     trackEventCountly(
       CountlyEventNames.WEB_CITY_SELECTOR_BANNER_FIND_CAR_CLICK,
       { CITY_LOCATION: temp.cityName },
@@ -366,7 +341,7 @@ const CitySelectorModal = ({
       closable={false}
       centered
       className="city-selector-custom-modal"
-      open={isOpen}
+      open={showCity || isOpen}
       footer={null}
       maskStyle={{
         background: 'rgba(19, 19, 27, 0.5)',

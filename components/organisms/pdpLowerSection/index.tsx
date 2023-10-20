@@ -32,6 +32,7 @@ type pdpLowerSectionProps = {
   variantFuelRatio: string | undefined
   isOTO?: boolean
   isShowAnnouncementBox?: boolean | null // for track annoucnement box every tab
+  onChangeTab: (value: any) => void
 }
 
 export const PdpLowerSection = ({
@@ -43,10 +44,12 @@ export const PdpLowerSection = ({
   variantFuelRatio,
   isOTO = false,
   isShowAnnouncementBox,
+  onChangeTab,
 }: pdpLowerSectionProps) => {
   const router = useRouter()
-  const lowerTab = router.query.slug as string
-  const path = lowerTab ? capitalizeFirstLetter(lowerTab[0]) : ''
+  const { slug } = router.query
+  const [upperTabSlug, lowerTabSlug] = Array.isArray(slug) ? slug : []
+  const path = lowerTabSlug ? capitalizeFirstLetter(lowerTabSlug) : ''
   const [selectedTabValue, setSelectedTabValue] = useState(
     path ||
       lowerSectionNavigationTab.filter((item) => item.label !== 'Kredit')[0]
@@ -101,28 +104,7 @@ export const PdpLowerSection = ({
     trackAnnouncementBoxView(value)
     setSelectedTabValue(value)
     const destinationElm = document.getElementById('pdp-lower-content')
-    const urlWithoutSlug = window.location.href
-      .replace('/ringkasan', '')
-      .replace('/spesifikasi', '')
-      .replace('/harga', '')
-      .replace('/kredit', '')
-    const lastIndexUrl = window.location.href.slice(-1)
-
-    if (lastIndexUrl === '/') {
-      window.history.pushState(
-        null,
-        '',
-        urlWithoutSlug + value.toLocaleLowerCase(),
-      )
-    } else {
-      window.history.pushState(
-        null,
-        '',
-        urlWithoutSlug +
-          '/' +
-          (value !== 'Ringkasan' ? value.toLocaleLowerCase() : ''),
-      )
-    }
+    onChangeTab(value)
 
     if (destinationElm) {
       destinationElm.scrollIntoView()
@@ -145,9 +127,10 @@ export const PdpLowerSection = ({
 
   const setTabFromDirectUrl = () => {
     const slug = router.query.slug
+    const [upperTabSlug, lowerTabSlug] = Array.isArray(slug) ? slug : []
 
-    if (slug) {
-      const path = capitalizeFirstLetter(slug[0])
+    if (lowerTabSlug) {
+      const path = capitalizeFirstLetter(lowerTabSlug)
       setSelectedTabValue(path)
     }
   }
@@ -167,7 +150,7 @@ export const PdpLowerSection = ({
           />
         )
       case 'Spesifikasi':
-        return <SpecificationTab />
+        return <SpecificationTab isOTO={isOTO} />
 
       case 'Harga':
         return (

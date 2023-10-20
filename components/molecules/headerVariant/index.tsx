@@ -1,5 +1,4 @@
 import { SearchInput } from 'components/atoms'
-import { trackSearchBarSuggestionClick } from 'helpers/amplitude/seva20Tracking'
 import { findAll } from 'highlight-words-core'
 import debounce from 'lodash.debounce'
 import { useRouter } from 'next/router'
@@ -187,11 +186,6 @@ export default function HeaderVariant({
       CAR_MODEL: modelValue,
       PAGE_DIRECTION_URL: window.location.origin + urlDestination,
     })
-    trackSearchBarSuggestionClick({
-      Page_Origination_URL: window.location.href,
-      Page_Direction_URL: window.location.origin + urlDestination,
-    })
-
     // use window location to reload page
     if (item.value.length > 0) {
       window.location.href = urlDestination
@@ -303,40 +297,42 @@ export default function HeaderVariant({
     return (
       <ul>
         {carData.map((car) => (
-          <div className={styles.styledCarContentName} key={car.name}>
-            <a
-              className={styles.styledCarName}
-              href={`${
-                isOTO ? `/adaSEVAdiOTO` : ``
-              }/mobil-baru${car.link.toLowerCase()}`}
-              onClick={() => onClickRecommedationList(car)}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '14px',
-                }}
+          <>
+            <div className={styles.styledCarContentName} key={car.name}>
+              <a
+                className={styles.styledCarName}
+                href={`${
+                  isOTO ? `/adaSEVAdiOTO` : ``
+                }/mobil-baru${car.link.toLowerCase()}`}
+                onClick={() => onClickRecommedationList(car)}
               >
-                <Image
-                  src={car.image}
-                  alt={car.name}
+                <div
                   style={{
-                    width: '70px',
-                    height: '50px',
-                    marginRight: '12px',
-                    objectFit: 'cover',
-                    objectPosition: 'center',
-                    alignItems: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '14px',
                   }}
-                  width={'70'}
-                  height={'50'}
-                />
-                <div className={styles.styledCarName}>{car.name}</div>
-              </div>
-              <Line width={'100%'} height={'1px'} background="#EBECEE" />
-            </a>
-          </div>
+                >
+                  <Image
+                    src={car.image}
+                    alt={car.name}
+                    style={{
+                      width: '70px',
+                      height: '50px',
+                      marginRight: '12px',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      alignItems: 'left',
+                    }}
+                    width={'70'}
+                    height={'50'}
+                  />
+                  <div className={styles.styledCarName}>{car.name}</div>
+                </div>
+              </a>
+            </div>
+            <Line width={'100%'} height={'1px'} background="#EBECEE" />
+          </>
         ))}
       </ul>
     )
@@ -417,8 +413,8 @@ export default function HeaderVariant({
                   <div className={styles.styledCarName}>
                     <a style={{ color: '#000' }}>{searchTerm.label}</a>
                   </div>
-                  <Line width={'100%'} height={'1px'} background="#EBECEE" />
                 </div>
+                <Line width={'100%'} height={'1px'} background="#EBECEE" />
               </React.Fragment>
             )
           }
@@ -466,36 +462,38 @@ export default function HeaderVariant({
               <div className={styles.styledDataResult}>
                 {suggestionsLists.map((car) => {
                   return (
-                    <div
-                      data-testid={
-                        elementId.Homepage.SearchBar.CarModelOption +
-                        car.label +
-                        searchInputValue
-                      }
-                      onClick={() => clickList(car)}
-                      key={car.value}
-                      className={`${styles.styledLink} ${
-                        suggestionsLists[0].label === SEARCH_NOT_FOUND_TEXT
-                          ? styles.disableClick
-                          : ''
-                      }`}
-                    >
-                      {car.label && (
-                        <div style={{ width: '100%' }}>
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: renderSearchOptionsItem(car.label),
-                            }}
-                            className={styles.styledCarName}
-                          />
-                          <Line
-                            width={'100%'}
-                            height={'1px'}
-                            background="#EBECEE"
-                          />
-                        </div>
-                      )}
-                    </div>
+                    <>
+                      <div
+                        data-testid={
+                          elementId.Homepage.SearchBar.CarModelOption +
+                          car.label +
+                          searchInputValue
+                        }
+                        onClick={() => clickList(car)}
+                        key={car.value}
+                        className={`${styles.styledLink} ${
+                          suggestionsLists[0].label === SEARCH_NOT_FOUND_TEXT
+                            ? styles.disableClick
+                            : ''
+                        }`}
+                      >
+                        {car.label && (
+                          <div style={{ width: '100%' }}>
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: renderSearchOptionsItem(car.label),
+                              }}
+                              className={styles.styledCarName}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <Line
+                        width={'100%'}
+                        height={'1px'}
+                        background="#EBECEE"
+                      />
+                    </>
                   )
                 })}
               </div>

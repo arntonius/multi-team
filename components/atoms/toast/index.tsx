@@ -1,9 +1,10 @@
 import React from 'react'
 import styles from 'styles/components/atoms/toast.module.scss'
-import { Modal } from 'antd'
 import { IconChecked, IconWarningCircle } from '../icon'
 import { colors } from 'utils/helpers/style/colors'
 import { PropsToast } from 'utils/types/props'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 export const Toast: React.FC<PropsToast> = ({
   text,

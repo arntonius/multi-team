@@ -8,8 +8,6 @@ import React, {
 import Webcam from 'react-webcam'
 import styled from 'styled-components'
 import elementId from 'helpers/elementIds'
-import { useAmplitudePageView } from 'utils/hooks/useAmplitudePageView'
-import { trackViewPreapprovalKTPUploadCamera } from 'helpers/amplitude/preApprovalEventTracking'
 import { getFrameSize, getImageBase64ByFile } from 'utils/handler/image'
 import { DocumentType, FrameType, ZIndex } from 'utils/enum'
 import { useRouter } from 'next/router'
@@ -44,7 +42,6 @@ const guideline = [
 ]
 
 export default function CameraKtp() {
-  useAmplitudePageView(trackViewPreapprovalKTPUploadCamera)
   const ratio = 4
   const {
     width: frameWidth,

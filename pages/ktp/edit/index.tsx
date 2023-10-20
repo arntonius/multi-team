@@ -29,7 +29,6 @@ import {
   Input,
   InputSelect,
   Skeleton,
-  Toast,
 } from 'components/atoms'
 import { ProgressBar } from 'components/atoms/progressBar'
 import InputPrefix from 'components/atoms/input/inputPrefix'
@@ -37,15 +36,15 @@ import { DatePicker } from 'components/atoms/inputDate'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { ToastV2 } from 'components/atoms/toastV2'
 import { ToastType } from 'utils/types/models'
-
-import { trackProfileSaveKtpChanges } from 'helpers/amplitude/seva20Tracking'
-import PopupError from 'components/organisms/popupError'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import Image from 'next/image'
 import { api } from 'services/api'
 import { checkNIKAvailable } from 'utils/handler/customer'
+import dynamic from 'next/dynamic'
+const PopupError = dynamic(() => import('components/organisms/popupError'))
+const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
 
 const LogoPrimary = '/revamp/icon/logo-primary.webp'
 
@@ -617,7 +616,6 @@ const KtpForm = () => {
                     setErrorMessage(lostConnectionMessage)
                     return
                   }
-                  trackProfileSaveKtpChanges()
                 }}
                 version={ButtonVersion.PrimaryDarkBlue}
                 size={ButtonSize.Big}

@@ -1061,6 +1061,10 @@ export interface UpdateProfileType {
   email: string | null
 }
 
+export interface CheckTemanSeva {
+  phoneNumber: string
+}
+
 export interface FinalLoan {
   selectedPromoFinal: PromoItemType[]
   selectedInsurance: any
@@ -1097,8 +1101,6 @@ export interface updateLeadFormOTO {
 
 export interface updateLeadFormCM {
   leadId: string
-  name: string
-  phone: string
   salesId: number
   spkDate: string
   spkNo: string

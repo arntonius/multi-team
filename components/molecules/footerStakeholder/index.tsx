@@ -1,13 +1,12 @@
-import { IconACC } from 'components/atoms/icon/ACC'
-import { IconLockFill } from 'components/atoms/icon/LockFill'
+import { IconLockFill } from 'components/atoms'
 import elementId from 'helpers/elementIds'
 import Image from 'next/image'
 import React from 'react'
 import styles from 'styles/components/organisms/landingIA.module.scss'
-
-const ISOIcon = '/revamp/icon/iso.webp'
-const AstraFinancialIcon = '/revamp/icon/Logo-Astra-Financial.webp'
-const TAFIcon = '/revamp/icon/Logo-TAF.png'
+import LogoACC from '/public/revamp/icon/logo-acc.webp'
+import ISOIcon from '/public/revamp/icon/iso.webp'
+import AstraFinancialIcon from '/public/revamp/icon/Logo-Astra-Financial.webp'
+import TAFIcon from '/public/revamp/icon/Logo-TAF.png'
 
 export const FooterStakeholder = () => {
   return (
@@ -24,7 +23,7 @@ export const FooterStakeholder = () => {
           alt="CBQA ISO 27001"
           datatest-id={elementId.Footer.LogoISO}
         />
-        <IconACC width={40} height={40} />
+        <Image alt="logo-acc" src={LogoACC} className={styles.logoACC} />
         <Image src={TAFIcon} width={40} height={40} alt="TAF" />
         <Image
           src={AstraFinancialIcon}

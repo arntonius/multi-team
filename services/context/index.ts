@@ -32,6 +32,10 @@ import {
   FinancialQueryContextType,
 } from './finnancialQueryContext'
 import { GlobalContextProvider } from './globalContextProvider'
+import {
+  AnnouncementBoxContextType,
+  AnnouncementBoxProvider,
+} from './announcementBoxContext'
 
 import { UsedCarContext, UsedCarProvider } from './usedCarContext'
 
@@ -55,6 +59,7 @@ export {
   FinancialQueryContext,
   FinancialQueryContextProvider,
   GlobalContextProvider,
+  AnnouncementBoxProvider,
 }
 
 export type {
@@ -66,4 +71,5 @@ export type {
   FunnelQueryContextType,
   FunnelQueryUsedCarContextType,
   FinancialQueryContextType,
+  AnnouncementBoxContextType,
 }

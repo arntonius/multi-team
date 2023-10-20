@@ -5,8 +5,6 @@ import { Pagination } from 'swiper'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import { differentDateStatus } from 'utils/handler/date'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import Image from 'next/image'
 import { TestimonialData } from 'utils/types/props'
 import { CardShadow } from 'components/atoms'
@@ -45,12 +43,6 @@ const TestimonyWidget = () => {
           className={styles.wrapper}
           onSlideChange={({ activeIndex }) => {
             setIndexCard(activeIndex + 1)
-            sendAmplitudeData(
-              AmplitudeEventName.WEB_LP_TESTIMONY_NEXT_PREV_CLICK,
-              {
-                Numbers_of_Card_Viewed: String(activeIndex + 1),
-              },
-            )
           }}
         >
           {testimony.map((item, index) => (
@@ -68,9 +60,6 @@ const TestimonyWidget = () => {
                 role="button"
                 onClick={() => {
                   setOpenTestimony(item)
-                  sendAmplitudeData(AmplitudeEventName.WEB_LP_TESTIMONY_CLICK, {
-                    Order: String(indexCard),
-                  })
                   trackEventCountly(
                     CountlyEventNames.WEB_HOMEPAGE_TESTIMONY_CLICK,
                     {
@@ -84,7 +73,8 @@ const TestimonyWidget = () => {
                   {item.age ? `, ${item.age}  Th` : ''}
                 </h3>
                 <span className={styles.timeCity}>
-                  {differentDateStatus(new Date(item.purchaseDate))}
+                  {differentDateStatus(new Date(item.purchaseDate))},{' '}
+                  {item?.cityName}
                 </span>
                 <span
                   ref={descRef}
@@ -99,9 +89,6 @@ const TestimonyWidget = () => {
         open={openTestimony !== null}
         testimony={openTestimony}
         onCancel={() => {
-          sendAmplitudeData(AmplitudeEventName.WEB_LP_TESTIMONY_POP_UP_CLOSE, {
-            Order: String(indexCard),
-          })
           setOpenTestimony(null)
         }}
       />

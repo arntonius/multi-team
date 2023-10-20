@@ -13,8 +13,6 @@ import { Button } from 'components/atoms'
 import { IconChevronRight } from 'components/atoms/icon'
 import { colors } from 'utils/helpers/style/colors'
 import { CarRecommendation } from 'utils/types/props'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import elementId from 'utils/helpers/trackerId'
 import LPCRSkeleton from '../lpSkeleton/carRecommendation'
 import brandList from 'utils/config'
@@ -36,6 +34,7 @@ import { AdaOTOdiSEVALeadsForm } from '../leadsForm/adaOTOdiSEVA/popUp'
 import { it } from 'node:test'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { useCar } from 'services/context/carContext'
 
 type LPCarRecommendationsProps = {
   dataReccomendation: any
@@ -46,12 +45,11 @@ type LPCarRecommendationsProps = {
 const LpCarRecommendations = ({
   dataReccomendation,
   onClickOpenCityModal,
-  isOTO,
+  isOTO = false,
 }: LPCarRecommendationsProps) => {
   const router = useRouter()
   const swiperRef = useRef<SwiperType>()
-  const { recommendation } = useContext(CarContext) as CarContextType
-
+  const { recommendation } = useCar()
   const [recommendationList, setRecommendationList] =
     useState<CarRecommendation[]>(dataReccomendation)
   const [city] = useLocalStorage(LocalStorageKey.CityOtr, null)
@@ -127,16 +125,15 @@ const LpCarRecommendations = ({
   const handleClickLabel = () => {
     setOpenPromo(true)
   }
-
   const handleShowRecommendation = () => {
     if (!selectedBrand) {
-      const mainRecommendation: any = dataReccomendation?.sort(
+      const mainRecommendation: any = recommendation?.sort(
         (a: any, b: any) => a.lowestAssetPrice - b.lowestAssetPrice,
       )
 
       setRecommendationList(mainRecommendation)
     } else {
-      const filterCar: any = dataReccomendation?.filter(
+      const filterCar: any = recommendation?.filter(
         (x: any) => x.brand === selectedBrand,
       )
       if (filterCar.length > 0) {
@@ -157,23 +154,14 @@ const LpCarRecommendations = ({
   }
 
   const lihatSemuaMobil = () => {
-    sendAmplitudeData(
-      AmplitudeEventName.WEB_LP_BRANDRECOMMENDATION_CAR_SEE_ALL_CLICK,
-      { Car_Brand: selectedBrand || 'Semua' },
-    )
     trackEventCountly(CountlyEventNames.WEB_CAR_RECOMMENDATION_ALL_CLICK, {
       CAR_BRAND: selectedBrand || 'Semua',
     })
-    if (!selectedBrand)
+    if (!selectedBrand) {
       return isOTO
-        ? navigateToPLP(
-            PreviousButton.undefined,
-            '',
-            true,
-            false,
-            urls.internalUrls.duplicatedCarResultsUrl,
-          )
+        ? router.push(urls.internalUrls.duplicatedCarResultsUrl)
         : navigateToPLP(PreviousButton.undefined)
+    }
 
     const path = router.asPath.split('/')[1]
     if (path === 'adaSEVAdiOTO') {
@@ -197,7 +185,7 @@ const LpCarRecommendations = ({
     return () => {
       setRecommendationList([])
     }
-  }, [selectedBrand])
+  }, [selectedBrand, recommendation])
 
   if (load) return <LPCRSkeleton />
 
@@ -209,19 +197,15 @@ const LpCarRecommendations = ({
         </h2>
         <NavigationTabV2
           itemList={brandList}
-          onPage={'PDP'}
+          onPage={isOTO ? 'OTO' : 'PDP'}
           onSelectTab={(value: any) => {
-            sendAmplitudeData(
-              AmplitudeEventName.WEB_LP_BRANDRECOMMENDATION_LOGO_CLICK,
-              { Car_Brand: value || 'Semua' },
-            )
             setSelectedBrand(value)
             swiperRef.current?.slideTo(0)
             trackCountlyClickTab(value)
           }}
           isShowAnnouncementBox={false}
           className={stylep.tab}
-          autoScroll={false}
+          autoScroll={isOTO}
         />
         <div>
           {recommendationList.length === 0 ? (
@@ -257,13 +241,6 @@ const LpCarRecommendations = ({
                     <div
                       className={styles.alternativeCarLink}
                       onClick={() => {
-                        sendAmplitudeData(
-                          AmplitudeEventName.WEB_LP_BRANDRECOMMENDATION_CAR_CLICK,
-                          {
-                            Car_Brand: selectedBrand || 'Semua',
-                            Car_Model: item.model,
-                          },
-                        )
                         handleClickDetailCar(item)
                       }}
                       data-testid={elementId.PLP.Button.LihatSNK}
@@ -274,13 +251,6 @@ const LpCarRecommendations = ({
                       version={ButtonVersion.PrimaryDarkBlue}
                       size={ButtonSize.Big}
                       onClick={() => {
-                        sendAmplitudeData(
-                          AmplitudeEventName.WEB_LP_BRANDRECOMMENDATION_CTA_HITUNG_KEMAMPUAN_CLICK,
-                          {
-                            Car_Brand: selectedBrand || 'Semua',
-                            Car_Model: item.model,
-                          },
-                        )
                         isOTO
                           ? setIsModalOpened(true)
                           : handleCalculateAbility(item, index)
@@ -311,7 +281,9 @@ const LpCarRecommendations = ({
             </Swiper>
           )}
         </div>
-        {isModalOpenend && <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} />}
+        {isModalOpenend && (
+          <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} onPage="LP" />
+        )}
       </div>
       <PopupPromo open={openPromo} onCancel={() => setOpenPromo(false)} />
     </>

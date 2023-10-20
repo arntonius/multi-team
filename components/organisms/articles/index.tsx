@@ -1,13 +1,11 @@
-import {
-  trackLCAllArticleClick,
-  trackLCArticleClick,
-} from 'helpers/amplitude/seva20Tracking'
-import React from 'react'
+import React, { useRef } from 'react'
 import PrimaryCard from 'components/molecules/card/primaryCard'
 import styles from 'styles/components/organisms/articles.module.scss'
 import { Article } from 'utils/types'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Swiper as SwiperType } from 'swiper'
 
 type TArticlesProps = {
   articles: Article[]
@@ -31,7 +29,7 @@ export default function Articles({
   selectedLoanRank,
 }: TArticlesProps) {
   const [showAllArticlesUrl, setShowAllArticlesUrl] = React.useState('')
-
+  const swiperRef = useRef<SwiperType>()
   const fetchBaseConfig = async () => {
     const response = await fetch('https://api.sslpots.com/api/base-conf')
     const responseData = await response.json()
@@ -43,13 +41,6 @@ export default function Articles({
   }, [])
 
   const handleClickArticle = (article: any) => {
-    trackLCArticleClick({
-      Page_Origination: window.location.href,
-      Car_Brand: carBrand,
-      Car_Model: carModel,
-      City: cityName,
-      Article: article.url,
-    })
     trackEventCountly(CountlyEventNames.WEB_ARTICLE_CLICK, {
       PAGE_ORIGINATION: 'PDP - Kredit',
       TENOR_OPTION: selectedTenure,
@@ -67,13 +58,6 @@ export default function Articles({
   }
 
   const handleClickAllArticle = () => {
-    trackLCAllArticleClick({
-      Page_Origination: window.location.href,
-      Car_Brand: carBrand,
-      Car_Model: carModel,
-      City: cityName,
-    })
-
     trackEventCountly(CountlyEventNames.WEB_ARTICLE_ALL_CLICK, {
       PAGE_ORIGINATION: 'PDP - Kredit',
       TENOR_OPTION: selectedTenure,
@@ -100,19 +84,29 @@ export default function Articles({
         </div>
       </div>
 
-      <div className={styles.articlesContainer}>
-        {articles?.map((article, index: number) => (
-          <PrimaryCard
-            key={article.title}
-            date={new Date(article.publish_date)}
-            image={article.featured_image}
-            title={article.title}
-            url={article.url}
-            label={article.category}
-            articleOrder={index + 1}
-            handleClick={handleClickArticle}
-          />
-        ))}
+      <div>
+        <Swiper
+          slidesPerView={'auto'}
+          spaceBetween={16}
+          className={styles.articlesContainer}
+          onBeforeInit={(swiper) => (swiperRef.current = swiper)}
+          style={{ paddingRight: 16, overflowX: 'hidden' }}
+        >
+          {articles?.map((article, index: number) => (
+            <SwiperSlide key={index} style={{ width: 258 }}>
+              <PrimaryCard
+                key={article.title}
+                date={new Date(article.publish_date)}
+                image={article.featured_image}
+                title={article.title}
+                url={article.url}
+                label={article.category}
+                articleOrder={index + 1}
+                handleClick={handleClickArticle}
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </div>
   )

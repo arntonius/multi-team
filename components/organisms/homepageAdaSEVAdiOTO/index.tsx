@@ -3,8 +3,6 @@ import { useInView } from 'react-intersection-observer'
 import CSAButton from 'components/atoms/floatButton/CSAButton'
 import { setTrackEventMoEngageWithoutValue } from 'services/moengage'
 import { EventName } from 'services/moengage/type'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { LeadsActionParam, PageOriginationName } from 'utils/types/tracker'
 import { AlephArticleCategoryType, Article, CityOtrOption } from 'utils/types'
 import { COMData, COMDataTracking } from 'utils/types/models'
@@ -45,9 +43,6 @@ import logoSEVA from '/public/revamp/images/logo/seva-header.png'
 import supergraphic from '/public/revamp/illustration/supergraphic-crop.webp'
 
 const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
-  useEffect(() => {
-    sendAmplitudeData(AmplitudeEventName.WEB_LANDING_PAGE_VIEW, {})
-  }, [])
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
     HomePageDataLocalContext,
   )
@@ -212,11 +207,13 @@ const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
     getAnnouncementBox()
   }, [])
 
+  const currentYear = new Date().getFullYear()
+
   return (
     <>
       <Seo
-        title="SEVA - Beli Mobil Terbaru Dengan Cicilan Kredit Terbaik"
-        description="Beli mobil terbaru dari Toyota, Daihatsu, BMW dengan Instant Approval*. Proses Aman & Mudah✅ Terintegrasi dengan ACC & TAF✅ SEVA member of ASTRA"
+        title={`Temukan mobil baru Astra ${currentYear} jaminan kualitas dari SEVA di OTO.com`}
+        description={`Beli mobil Toyota, Daihatsu, BMW dan mobil Astra lainnya ${currentYear} secara kredit dengan Instant Approval* dari SEVA di OTO.com, proses aman & mudah`}
         image={defaultSeoImage}
       />
 
@@ -236,6 +233,7 @@ const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
             setShowAnnouncementBox={setShowAnnouncementBox}
             isShowAnnouncementBox={showAnnouncementBox}
             isOTO={true}
+            isRegular={false}
           />
           <div className={styles.banner}>
             <Image

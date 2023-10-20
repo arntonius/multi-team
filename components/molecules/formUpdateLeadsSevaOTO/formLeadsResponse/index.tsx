@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styles from 'styles/components/molecules/formUpdateLeadsSevaOTO/formLeadsResponse.module.scss'
-import { Space } from 'antd'
+import Space from 'antd/lib/space'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import elementId from 'helpers/elementIds'
 

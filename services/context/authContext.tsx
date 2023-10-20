@@ -1,5 +1,4 @@
 import { createContext, useEffect, useState } from 'react'
-import { setAmplitudeUserId } from '../amplitude'
 import { api } from '../api'
 import { User, Token, Filter } from 'utils/types'
 import { encryptValue } from 'utils/encryptionUtils'
@@ -40,7 +39,6 @@ export const AuthProvider = ({ children }: any) => {
       saveAuthData(dataUser)
       const encryptedData = encryptValue(JSON.stringify(dataUser))
       saveLocalStorage(LocalStorageKey.sevaCust, encryptedData)
-      setAmplitudeUserId(dataUser.id)
     } catch (error) {
       throw error
     }

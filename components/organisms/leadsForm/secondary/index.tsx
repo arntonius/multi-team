@@ -16,13 +16,6 @@ import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import elementId from 'helpers/elementIds'
 import { OTP } from '../../otp'
-import {
-  LeadsActionParam,
-  PageOriginationName,
-  trackCTAWidgetDirection,
-  trackLeadsFormAction,
-} from 'helpers/amplitude/seva20Tracking'
-import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import { useSessionStorage } from 'utils/hooks/useSessionStorage/useSessionStorage'
 import { variantListUrl } from 'utils/helpers/routes'
 import { getConvertFilterIncome } from 'utils/filterUtils'
@@ -51,6 +44,7 @@ import {
 import Image from 'next/image'
 import { createUnverifiedLeadNew } from 'utils/handler/lead'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { LeadsActionParam, PageOriginationName } from 'utils/types/props'
 
 const SupergraphicLeft = '/revamp/illustration/supergraphic-small.webp'
 const SupergraphicRight = '/revamp/illustration/supergraphic-large.webp'
@@ -59,9 +53,12 @@ interface PropsLeadsForm {
   otpStatus?: any
   onVerify?: (e: any) => void
   onFailed?: (e: any) => void
+  isOTO?: boolean
 }
 
-export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
+export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({
+  isOTO = false,
+}) => {
   const platform = 'web'
   const toastSuccessInfo = 'Agen kami akan segera menghubungimu dalam 1x24 jam.'
   const [name, setName] = useState<string>('')
@@ -202,7 +199,6 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
   }
   const sendOtpCode = async () => {
     setIsLoading(true)
-    trackLeadsFormAction(TrackingEventName.WEB_LEADS_FORM_SUBMIT, trackLeads())
     const dataLeads = checkDataFlagLeads()
     if (dataLeads) {
       if (phone === dataLeads.phone && name === dataLeads.name) {
@@ -262,22 +258,20 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
       platform,
       name,
       phoneNumber: phone,
-      origination: UnverifiedLeadSubCategory.SEVA_NEW_CAR_PDP_LEADS_FORM,
+      origination: isOTO
+        ? UnverifiedLeadSubCategory.OTO_NEW_CAR_PDP_LEADS_FORM
+        : UnverifiedLeadSubCategory.SEVA_NEW_CAR_PDP_LEADS_FORM,
       ...(cityOtr?.id && { cityId: cityOtr.id }),
       dp: getDp(),
       tenure: getTenure(),
       monthlyInstallment: sortedCarModelVariant[0].monthlyInstallment,
       carBrand: carModelDetails?.brand,
       carModelText: carModelDetails?.model,
+      carVariantText: carVariantDetails?.variantDetail.name,
     }
     try {
       await createUnverifiedLeadNew(data)
       setModalOpened('success-toast')
-      trackLeadsFormAction(
-        TrackingEventName.WEB_LEADS_FORM_SUCCESS,
-        trackLeads(),
-      )
-
       trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
         PAGE_ORIGINATION: 'PDP - ' + valueMenuTabCategory(),
         LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
@@ -355,10 +349,6 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
       urlDirection = router.basePath + urlDirection
     }
 
-    trackCTAWidgetDirection({
-      Page_Direction_URL:
-        'https://' + window.location.host + urlDirection.replace('?', ''),
-    })
     trackClickCtaCountly()
     saveDataForCountlyTrackerPageViewLC(PreviousButton.LeadsForm)
     window.location.href = urlDirection
@@ -378,7 +368,7 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
   }
   return (
     <div>
-      <div className={styles.wrapper}>
+      <div className={isOTO ? styles.wrapperOTO : styles.wrapper}>
         <div className={styles.background}>
           <div className={styles.wrapperSupergraphicLeft}>
             <Image
@@ -451,15 +441,19 @@ export const LeadsFormSecondary: React.FC<PropsLeadsForm> = ({}: any) => {
                 'Kirim'
               )}
             </Button>
-            <p className={styles.textSuggestion}>atau</p>
-            <Button
-              version={ButtonVersion.SecondaryDark}
-              size={ButtonSize.Big}
-              onClick={onClickCalculateCta}
-              data-testid={elementId.PDP.Button.HitungKemampuan}
-            >
-              Hitung Kemampuan
-            </Button>
+            {isOTO === false && (
+              <div>
+                <p className={styles.textSuggestion}>atau</p>
+                <Button
+                  version={ButtonVersion.SecondaryDark}
+                  size={ButtonSize.Big}
+                  onClick={onClickCalculateCta}
+                  data-testid={elementId.PDP.Button.HitungKemampuan}
+                >
+                  Hitung Kemampuan
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

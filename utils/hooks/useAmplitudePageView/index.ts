@@ -8,11 +8,6 @@ type CarResultQuery = {
 type CarResultParameters = {
   carResultParameters: CarResultQuery
 }
-export const useAmplitudePageView = (eventTrackingFunction: () => void) => {
-  useEffect(() => {
-    eventTrackingFunction()
-  }, [])
-}
 
 export const useCarResultParameter = (): CarResultParameters => {
   const { funnelForm } = useFunnelFormData()

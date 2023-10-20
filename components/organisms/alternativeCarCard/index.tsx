@@ -11,10 +11,6 @@ import { Button, CardShadow } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { LabelPromo } from 'components/molecules'
 import styles from '../../../styles/components/organisms/alternativeCarCard.module.scss'
-import {
-  trackCarBrandRecomItemClick,
-  trackLCCarRecommendationClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { Location } from 'utils/types'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
@@ -140,31 +136,8 @@ export const AlternativeCarCard = ({
           : 'Null',
     })
   }
-  const trackCarRecommendation = () => {
-    if (location.pathname.includes(loanCalculatorDefaultUrl)) {
-      const lowestInstallment = getLowestInstallment(recommendation.variants)
-      const formatLowestInstallment = replacePriceSeparatorByLocalization(
-        lowestInstallment,
-        LanguageCode.id,
-      )
-      trackLCCarRecommendationClick({
-        Car_Brand: recommendation.brand,
-        Car_Model: recommendation.model,
-        City: cityOtr?.cityName,
-        Monthly_Installment: `Rp${formatLowestInstallment}`,
-        Page_Origination: window.location.href,
-      })
-    } else {
-      trackCarBrandRecomItemClick({
-        Car_Brand: recommendation.brand,
-        Car_Model: recommendation.model,
-      })
-    }
-  }
 
   const navigateToPDP = () => {
-    trackCarRecommendation()
-
     trackCountlyCarRecommendation()
     const dataCarTemp = {
       ...dataCar,
@@ -239,9 +212,9 @@ export const AlternativeCarCard = ({
           onClick={navigateToPDP}
           data-testid={elementId.CarRecommendation.BrandModel}
         >
-          <h3 className={styles.brandModelText}>
+          <h4 className={styles.brandModelText}>
             {recommendation.brand} {recommendation.model}
-          </h3>
+          </h4>
           <div
             className={styles.infoWrapper}
             data-testid={elementId.CarRecommendation.NominalCicilan}

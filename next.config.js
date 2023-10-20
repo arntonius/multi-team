@@ -1,4 +1,8 @@
 const path = require('path')
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
 const nextConfig = {
   basePath: '',
   poweredByHeader: false,
@@ -7,7 +11,7 @@ const nextConfig = {
   sassOptions: {
     includePaths: [path.join(__dirname, 'styles')],
   },
-  // experimental: { optimizeCss: true },
+  experimental: { scrollRestoration: true },
   compiler: {
     styledComponents: true,
   },
@@ -67,6 +71,19 @@ const nextConfig = {
       },
     ]
   },
+  webpack(config, context) {
+    const { isServer, dev } = context
+    if (!isServer && !dev) {
+      config.optimization.splitChunks.cacheGroups.asyncChunks = {
+        enforce: true,
+        type: 'css/mini-extract',
+        chunks: 'async',
+      }
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig
+// module.exports = withBundleAnalyzer({})
+

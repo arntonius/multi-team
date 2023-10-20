@@ -2,7 +2,6 @@ import React, { HTMLAttributes, useEffect, useState } from 'react'
 import { Button, CardShadow, IconInfo, Overlay } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { LabelMudah, LabelPromo, LabelSulit } from 'components/molecules'
-import { trackPLPCarClick } from 'helpers/amplitude/seva20Tracking'
 import elementId from 'helpers/elementIds'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -190,7 +189,7 @@ export const UsedCarDetailCard = ({
   //         ? 'Sulit disetujui'
   //         : 'Null',
   //   }
-
+  
   //   saveSessionStorage(
   //     SessionStorageKey.PreviousCarDataBeforeLogin,
   //     JSON.stringify(dataCarTemp),
@@ -216,7 +215,7 @@ export const UsedCarDetailCard = ({
   //     PELUANG_KREDIT_BADGE:
   //       peluangKredit === 'Null' ? peluangKredit : peluangKredit + ' disetujui',
   //   }
-
+  
   //   setLoanRankPLP(true)
   //   setTimeout(() => {
   //     if (detailClick) {

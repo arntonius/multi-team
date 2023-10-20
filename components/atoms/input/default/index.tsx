@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes } from 'react'
+import React from 'react'
 import styles from 'styles/components/atoms/input.module.scss'
 import clsx from 'clsx'
 import { PropsInput } from 'utils/types/props'
@@ -33,11 +33,16 @@ const Input = ({
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className={clsx(styles.input, isError && styles.error, className)}
+        className={clsx({
+          [styles.input]: true,
+          [styles.error]: isError,
+          ['shake-animation-X']: isError,
+          ...(className && [className]),
+        })}
         placeholder={placeholder}
         {...props}
       />
-      {isError && <p className={styles.errorText}>{message}</p>}
+      {isError && message && <p className={styles.errorText}>{message}</p>}
     </div>
   )
 }

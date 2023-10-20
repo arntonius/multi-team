@@ -1,7 +1,5 @@
 import React from 'react'
 import styles from 'styles/components/atoms/menuItem.module.scss'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { MobileWebTopMenuType } from 'utils/types/props'
 import { IconChevronDown } from '../icon'
 import { trackEventCountly } from 'helpers/countly/countly'
@@ -31,13 +29,9 @@ const MenuItem: React.FC<MenuItemProps> = ({
         false,
         isOTO ? OTONewCarUrl : menuUrl,
       )
+    } else {
+      window.location.href = menuUrl
     }
-
-    sendAmplitudeData(AmplitudeEventName.WEB_BURGER_MENU_CLICK, {
-      Page_Origination_URL: window.location.href,
-      Menu: menuName,
-    })
-    window.location.href = menuUrl
   }
 
   return (

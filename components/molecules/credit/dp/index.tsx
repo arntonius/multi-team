@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Col, Input, Row, Slider } from 'antd'
+import Col from 'antd/lib/col'
+import Row from 'antd/lib/row'
+import Input from 'antd/lib/input'
+import Slider from 'antd/lib/slider'
 import styles from 'styles/components/molecules/dp/dpform.module.scss'
 import { dpRateCollectionNewCalculator } from 'utils/helpers/const'
 import {
@@ -249,7 +252,11 @@ const DpForm: React.FC<DpFormProps> = ({
         <Col span={18}>
           <Input
             type="tel"
-            className={styles.input}
+            className={clsx({
+              [styles.input]: true,
+              [styles.error]:
+                isErrorEmptyField || isDpTooLow || isDpExceedLimit,
+            })}
             value={formattedValue}
             onChange={handleValueChange}
             onBlur={handleValueBlur}

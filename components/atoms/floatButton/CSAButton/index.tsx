@@ -1,18 +1,34 @@
 import React from 'react'
-import { FloatButtonProps } from 'antd'
+import FloatButton from 'antd/lib/float-button'
 import { IconCSA } from 'components/atoms/icon'
-import dynamic from 'next/dynamic'
+import {
+  FloatButtonBadgeProps,
+  FloatButtonShape,
+  FloatButtonType,
+} from 'antd/lib/float-button/interface'
+import { TooltipProps } from 'antd/lib/tooltip'
+
+export interface FloatButtonProps {
+  prefixCls?: string
+  className?: string
+  rootClassName?: string
+  style?: React.CSSProperties
+  icon?: React.ReactNode
+  description?: React.ReactNode
+  type?: FloatButtonType
+  shape?: FloatButtonShape
+  tooltip?: TooltipProps['title']
+  href?: string
+  target?: React.HTMLAttributeAnchorTarget
+  badge?: FloatButtonBadgeProps
+  onClick?: React.MouseEventHandler<HTMLElement>
+  ['aria-label']?: React.HtmlHTMLAttributes<HTMLButtonElement>['aria-label']
+}
 
 type CSAButtonProps = Omit<FloatButtonProps, 'icon'> & {
   additionalstyle?: string
 }
 
-const FloatButton = dynamic(
-  () => import('antd').then((mod) => mod.FloatButton),
-  {
-    ssr: false,
-  },
-)
 const CSAButton = (props: CSAButtonProps) => {
   return (
     <FloatButton
