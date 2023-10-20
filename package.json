@@ -8,13 +8,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export": "next build && next export"
+    "export": "next build && next export",
+    "analyze": "ANALYZE=true next build"
   },
   "resolutions": {
     "styled-components": "^5"
   },
   "dependencies": {
     "@georgedrpg/pannellum-react-next": "^1.2.5",
+    "@next/bundle-analyzer": "^13.5.4",
     "@next/font": "^13.1.1",
     "@types/crypto-js": "^4.1.1",
     "@types/node": "18.11.18",
@@ -22,7 +24,6 @@
     "@types/react-dom": "18.0.10",
     "@types/react-gtm-module": "^2.0.1",
     "@types/styled-components": "^5.1.9",
-    "amplitude-js": "^8.21.4",
     "antd": "^5.6.3",
     "antd-mobile": "^5.32.0",
     "axios": "0.21.1",
@@ -35,7 +36,6 @@
     "eslint": "8.31.0",
     "eslint-config-next": "13.1.1",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "firebase": "^8.6.2",
     "formik": "^2.4.3",
     "fuse.js": "^6.6.2",
     "highlight-words-core": "^1.2.2",

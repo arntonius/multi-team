@@ -12,7 +12,6 @@ import { InferGetServerSidePropsType } from 'next'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import { useUtils } from 'services/context/utilsContext'
 import { getToken } from 'utils/handler/auth'
-import { useMediaQuery } from 'react-responsive'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { LanguageCode } from 'utils/enum'
@@ -27,7 +26,6 @@ import { getCity, saveCity } from 'utils/hooks/useGetCity'
 import { useCar } from 'services/context/carContext'
 import { capitalizeFirstLetter } from 'utils/stringUtils'
 import { lowerSectionNavigationTab } from 'config/carVariantList.config'
-import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import Script from 'next/script'
 import { mergeModelDetailsWithLoanRecommendations } from 'utils/handler/carRecommendation'
 import { formatShortPrice } from 'components/organisms/tabContent/lower/summary'
@@ -90,8 +88,6 @@ export default function index({
   const [upperTabSlug, lowerTabSlug, citySlug] = slug?.length
     ? (slug as Array<string>)
     : []
-  const [isMobile, setIsMobile] = useState(useIsMobileSSr())
-  const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
   const { carModelDetails, recommendation } = useCar()
   const path = lowerTabSlug ? capitalizeFirstLetter(lowerTabSlug) : ''
   const [selectedTabValue, setSelectedTabValue] = useState(
@@ -121,10 +117,6 @@ export default function index({
     getAnnouncementBox()
     checkCitySlug(citySlug, dataCities, setCurrentCity)
   }, [])
-
-  useEffect(() => {
-    setIsMobile(isClientMobile)
-  }, [isClientMobile])
 
   const getAnnouncementBox = async () => {
     try {
@@ -255,7 +247,6 @@ export async function getServerSideProps(context: any) {
         notFound: true,
       }
     }
-
     const [
       carRecommendationsRes,
       metaTagDataRes,

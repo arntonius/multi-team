@@ -1,9 +1,8 @@
-import React, { ReactNode, useState } from 'react'
+import React, { useState } from 'react'
 import { IconInfo, Label } from 'components/atoms'
 import styles from 'styles/components/molecules/labelTooltipSevaOTO.module.scss'
 import TooltipSevaOTO from './Tooltip'
-import { Tooltip } from 'antd'
-import TooltipContentQualifacation from 'components/molecules/tooltipContent'
+import dynamic from 'next/dynamic'
 
 interface Props {
   label: string
@@ -17,6 +16,8 @@ interface Props {
   onOpenTooltip?: () => void
   onClick?: () => void
 }
+
+const Tooltip = dynamic(() => import('antd/lib/tooltip'), { ssr: false })
 
 export const LabelTooltipSevaOTO: React.FC<Props> = ({
   label,

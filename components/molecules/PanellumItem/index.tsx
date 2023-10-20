@@ -1,4 +1,4 @@
-import { Pannellum } from '@georgedrpg/pannellum-react-next'
+import Pannellum from '@georgedrpg/pannellum-react-next/es/elements/Pannellum'
 import '@georgedrpg/pannellum-react-next/es/css/pannellum.css'
 import '@georgedrpg/pannellum-react-next/es/css/style-textInfo.css'
 import '@georgedrpg/pannellum-react-next/es/css/video-js.css'

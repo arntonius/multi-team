@@ -3,12 +3,9 @@ import { useQuery } from '../useQuery'
 import { QueryKeys, UTMTags } from 'utils/types/models'
 import { useLocalStorage } from '../useLocalStorage'
 import { LocalStorageKey } from 'utils/enum'
-import {
-  UTMProps,
-  setUtmTagsAsUserProperties,
-} from 'helpers/amplitude/trackingUserProperties'
 import { getLocalStorage, saveLocalStorage } from 'utils/handler/localStorage'
 import { isEmptyObject } from 'utils/objectUtils'
+import { UTMProps } from 'utils/types/props'
 
 export type UtmTagsMap = { [key in UTMTags]: string | null }
 
@@ -80,7 +77,6 @@ export const useAddUtmTagsToApiCall = () => {
       (!isEmptyUtmTagsInLocalStorage && !isEmptyUtmTagsFromQuery) ||
       isUtmExpired()
     ) {
-      setUtmTagsAsUserProperties(localUtmTagsMap)
       setUtmTagsMap(localUtmTagsMap)
       saveLocalStorage(
         LocalStorageKey.LastTimeUpdateUtm,

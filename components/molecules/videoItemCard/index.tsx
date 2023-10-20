@@ -4,10 +4,8 @@ import { CityOtrOption, VideoDataType } from 'utils/types/utils'
 import { IconPlay } from 'components/atoms'
 import { useUtils } from 'services/context/utilsContext'
 import { articleDateFormat } from 'utils/handler/date'
-import Youtube, { YouTubeEvent } from 'react-youtube'
+// import Youtube, { YouTubeEvent } from 'react-youtube'
 import elementId from 'helpers/elementIds'
-import { trackPDPGalleryVideo } from 'helpers/amplitude/seva20Tracking'
-import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { LocalStorageKey } from 'utils/enum'
 import { useCar } from 'services/context/carContext'
@@ -44,9 +42,9 @@ export const VideoItemCard = ({ data }: Props) => {
     setShowVideo(true)
   }
 
-  const onReadyYoutubeHandler = (event: YouTubeEvent<any>) => {
-    event?.target.playVideo()
-  }
+  // const onReadyYoutubeHandler = (event: YouTubeEvent<any>) => {
+  //   event?.target.playVideo()
+  // }
 
   const onEndYoutubeHandler = () => {
     setShowVideo(false)
@@ -79,7 +77,6 @@ export const VideoItemCard = ({ data }: Props) => {
       City: cityOtr?.cityName || 'Null',
       Page_Origination_URL: originationUrl,
     }
-    trackPDPGalleryVideo(TrackingEventName.WEB_PDP_PLAY_VIDEO, trackProperties)
     trackCountlyOnPlay()
   }
 
@@ -89,15 +86,16 @@ export const VideoItemCard = ({ data }: Props) => {
       data-testid={elementId.PDP.RingkasanTab.VideoSection.Card}
     >
       {showVideo ? (
-        <Youtube
-          videoId={data.videoId}
-          className={styles.iframeYoutube}
-          iframeClassName={styles.iframeYoutube}
-          title={data.title}
-          onReady={onReadyYoutubeHandler}
-          onEnd={onEndYoutubeHandler}
-          onPlay={onPlayYoutubeHandler}
-        />
+        // <Youtube
+        //   videoId={data.videoId}
+        //   className={styles.iframeYoutube}
+        //   iframeClassName={styles.iframeYoutube}
+        //   title={data.title}
+        //   onReady={onReadyYoutubeHandler}
+        //   onEnd={onEndYoutubeHandler}
+        //   onPlay={onPlayYoutubeHandler}
+        // />
+        <></>
       ) : (
         <div
           className={styles.thumbnailWrapper}

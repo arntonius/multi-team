@@ -3,8 +3,6 @@ import { CityOtrOption, VideoDataType } from 'utils/types/utils'
 import styles from 'styles/components/organisms/videoTab.module.scss'
 import Youtube from 'react-youtube'
 import elementId from 'helpers/elementIds'
-import { trackPDPGalleryVideo } from 'helpers/amplitude/seva20Tracking'
-import { TrackingEventName } from 'helpers/amplitude/eventTypes'
 import { LocalStorageKey } from 'utils/enum'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { useCar } from 'services/context/carContext'
@@ -35,19 +33,6 @@ export const VideoTab = ({ data, isShowAnnouncementBox }: Props) => {
     !!filterStorage?.monthlyIncome &&
     !!filterStorage?.tenure
 
-  const trackAmplitudeOnPlay = () => {
-    if (!carModelDetails) return
-
-    const originationUrl = window.location.href.replace('https://www.', '')
-    const trackProperties = {
-      Car_Brand: carModelDetails?.brand,
-      Car_Model: carModelDetails?.model,
-      Page_Origination_URL: originationUrl,
-      City: cityOtr?.cityName || 'Null',
-    }
-    trackPDPGalleryVideo(TrackingEventName.WEB_PDP_PLAY_VIDEO, trackProperties)
-  }
-
   const trackCountlyOnPlay = () => {
     let creditBadge = 'Null'
     if (loanRankcr && loanRankcr.includes(LoanRank.Green)) {
@@ -66,7 +51,6 @@ export const VideoTab = ({ data, isShowAnnouncementBox }: Props) => {
   }
 
   const onPlayHandler = () => {
-    trackAmplitudeOnPlay()
     trackCountlyOnPlay()
   }
 

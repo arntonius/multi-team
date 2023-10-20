@@ -1,6 +1,7 @@
 import getCurrentEnvironment from 'helpers/environments'
 import { temanSevaUrlPath } from 'utils/types/props'
 const baseUrl = getCurrentEnvironment.apiBaseUrl
+const baseUrlTemanSeva = getCurrentEnvironment.temanSevaApiBaseUrl
 
 const utils = {
   menu: `${baseUrl}/menu`,
@@ -33,6 +34,16 @@ const product = {
   modelDetails: baseUrl + '/models/:id',
   variantDetails: baseUrl + '/variants/:id',
   carVideoReview: baseUrl + '/car-video-review',
+}
+
+const usedCar = {
+  usedCars: `${baseUrl}/used-car`,
+  skuCode: `${baseUrl}/used-car/detail/:sku_code`,
+  cityList: `${baseUrl}/used-car/city-list`,
+  pricing: `${baseUrl}/used-car/get-price-car-min-max-by-city`,
+  years: `${baseUrl}/used-car/get-years-car-min-max-by-city`,
+  mileage: `${baseUrl}/used-car/get-mileage-car-min-max-by-city`,
+  brandList: `${baseUrl}/used-car/get-list-brand`,
 }
 
 const leads = {
@@ -89,6 +100,10 @@ const profile = {
   updateProfile: `${baseUrl}/customers/update-profile`,
 }
 
+const temanSeva = {
+  checkTemanSeva: `${baseUrlTemanSeva}/auth/is-teman-seva`,
+}
+
 export const collections = {
   utils,
   product,
@@ -101,4 +116,6 @@ export const collections = {
   ktp,
   profile,
   omnicom,
+  usedCar,
+  temanSeva,
 }

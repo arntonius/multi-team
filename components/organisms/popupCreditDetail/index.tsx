@@ -4,7 +4,7 @@ import styles from 'styles/components/organisms/popupCreditDetail.module.scss'
 
 import { IconInfo } from '../../atoms'
 import TooltipDaihatsu from '../../molecules/tooltipDaihatsu'
-import { Tooltip } from 'antd'
+import Tooltip from 'antd/lib/tooltip'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { LoanCalculatorInsuranceAndPromoType } from 'utils/types/utils'
 import { LanguageCode, LocalStorageKey } from 'utils/enum'

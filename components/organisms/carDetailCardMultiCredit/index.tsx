@@ -3,7 +3,7 @@ import styles from 'styles/components/organisms/cardetailcardMultiCredit.module.
 
 import elementId from 'helpers/elementIds'
 import { useDetectClickOutside } from 'react-detect-click-outside'
-import { Tooltip } from 'antd'
+import Tooltip from 'antd/lib/tooltip'
 
 import { LandingIA } from '../landingIA'
 import {

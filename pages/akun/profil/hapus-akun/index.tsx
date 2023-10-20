@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styles from 'styles/pages/delete-account.module.scss'
-
 import clsx from 'clsx'
-import {
-  trackDeleteAccountPageView,
-  trackProfileDeleteAccountConsentPageCTAClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { useRouter } from 'next/router'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
 import { getToken } from 'utils/handler/auth'
@@ -40,7 +35,6 @@ export default function index() {
   useEffect(() => {
     checkCitiesData()
     getAnnouncementBox()
-    trackDeleteAccountPageView()
   }, [])
 
   useEffect(() => {
@@ -77,7 +71,6 @@ export default function index() {
   }
 
   const onClickNext = () => {
-    trackProfileDeleteAccountConsentPageCTAClick()
     router.push(deleteAccountReasonUrl)
   }
 

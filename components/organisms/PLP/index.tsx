@@ -1,50 +1,22 @@
-import { Spin } from 'antd'
-import axios from 'axios'
 import clsx from 'clsx'
 import { CSAButton } from 'components/atoms'
-import {
-  AdaOTOdiSEVALeadsForm,
-  CarDetailCard,
-  FooterMobile,
-  HeaderMobile,
-  NavigationFilterMobile,
-  PLPEmpty,
-} from 'components/organisms'
-import { TrackingEventName } from 'helpers/amplitude/eventTypes'
-import {
-  LeadsActionParam,
-  PageOriginationName,
-  trackCarSearchPageView,
-  trackCekPeluangPopUpCloseClick,
-  trackCekPeluangPopUpCtaClick,
-  trackLeadsFormAction,
-  trackPeluangMudahBadgeClick,
-  trackPeluangMudahPopUpCloseClick,
-  trackPeluangSulitBadgeClick,
-  trackPeluangSulitPopUpCloseClick,
-  trackPLPFilterShow,
-  trackPLPSortShow,
-} from 'helpers/amplitude/seva20Tracking'
+import { CarDetailCard, FooterMobile, HeaderMobile } from 'components/organisms'
 import elementId from 'helpers/elementIds'
 import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { api } from 'services/api'
-
 import { useCar } from 'services/context/carContext'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
-import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
+import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { getConvertFilterIncome } from 'utils/filterUtils'
 import { getToken } from 'utils/handler/auth'
 import { Currency } from 'utils/handler/calculation'
 import { delayedExec } from 'utils/handler/delayed'
 import { getLocalStorage, saveLocalStorage } from 'utils/handler/localStorage'
-import { formatNumberByLocalization } from 'utils/handler/rupiah'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
-import { hundred, million } from 'utils/helpers/const'
 import { OTONewCarUrl, carResultsUrl } from 'utils/helpers/routes'
-import { useAmplitudePageView } from 'utils/hooks/useAmplitudePageView'
 import {
   defaultCity,
   getCity,
@@ -57,8 +29,8 @@ import {
   MinMaxPrice,
 } from 'utils/types/context'
 import { MoengageViewCarSearch } from 'utils/types/moengage'
-import { trackDataCarType } from 'utils/types/utils'
-import styles from '../../../styles/pages/mobil-baru.module.scss'
+import { AnnouncementBoxDataType, trackDataCarType } from 'utils/types/utils'
+import styles from 'styles/pages/mobil-baru.module.scss'
 import {
   trackEventCountly,
   valueForInitialPageProperty,
@@ -71,13 +43,20 @@ import { decryptValue } from 'utils/encryptionUtils'
 import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
 import { useUtils } from 'services/context/utilsContext'
 import dynamic from 'next/dynamic'
-import { temanSevaUrlPath } from 'utils/types/props'
+import { LeadsActionParam, PageOriginationName } from 'utils/types/props'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 
+const Spin = dynamic(() => import('antd/lib/spin'), { ssr: false })
 const LeadsFormPrimary = dynamic(() =>
   import('components/organisms').then((mod) => mod.LeadsFormPrimary),
+)
+const NavigationFilterMobile = dynamic(() =>
+  import('components/organisms').then((mod) => mod.NavigationFilterMobile),
+)
+const PLPEmpty = dynamic(() =>
+  import('components/organisms').then((mod) => mod.PLPEmpty),
 )
 const FilterMobile = dynamic(() =>
   import('components/organisms').then((mod) => mod.FilterMobile),
@@ -100,6 +79,9 @@ const PopupResultInfo = dynamic(() =>
 const CitySelectorModal = dynamic(() =>
   import('components/molecules').then((mod) => mod.CitySelectorModal),
 )
+const AdaOTOdiSEVALeadsForm = dynamic(() =>
+  import('components/organisms').then((mod) => mod.AdaOTOdiSEVALeadsForm),
+)
 
 interface PLPProps {
   minmaxPrice: MinMaxPrice
@@ -107,7 +89,6 @@ interface PLPProps {
 }
 
 export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
-  useAmplitudePageView(trackCarSearchPageView)
   const router = useRouter()
   const { recommendation, saveRecommendation } = useCar()
   const [alternativeCars, setAlternativeCar] = useState<CarRecommendation[]>([])
@@ -314,7 +295,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
 
   const showLeadsForm = () => {
     setIsModalOpened(true)
-    trackLeadsFormAction(TrackingEventName.WEB_LEADS_FORM_OPEN, trackLeads())
     trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_BUTTON_CLICK, {
       PAGE_ORIGINATION: 'PLP',
     })
@@ -330,7 +310,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
 
   const handleShowFilter = () => {
     setIsButtonClick(true)
-    trackPLPFilterShow(true)
     trackEventCountly(CountlyEventNames.WEB_PLP_OPEN_FILTER_CLICK, {
       CURRENT_FILTER_STATUS: isFilter ? 'On' : 'Off',
     })
@@ -338,7 +317,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
 
   const handleShowSort = (open: boolean) => () => {
     setOpenSorting(open)
-    trackPLPSortShow(open)
     trackEventCountly(CountlyEventNames.WEB_PLP_OPEN_SORT_CLICK)
   }
   const getAnnouncementBox = () => {
@@ -368,7 +346,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
       }
 
       try {
-        const temanSeva = await axios.post(temanSevaUrlPath.isTemanSeva, {
+        const temanSeva = await api.postCheckTemanSeva({
           phoneNumber: decryptUser.phoneNumber,
         })
         if (temanSeva.data.isTemanSeva) return 'Yes'
@@ -598,12 +576,10 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
   const onCloseResultInfo = () => {
     setOpenLabelResultInfo(false)
     saveLocalStorage(LocalStorageKey.flagResultFilterInfoPLP, 'true')
-    trackCekPeluangPopUpCtaClick(getDataForAmplitude())
     trackEventCountly(CountlyEventNames.WEB_PLP_FINCAP_BANNER_DESC_OK_CLICK)
   }
   const onCloseResultInfoClose = () => {
     setOpenLabelResultInfo(false)
-    trackCekPeluangPopUpCloseClick(getDataForAmplitude())
     trackEventCountly(CountlyEventNames.WEB_PLP_FINCAP_BANNER_DESC_EXIT_CLICK)
   }
 
@@ -665,31 +641,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
     })
   }
 
-  const getDataForAmplitude = () => {
-    return {
-      ...(funnelQuery.monthlyIncome && {
-        Income: `Rp${formatNumberByLocalization(
-          parseInt(monthlyIncome),
-          LanguageCode.id,
-          million,
-          hundred,
-        )} Juta`,
-      }),
-      Age: funnelQuery.age,
-      ...(cityOtr && {
-        City: cityOtr?.cityName,
-      }),
-      ...(funnelQuery.downPaymentAmount && {
-        DP: `Rp${formatNumberByLocalization(
-          parseInt(downPaymentAmount),
-          LanguageCode.en,
-          million,
-          hundred,
-        )} Juta`,
-      }),
-      Tenure: `${funnelQuery.tenure || 5}`,
-    }
-  }
   const trackCountlyPromoBadgeClick = (car: CarRecommendation, index: any) => {
     trackEventCountly(CountlyEventNames.WEB_PROMO_CLICK, {
       CAR_BRAND: car.brand,
@@ -793,7 +744,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
                       }}
                       onClickResultMudah={() => {
                         setOpenLabelResultMudah(true)
-                        trackPeluangMudahBadgeClick(getDataForAmplitude())
                         trackEventCountly(
                           CountlyEventNames.WEB_PLP_FINCAP_BADGE_CLICK,
                           {
@@ -805,7 +755,6 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
                       }}
                       onClickResultSulit={() => {
                         setOpenLabelResultSulit(true)
-                        trackPeluangSulitBadgeClick(getDataForAmplitude())
                         trackEventCountly(
                           CountlyEventNames.WEB_PLP_FINCAP_BADGE_CLICK,
                           {
@@ -869,14 +818,12 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
           open={openLabelResultSulit}
           onCancel={() => {
             setOpenLabelResultSulit(false)
-            trackPeluangSulitPopUpCloseClick(getDataForAmplitude())
           }}
         />
         <PopupResultMudah
           open={openLabelResultMudah}
           onCancel={() => {
             setOpenLabelResultMudah(false)
-            trackPeluangMudahPopUpCloseClick(getDataForAmplitude())
           }}
         />
         <PopupResultInfo

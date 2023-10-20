@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from 'styles/components/molecules/shareModal.module.scss'
-import { Modal, ModalProps } from 'antd'
+import type { ModalProps } from 'antd/lib/modal'
 import {
   IconClose,
   IconFacebook,
@@ -11,21 +11,15 @@ import {
 import elementId from 'helpers/elementIds'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { LocalStorageKey } from 'utils/enum'
-// import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
-import {
-  trackCarVariantSharePopupClose,
-  trackCarVariantSharePopupCopyLinkClick,
-  trackCarVariantSharePopupTwitterClick,
-  trackCarVariantSharePopupWaClick,
-} from 'helpers/amplitude/seva20Tracking'
 import { CityOtrOption } from 'utils/types/utils'
-import { client } from 'utils/helpers/const'
 import { useCar } from 'services/context/carContext'
 import { useRouter } from 'next/router'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { LoanRank } from 'utils/types/models'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 type Props = ModalProps
 
@@ -44,19 +38,6 @@ export const ShareModal = (props: Props) => {
     !!filterStorage?.downPaymentAmount &&
     !!filterStorage?.monthlyIncome &&
     !!filterStorage?.tenure
-
-  const getDataForAmplitude = () => {
-    return {
-      Car_Brand: carModelDetails?.brand ?? '',
-      Car_Model: carModelDetails?.model ?? '',
-      // OTR: `Rp${replacePriceSeparatorByLocalization(
-      //   carModelDetails?.variants[0].priceValue as number,
-      //   LanguageCode.id,
-      // )}`,
-      City: cityOtr?.cityName || 'null',
-      Page_Origination_URL: client ? window.location.href : '',
-    }
-  }
 
   const trackCountlyOnClickShareOption = (platformName: string) => {
     let creditBadge = 'Null'
@@ -83,7 +64,6 @@ export const ShareModal = (props: Props) => {
 
   const onClickTwitter = () => {
     trackCountlyOnClickShareOption('Twitter')
-    trackCarVariantSharePopupTwitterClick(getDataForAmplitude())
     window.open(
       `https://twitter.com/intent/tweet?&text=Saya lagi lihat-lihat mobil yang ini di SEVA. Gimana pendapat kamu? Cocok ga? 👉🏻 ${window.location.href}`,
     )
@@ -91,7 +71,6 @@ export const ShareModal = (props: Props) => {
 
   const onClickWhatsapp = () => {
     trackCountlyOnClickShareOption('WhatsApp')
-    trackCarVariantSharePopupWaClick(getDataForAmplitude())
     window.open(
       `https://api.whatsapp.com/send?text=Saya lagi lihat-lihat mobil yang ini di SEVA. Gimana pendapat kamu? Cocok ga? 👉🏻 ${window.location.href}`,
     )
@@ -99,12 +78,7 @@ export const ShareModal = (props: Props) => {
 
   const onClickCopy = () => {
     trackCountlyOnClickShareOption('Copy Link')
-    trackCarVariantSharePopupCopyLinkClick(getDataForAmplitude())
     navigator.clipboard.writeText(window.location.href)
-  }
-
-  const afterCloseModalHandler = () => {
-    trackCarVariantSharePopupClose(getDataForAmplitude())
   }
 
   return (
@@ -122,7 +96,6 @@ export const ShareModal = (props: Props) => {
       className="share-custom-modal"
       footer={null}
       maskStyle={{ background: 'rgba(19, 19, 27, 0.5)' }}
-      afterClose={afterCloseModalHandler}
       {...props}
     >
       <h2 className={styles.title}>Bagikan ke Temanmu:</h2>

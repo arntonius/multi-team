@@ -13,8 +13,6 @@ import { MinAmount } from 'utils/types/models'
 import urls from 'utils/helpers/url'
 import elementId from 'utils/helpers/trackerId'
 import { colors } from 'utils/helpers/style/colors'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { Button, CardShadow } from 'components/atoms'
 import {
   IconAgeRange,
@@ -315,27 +313,6 @@ const SearchWidget = () => {
       })
     }
 
-    sendAmplitudeData(AmplitudeEventName.WEB_LP_SEARCHWIDGET_SUBMIT, {
-      ...(brand && brand.length > 0 && { Car_Brand: brand.join(', ') }),
-      ...(bodyType &&
-        bodyType.length > 0 && {
-          Car_Body_Type: bodyType
-            .map((item: any) => item.toUpperCase())
-            .join(','),
-        }),
-      ...(priceRangeGroup && {
-        Price_Range: `Rp${Currency(splitPriceRange[0])} - Rp${Currency(
-          splitPriceRange[1],
-        )}`,
-      }),
-      ...(expandFinancial &&
-        downPaymentAmount && { DP: `Rp${Currency(downPaymentAmount)}` }),
-      ...(expandFinancial && tenure && { Tenure: tenure }),
-      ...(expandFinancial &&
-        monthlyIncome && { Income: `Rp${Currency(monthlyIncome)}` }),
-      ...(expandFinancial && age && { Age: age }),
-    })
-
     trackCountlyClickCta()
 
     navigateToPLP(PreviousButton.SmartSearch, { search: urlParam })
@@ -402,10 +379,6 @@ const SearchWidget = () => {
             <span
               className={styles.closeText}
               onClick={() => {
-                sendAmplitudeData(
-                  AmplitudeEventName.WEB_LP_SEARCHWIDGET_FILTER_FINANSIAL_COLLAPSE,
-                  null,
-                )
                 setErrorFinance(initErrorFinancial)
                 setExpandFinancial(false)
               }}
@@ -433,10 +406,6 @@ const SearchWidget = () => {
             )
             trackEventCountly(
               CountlyEventNames.WEB_HOMEPAGE_ADD_FINANCIAL_FILTER_CLOSE,
-            )
-            sendAmplitudeData(
-              AmplitudeEventName.WEB_LP_SEARCHWIDGET_FILTER_FINANSIAL_EXPAND,
-              null,
             )
             setExpandFinancial(true)
           }}

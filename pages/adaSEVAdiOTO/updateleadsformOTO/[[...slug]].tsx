@@ -21,16 +21,20 @@ import { FormSelectModelCarSevaOTO } from 'components/molecules/formUpdateLeadsS
 import { FormSelectCarVariantSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectCarVariant'
 import { getLeadsDetail, updateLeadFormOTO } from 'services/leadsSeva'
 import { FormSelectBrandCarSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectBrandCarSevaOTO'
-import { LabelTooltipSevaOTO } from 'components/molecules/label/labelTooltipSevaOTO'
 import { InputVersionType } from 'utils/enum'
 import { Input } from 'antd'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { api } from 'services/api'
-const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
+import CarSillhouete from '/public/revamp/illustration/car-sillhouete.webp'
 
-const CarSillhouete = '/revamp/illustration/car-sillhouete.webp'
+const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
+const LabelTooltipSevaOTO = dynamic(() =>
+  import('components/molecules/label/labelTooltipSevaOTO').then(
+    (mod) => mod.LabelTooltipSevaOTO,
+  ),
+)
 
 interface FormDataState {
   leadId: string

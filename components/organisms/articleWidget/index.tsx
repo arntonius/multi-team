@@ -5,8 +5,6 @@ import { Pagination } from 'swiper'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import { Article } from 'utils/types'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import elementId from 'utils/helpers/trackerId'
 import { NavigationTabV2 } from 'components/molecules'
 import { alephArticleCategoryList } from 'utils/config/articles.config'
@@ -47,10 +45,6 @@ const ArticleWidget = ({
             rel="noopener noreferrer"
             className={styles.textLink}
             onClick={() => {
-              sendAmplitudeData(
-                AmplitudeEventName.WEB_LP_ARTICLE_SEE_ALL_CLICK,
-                { Article_Category: category },
-              )
               trackCountlyClickSeeAll()
             }}
             data-testid={elementId.Homepage.Article.SeeAllButton}
@@ -88,9 +82,6 @@ const ArticleWidget = ({
         onSelectTab={(value: any) => {
           onClickCategory(value)
           setCategory(value)
-          sendAmplitudeData(AmplitudeEventName.WEB_LP_ARTICLE_CATEGORY_CLICK, {
-            Article_Category: value,
-          })
           trackCountlyClickTab(value)
         }}
         className={styles.tab}

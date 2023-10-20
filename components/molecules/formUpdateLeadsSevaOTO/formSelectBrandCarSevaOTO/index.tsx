@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styles from '../../../../styles/components/molecules/form/formSelectBrandCar.module.scss'
-import { Space } from 'antd'
+import Space from 'antd/lib/space'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import elementId from 'helpers/elementIds'
 import Image from 'next/image'
@@ -174,7 +174,7 @@ export const FormSelectBrandCarSevaOTO = ({
   const paramQuery = funnelQuery
 
   return (
-    <div className={styles.container}>
+    <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
       <Space size={[16, 16]} wrap>
         {carList.map(({ key, icon, value, isChecked }) => {
           return (

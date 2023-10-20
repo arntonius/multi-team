@@ -1,6 +1,6 @@
-import { Modal } from 'antd'
+import Modal from 'antd/lib/modal'
 import React, { TextareaHTMLAttributes } from 'react'
-import type { ModalProps } from 'antd'
+import type { ModalProps } from 'antd/lib/modal'
 import styles from 'styles/components/organisms/popupTestimony.module.scss'
 import { colors } from 'utils/helpers/style/colors'
 import { TestimonialData } from 'utils/types/props'

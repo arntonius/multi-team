@@ -13,8 +13,6 @@ import { Button } from 'components/atoms'
 import { IconChevronRight } from 'components/atoms/icon'
 import { colors } from 'utils/helpers/style/colors'
 import { CarRecommendation } from 'utils/types/props'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import elementId from 'utils/helpers/trackerId'
 import LPCRSkeleton from '../lpSkeleton/carRecommendation'
 import brandList from 'utils/config'
@@ -156,10 +154,6 @@ const LpCarRecommendations = ({
   }
 
   const lihatSemuaMobil = () => {
-    sendAmplitudeData(
-      AmplitudeEventName.WEB_LP_BRANDRECOMMENDATION_CAR_SEE_ALL_CLICK,
-      { Car_Brand: selectedBrand || 'Semua' },
-    )
     trackEventCountly(CountlyEventNames.WEB_CAR_RECOMMENDATION_ALL_CLICK, {
       CAR_BRAND: selectedBrand || 'Semua',
     })
@@ -205,10 +199,6 @@ const LpCarRecommendations = ({
           itemList={brandList}
           onPage={isOTO ? 'OTO' : 'PDP'}
           onSelectTab={(value: any) => {
-            sendAmplitudeData(
-              AmplitudeEventName.WEB_LP_BRANDRECOMMENDATION_LOGO_CLICK,
-              { Car_Brand: value || 'Semua' },
-            )
             setSelectedBrand(value)
             swiperRef.current?.slideTo(0)
             trackCountlyClickTab(value)
@@ -251,13 +241,6 @@ const LpCarRecommendations = ({
                     <div
                       className={styles.alternativeCarLink}
                       onClick={() => {
-                        sendAmplitudeData(
-                          AmplitudeEventName.WEB_LP_BRANDRECOMMENDATION_CAR_CLICK,
-                          {
-                            Car_Brand: selectedBrand || 'Semua',
-                            Car_Model: item.model,
-                          },
-                        )
                         handleClickDetailCar(item)
                       }}
                       data-testid={elementId.PLP.Button.LihatSNK}
@@ -268,13 +251,6 @@ const LpCarRecommendations = ({
                       version={ButtonVersion.PrimaryDarkBlue}
                       size={ButtonSize.Big}
                       onClick={() => {
-                        sendAmplitudeData(
-                          AmplitudeEventName.WEB_LP_BRANDRECOMMENDATION_CTA_HITUNG_KEMAMPUAN_CLICK,
-                          {
-                            Car_Brand: selectedBrand || 'Semua',
-                            Car_Model: item.model,
-                          },
-                        )
                         isOTO
                           ? setIsModalOpened(true)
                           : handleCalculateAbility(item, index)

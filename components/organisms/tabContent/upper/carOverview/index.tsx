@@ -11,12 +11,6 @@ import {
 import { useDetectClickOutside } from 'react-detect-click-outside'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import elementId from 'helpers/elementIds'
-import {
-  CarVariantHitungKemampuanParam,
-  trackCarVariantShareClick,
-  trackDownloadBrosurClick,
-  trackPDPHitungKemampuan,
-} from 'helpers/amplitude/seva20Tracking'
 import { variantListUrl } from 'utils/helpers/routes'
 import { CityOtrOption, VariantDetail } from 'utils/types/utils'
 import { useRouter } from 'next/router'
@@ -178,51 +172,9 @@ export const CarOverview = ({
     return sortedCarModelVariant[0].tenure
   }
 
-  const trackAmplitudeShare = () => {
-    trackCarVariantShareClick({
-      Car_Brand: modelDetail?.brand ?? '',
-      Car_Model: modelDetail?.model ?? '',
-      // OTR: `Rp${replacePriceSeparatorByLocalization(
-      //   modelDetail?.variants[0].priceValue as number,
-      //   LanguageCode.id,
-      // )}`,
-      City: currentCityOtr?.cityName || 'null',
-      Page_Origination_URL: window.location.href,
-    })
-  }
-
   const onClickShareButtonHandler = () => {
-    trackAmplitudeShare()
     trackClickShareCountly()
     onClickShareButton()
-  }
-
-  const trackAmplitudeBrochure = () => {
-    if (modelDetail) {
-      trackDownloadBrosurClick({
-        Car_Brand: modelDetail?.brand as string,
-        Car_Model: modelDetail?.model as string,
-        City: currentCityOtr?.cityName || 'null',
-      })
-    }
-  }
-
-  const trackHitungKemampuan = () => {
-    const currentDp =
-      funnelQuery.downPaymentAmount &&
-      funnelQuery.downPaymentAmount?.toString().length > 0
-        ? funnelQuery.downPaymentAmount
-        : sortedCarModelVariant[0].dpAmount
-    const properties: CarVariantHitungKemampuanParam = {
-      Car_Brand: modelDetail?.brand as string,
-      Car_Model: modelDetail?.model as string,
-      City: currentCityOtr?.cityName || 'null',
-      DP: `Rp${Currency(String(currentDp))}`,
-      Cicilan: `Rp${getMonthlyInstallment()}`,
-      Tenure: `${getTenure()} tahun`,
-      Photo_Type: currentTabMenu,
-    }
-    trackPDPHitungKemampuan(properties)
   }
 
   const trackClickCtaCountly = () => {
@@ -256,12 +208,10 @@ export const CarOverview = ({
   }
 
   const onClickDownloadBrochure = () => {
-    trackAmplitudeBrochure()
     trackClickBrochureCountly()
   }
 
   const onClickCalculateCta = () => {
-    trackHitungKemampuan()
     trackClickCtaCountly()
     saveDataForCountlyTrackerPageViewLC(PreviousButton.MainTopCta)
     window.location.href = variantListUrl
