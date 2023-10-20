@@ -57,7 +57,7 @@ export const NavigationFilterMobileUsedCar = ({
   const router = useRouter()
   const filterSortOption = sortOptions.filter((x) => x.value === sortBy)[0]
   const sortFilter = filterSortOption?.label || ''
-  const summaryCar = carlist?.length || 0
+  const summaryCar = carlist || 0
   const onClickOK = () => {
     onButtonClick && onButtonClick(true)
   }
