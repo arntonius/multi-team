@@ -26,7 +26,7 @@ import { formatBillionPoint } from 'utils/numberUtils/numberUtils'
 import { Location } from 'utils/types'
 import { CarRecommendation, UsedCarRecommendation } from 'utils/types/context'
 import { LoanRank } from 'utils/types/models'
-import styles from '../../../styles/components/organisms/usedCarDetailCard.module.scss'
+import styles from 'styles/components/organisms/usedCarDetailCard.module.scss'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import {
@@ -189,7 +189,7 @@ export const UsedCarDetailCard = ({
   //         ? 'Sulit disetujui'
   //         : 'Null',
   //   }
-  
+
   //   saveSessionStorage(
   //     SessionStorageKey.PreviousCarDataBeforeLogin,
   //     JSON.stringify(dataCarTemp),
@@ -215,7 +215,7 @@ export const UsedCarDetailCard = ({
   //     PELUANG_KREDIT_BADGE:
   //       peluangKredit === 'Null' ? peluangKredit : peluangKredit + ' disetujui',
   //   }
-  
+
   //   setLoanRankPLP(true)
   //   setTimeout(() => {
   //     if (detailClick) {
