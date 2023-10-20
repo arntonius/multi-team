@@ -29,6 +29,7 @@ export const InteriorTab = ({
         return item.toLowerCase().includes('int')
       })
     }
+    console.log('datas', dataInterior)
     setInteriorImage([...dataInterior])
   }
 

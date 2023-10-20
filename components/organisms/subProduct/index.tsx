@@ -4,8 +4,6 @@ import layananSuratKendaraanBanner from '/public/revamp/illustration/sub-product
 import fasilitasDanaBanner from '/public/revamp/illustration/sub-product-1.webp'
 import Image from 'next/image'
 import elementId from 'utils/helpers/trackerId'
-import { sendAmplitudeData } from 'services/amplitude'
-import { AmplitudeEventName } from 'services/amplitude/types'
 import { IconChevronRight } from 'components/atoms/icon'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
@@ -31,9 +29,6 @@ const SubProduct = () => {
           <div
             className={styles.bannerPromo}
             onClick={() => {
-              sendAmplitudeData(AmplitudeEventName.WEB_LP_SUB_PRODUCT_CLICK, {
-                Sub_Product: title[0],
-              })
               trackCountly('https://www.seva.id/fasilitas-dana', 1)
               window.open('https://www.seva.id/fasilitas-dana', '_blank')
             }}
@@ -63,9 +58,6 @@ const SubProduct = () => {
           <div
             className={styles.bannerPromo}
             onClick={() => {
-              sendAmplitudeData(AmplitudeEventName.WEB_LP_SUB_PRODUCT_CLICK, {
-                Sub_Product: title[1],
-              })
               trackCountly('https://www.seva.id/layanan-surat-kendaraan', 2)
               window.open(
                 'https://www.seva.id/layanan-surat-kendaraan',

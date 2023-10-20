@@ -14,6 +14,7 @@ interface Props {
   onSelectTab?: (value: string) => void
   isShowAnnouncementBox: boolean | null
   onPage: string
+  initialTab?: string
   className?: string
   autoScroll?: boolean
 }
@@ -24,12 +25,13 @@ const NavigationTabV2 = ({
   isShowAnnouncementBox,
   onPage,
   className,
+  initialTab,
   autoScroll = true,
 }: Props) => {
   const router = useRouter()
 
   const [selectedTabValue, setSelectedTabValue] = useState(
-    router.query.tab || itemList[0].value,
+    router.query.tab || initialTab || itemList[0].value,
   )
   const [selectedTabIndex, setSelectedTabIndex] = useState(0)
   const containerRef = useRef() as React.MutableRefObject<HTMLDivElement>

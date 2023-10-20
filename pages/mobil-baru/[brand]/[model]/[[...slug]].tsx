@@ -5,13 +5,13 @@ import {
   CarModelDetailsResponse,
   CarRecommendation,
   CarVariantDetails,
+  CityOtrOption,
   MainVideoResponseType,
 } from 'utils/types/utils'
 import { InferGetServerSidePropsType } from 'next'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import { useUtils } from 'services/context/utilsContext'
 import { getToken } from 'utils/handler/auth'
-import { useMediaQuery } from 'react-responsive'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { LanguageCode } from 'utils/enum'
@@ -22,11 +22,10 @@ import {
 import { getModelPriceRange } from 'utils/carModelUtils/carModelUtils'
 import { articleDateFormat, monthId } from 'utils/handler/date'
 import { useRouter } from 'next/router'
-import { getCity } from 'utils/hooks/useGetCity'
+import { getCity, saveCity } from 'utils/hooks/useGetCity'
 import { useCar } from 'services/context/carContext'
 import { capitalizeFirstLetter } from 'utils/stringUtils'
 import { lowerSectionNavigationTab } from 'config/carVariantList.config'
-import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import Script from 'next/script'
 import { mergeModelDetailsWithLoanRecommendations } from 'utils/handler/carRecommendation'
 import { formatShortPrice } from 'components/organisms/tabContent/lower/summary'
@@ -86,16 +85,17 @@ export default function index({
   } = useUtils()
   const router = useRouter()
   const { model, brand, slug } = router.query
-  const [isMobile, setIsMobile] = useState(useIsMobileSSr())
-  const isClientMobile = useMediaQuery({ query: '(max-width: 1024px)' })
+  const [upperTabSlug, lowerTabSlug, citySlug] = slug?.length
+    ? (slug as Array<string>)
+    : []
   const { carModelDetails, recommendation } = useCar()
-  const lowerTab = router.query.slug as string
-  const path = lowerTab ? capitalizeFirstLetter(lowerTab[0]) : ''
+  const path = lowerTabSlug ? capitalizeFirstLetter(lowerTabSlug) : ''
   const [selectedTabValue, setSelectedTabValue] = useState(
     path ||
       lowerSectionNavigationTab.filter((item) => item.label !== 'Kredit')[0]
         .value,
   )
+  const [currentCity, setCurrentCity] = useState(getCity())
 
   const meta = useMemo(() => {
     const title =
@@ -115,11 +115,8 @@ export default function index({
     saveMobileWebFooterMenus(dataFooter)
     saveCities(dataCities)
     getAnnouncementBox()
+    checkCitySlug(citySlug, dataCities, setCurrentCity)
   }, [])
-
-  useEffect(() => {
-    setIsMobile(isClientMobile)
-  }, [isClientMobile])
 
   const getAnnouncementBox = async () => {
     try {
@@ -156,79 +153,30 @@ export default function index({
   const carOTR = `Rp ${carOTRValue / 1000000} juta`
 
   const getMetaTitle = () => {
-    if (isMobile) {
-      switch (selectedTabValue) {
-        case 'Kredit':
-          return `Kredit ${carBrand} ${carModel} ${currentYear}. Simulasi Cicilan OTR ${
-            getCity().cityName
-          } dengan Loan Calculator | SEVA`
-        case 'Spesifikasi':
-          return `Spesifikasi ${carBrand} ${carModel} ${currentYear} | SEVA`
-        case 'Harga':
-          return `Harga OTR ${carBrand} ${carModel} ${currentYear} ${
-            getCity().cityName
-          } Terbaru | SEVA`
-        default:
-          return `Ringkasan Produk ${carBrand} ${carModel} ${currentYear} - Harga OTR Promo Bulan ${currentMonth} | SEVA`
-      }
-    } else {
-      if (Array.isArray(slug)) {
-        const titles = slug.map((s) => {
-          switch (s) {
-            case 'kredit':
-              return `Kredit ${carBrand} ${carModel} ${currentYear}. Simulasi Cicilan OTR ${
-                getCity().cityName
-              } dengan Loan Calculator | SEVA`
-            case 'spesifikasi':
-              return `Spesifikasi ${carBrand} ${carModel} ${currentYear} | SEVA`
-            case 'harga':
-              return `Harga OTR ${carBrand} ${carModel} ${currentYear} ${
-                getCity().cityName
-              } Terbaru | SEVA`
-            default:
-              return `Ringkasan Produk ${carBrand} ${carModel} ${currentYear} - Harga OTR Promo Bulan ${currentMonth} | SEVA`
-          }
-        })
-
-        return titles.join(' | ')
-      } else {
+    switch (selectedTabValue?.toLocaleLowerCase()) {
+      case 'kredit':
+        return `Kredit ${carBrand} ${carModel} ${currentYear}. Simulasi Cicilan OTR ${currentCity.cityName} dengan Loan Calculator | SEVA`
+      case 'spesifikasi':
+        return `Spesifikasi ${carBrand} ${carModel} ${currentYear} | SEVA`
+      case 'harga':
+        return `Harga OTR ${carBrand} ${carModel} ${currentYear} ${currentCity.cityName} Terbaru | SEVA`
+      default:
         return `Ringkasan Produk ${carBrand} ${carModel} ${currentYear} - Harga OTR Promo Bulan ${currentMonth} | SEVA`
-      }
     }
   }
 
   const getMetaDescription = () => {
-    if (isMobile) {
-      switch (selectedTabValue) {
-        case 'Kredit':
-          return `Hitung simulasi cicilan ${carBrand} ${carModel} ${currentYear}. Beli mobil ${carBrand} secara kredit, proses aman & mudah dengan Instant Approval* di SEVA."`
-        case 'Spesifikasi':
-          return `Dapatkan informasi lengkap mengenai spesifikasi ${carBrand} ${carModel} ${currentYear} terbaru di SEVA`
-        case 'Harga':
-          return `Daftar harga ${carBrand} ${carModel} ${currentYear}. Harga mulai dari ${carOTR}, dapatkan informasi mengenai harga ${carBrand} ${carModel} ${currentYear} terbaru di SEVA.`
+    switch (selectedTabValue?.toLocaleLowerCase()) {
+      case 'kredit':
+        return `Hitung simulasi cicilan ${carBrand} ${carModel} ${currentYear}. Beli mobil ${carBrand} secara kredit, proses aman & mudah dengan Instant Approval* di SEVA."`
+      case 'spesifikasi':
+        return `Dapatkan informasi lengkap mengenai spesifikasi ${carBrand} ${carModel} ${currentYear} terbaru di SEVA`
+      case 'harga':
+        return `Daftar harga ${carBrand} ${carModel} ${currentYear}. Harga mulai dari ${carOTR}, dapatkan informasi mengenai harga ${carBrand} ${carModel} ${currentYear} terbaru di SEVA.`
 
-        default:
-          return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tau spesifikasi, harga, dan kredit di SEVA`
-      }
+      default:
+        return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tau spesifikasi, harga, dan kredit di SEVA`
     }
-    if (Array.isArray(slug)) {
-      const descriptions = slug.map((s) => {
-        switch (s) {
-          case 'kredit':
-            return `Hitung simulasi cicilan ${carBrand} ${carModel} ${currentYear}. Beli mobil ${carBrand} secara kredit, proses aman & mudah dengan Instant Approval* di SEVA."`
-          case 'spesifikasi':
-            return `Dapatkan informasi lengkap mengenai spesifikasi ${carBrand} ${carModel} ${currentYear} terbaru di SEVA`
-          case 'harga':
-            return `Daftar harga ${carBrand} ${carModel} ${currentYear}. Harga mulai dari ${carOTR}, dapatkan informasi mengenai harga ${carBrand} ${carModel} ${currentYear} terbaru di SEVA.`
-
-          default:
-            return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tau spesifikasi, harga, dan kredit di SEVA`
-        }
-      })
-
-      return descriptions.join(' ')
-    }
-    return `Beli mobil ${carBrand} ${carModel} ${currentYear} terbaru secara kredit dengan Instant Approval*. Harga mulai ${carOTR}, cari tau spesifikasi, harga, dan kredit di SEVA`
   }
 
   const modelDetailData =
@@ -243,10 +191,8 @@ export default function index({
   }, [])
 
   const setTabFromDirectUrl = () => {
-    const slug = router.query.slug
-
-    if (slug) {
-      const path = capitalizeFirstLetter(slug[0])
+    if (lowerTabSlug) {
+      const path = capitalizeFirstLetter(lowerTabSlug)
       setSelectedTabValue(path)
     }
   }
@@ -296,12 +242,11 @@ export async function getServerSideProps(context: any) {
     'public, s-maxage=59, stale-while-revalidate=3000',
   )
   try {
-    if (context.query.slug?.length > 1) {
+    if (context.query.slug?.length > 3) {
       return {
         notFound: true,
       }
     }
-
     const [
       carRecommendationsRes,
       metaTagDataRes,
@@ -718,5 +663,23 @@ const jsonLD = (
         },
       },
     ],
+  }
+}
+
+export const checkCitySlug = (
+  citySlug: string | undefined,
+  dataCities: Array<CityOtrOption>,
+  setState: (city: CityOtrOption) => void,
+) => {
+  if (citySlug) {
+    const cityOtrFromUrl = dataCities.find(
+      (city) =>
+        city.cityName.replace(/[^a-zA-Z]+/g, '').toLocaleLowerCase() ===
+        citySlug.replace(/[^a-zA-Z]+/g, '').toLocaleLowerCase(),
+    )
+    if (cityOtrFromUrl && cityOtrFromUrl?.cityCode !== getCity().cityCode) {
+      saveCity(cityOtrFromUrl)
+      setState(cityOtrFromUrl)
+    }
   }
 }

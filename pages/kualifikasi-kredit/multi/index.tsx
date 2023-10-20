@@ -7,11 +7,10 @@ import React, {
   useRef,
   useState,
 } from 'react'
-
 import { getSessionStorage } from 'utils/handler/sessionStorage'
 import styles from 'styles/pages/multi-kk.module.scss'
 import stylex from 'styles/components/molecules/searchWidget/tenureOptionWidget.module.scss'
-import { Slider } from 'antd'
+import Slider from 'antd/lib/slider'
 import { colors } from 'styles/colors'
 import { filterNonDigitCharacters } from 'utils/stringUtils'
 import clsx from 'clsx'
@@ -51,7 +50,6 @@ import {
 import { Currency } from 'utils/handler/calculation'
 import { getOptionValue } from 'utils/handler/optionLabel'
 import { multiResultCreditQualificationPageUrl } from 'utils/helpers/routes'
-import { HeaderMobile } from 'components/organisms'
 import {
   Button,
   IconChevronDown,
@@ -59,14 +57,33 @@ import {
   Input,
   InputSelect,
 } from 'components/atoms'
-import { CitySelectorModal, FooterMobile } from 'components/molecules'
 import { MobileView } from 'components/atoms/mobileView'
-import { DatePicker } from 'components/atoms/inputDate'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { NotFoundMultiUnit } from 'components/organisms/NotFoundMultiUnitModal'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
+import dynamic from 'next/dynamic'
+
+const DatePicker = dynamic(
+  () => import('components/atoms/inputDate/datepicker'),
+  { ssr: false },
+)
+
+const HeaderMobile = dynamic(
+  () => import('components/organisms').then((mod) => mod.HeaderMobile),
+  { ssr: false },
+)
+
+const FooterMobile = dynamic(
+  () => import('components/organisms').then((mod) => mod.FooterMobile),
+  { ssr: false },
+)
+
+const CitySelectorModal = dynamic(
+  () => import('components/molecules').then((mod) => mod.CitySelectorModal),
+  { ssr: false },
+)
 
 const initErrorFinancial = {
   downPaymentAmount: '' as any,
@@ -538,7 +555,7 @@ const MultiKK = () => {
                 className={clsx({
                   ['multiKKSliderError']: errorMin() || errorMax(),
                 })}
-                onChange={onChangeSlider}
+                onChange={(e) => onChangeSlider}
                 defaultValue={[
                   rawPrice.min || limitPrice.min,
                   rawPrice.max || limitPrice.max,

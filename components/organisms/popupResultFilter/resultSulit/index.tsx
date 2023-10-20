@@ -1,6 +1,6 @@
-import { Modal } from 'antd'
+import Modal from 'antd/lib/modal'
 import React from 'react'
-import type { ModalProps } from 'antd'
+import type { ModalProps } from 'antd/lib/modal'
 import { colors } from 'styles/colors'
 import { IconClose } from 'components/atoms'
 import styles from '../../../../styles/components/organisms/popupResultSulit.module.scss'

@@ -12,8 +12,7 @@ import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 const Ktp = () => {
   const router = useRouter()
   const [toast, setToast] = useState('')
-  const [customerDetail, setCustomerDetail] =
-    React.useState<GetCustomerKtpSeva>()
+  const [customerDetail, setCustomerDetail] = useState<GetCustomerKtpSeva>()
 
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(false)
   const navigateToCamera = () => {
@@ -23,7 +22,6 @@ const Ktp = () => {
     setIsLoadingCustomer(true)
     try {
       const response = await fetchCustomerKtp()
-      console.log('qwe RESPONSE', response)
       const customerDetails: GetCustomerKtpSeva = response.data[0]
       setCustomerDetail({
         name: customerDetails.name,
@@ -53,7 +51,7 @@ const Ktp = () => {
       return ''
     }
 
-    const options: Intl.DateTimeFormatOptions = {
+    const options: any = {
       weekday: 'long',
       day: 'numeric',
       month: 'long',

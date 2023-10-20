@@ -14,13 +14,6 @@ import { AxiosResponse } from 'axios'
 import { AnnouncementBoxDataType } from 'utils/types/utils'
 import { Button, IconChevronDown, InputSelect } from 'components/atoms'
 import { removeInformationWhenLogout } from 'utils/logoutUtils'
-import {
-  trackDeleteAccountPopupClose,
-  trackDeleteAccountPopupCTACancelClick,
-  trackDeleteAccountPopupCTAYesClick,
-  trackDeleteAccountReasonPageCTAClick,
-  trackDeleteAccountReasonPageView,
-} from 'helpers/amplitude/seva20Tracking'
 import { deleteAccountSuccessUrl } from 'utils/helpers/routes'
 import { HeaderMobile } from 'components/organisms'
 import { reasonOptions } from 'config/deleteAccount.config'
@@ -57,7 +50,6 @@ export default function index() {
   useEffect(() => {
     checkCitiesData()
     getAnnouncementBox()
-    trackDeleteAccountReasonPageView()
   }, [])
 
   useEffect(() => {
@@ -111,16 +103,10 @@ export default function index() {
   }
 
   const onClickNext = () => {
-    trackDeleteAccountReasonPageCTAClick({
-      Reason: reason,
-    })
     setIsOpenDeleteAccountModal(true)
   }
 
   const onClickModalCtaConfirm = () => {
-    trackDeleteAccountPopupCTAYesClick({
-      Reason: reason,
-    })
     if (!!getToken() && !!getToken()?.phoneNumber) {
       deleteAccount({
         phoneNumber: getToken()?.phoneNumber ?? '',
@@ -222,15 +208,9 @@ export default function index() {
       <DeleteAccountModal
         open={isOpenDeleteAccountModal}
         onCancel={() => {
-          trackDeleteAccountPopupClose({
-            Reason: reason,
-          })
           setIsOpenDeleteAccountModal(false)
         }}
         emitClickCtaCancel={() => {
-          trackDeleteAccountPopupCTACancelClick({
-            Reason: reason,
-          })
           setIsOpenDeleteAccountModal(false)
         }}
         emitClickCtaConfirm={onClickModalCtaConfirm}

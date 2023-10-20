@@ -5,7 +5,6 @@ import {
   IconChevronUp,
   BottomSheet,
   Button,
-  // Overlay,
 } from 'components/atoms'
 import { FormSelectBrandCar } from '../../molecules/form/formSelectBrandCar'
 import { FormSelectTypeCar } from '../../molecules/form/formSelectTypeCar'
@@ -15,32 +14,23 @@ import { FormIncome } from '../../molecules/form/formIncome'
 import { FormTenure } from '../../molecules/form/formTenure'
 import { FormAge } from '../../molecules/form/formAge'
 import { toNumber } from 'utils/stringUtils'
-// import { trackFilterCarResults } from 'helpers/amplitude/newFunnelEventTracking'
 import { AxiosResponse } from 'axios'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import { useFinancialQueryData } from 'services/context/finnancialQueryContext'
-import {
-  CarResultPageFilterParam,
-  trackPLPClearFilter,
-  trackPLPFilterShow,
-  trackPLPSubmitFilter,
-} from 'helpers/amplitude/seva20Tracking'
-import { carResultsUrl } from 'utils/helpers/routes'
 import elementId from 'helpers/elementIds'
 import urls from 'utils/helpers/url'
 import { useRouter } from 'next/router'
 import { CarRecommendationResponse, FunnelQuery } from 'utils/types/context'
-import { trackFilterCarResults } from 'helpers/amplitude/newFunnelEventTracking'
 import { useCar } from 'services/context/carContext'
 import { Currency } from 'utils/handler/calculation'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { PreviousButton, navigateToPLP } from 'utils/navigate'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
-import { CarModelResponse } from 'utils/types'
 import { SessionStorageKey } from 'utils/enum'
 import { saveSessionStorage } from 'utils/handler/sessionStorage'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
+import { CarResultPageFilterParam } from 'utils/types/props'
 
 interface ParamsUrl {
   age?: string
@@ -189,7 +179,6 @@ const FilterMobile = ({
       setIsCheckedBrand([])
       setIsCheckedType([])
       patchFunnelQuery(resetBrandAndBodyType)
-      trackPLPClearFilter(trackFilterAction())
       setIsResetFilter && setIsResetFilter(true)
       setIsErrorMinMaxDP('0')
       setIsErrorAge(false)
@@ -253,20 +242,6 @@ const FilterMobile = ({
     setIsErrorAge(false)
     setIsErrorMinMaxDP('0')
     setIsResetFilter && setIsResetFilter(false)
-    const filterCarResult = {
-      maxMonthlyInstallments: toNumber(
-        funnelQuery.monthlyInstallment as string,
-      ),
-      downPayment: toNumber(funnelQuery.downPaymentAmount as string),
-      downPaymentPercentage: funnelQuery.downPaymentPercentage
-        ? Number(funnelQuery.downPaymentPercentage) / 100
-        : null,
-      brands: funnelQuery.brand ? funnelQuery.brand : [],
-      tenure: tenureFilter,
-      minPrice: minPriceFilter,
-      maxPrice: maxPriceFilter,
-    }
-    trackFilterCarResults(filterCarResult)
 
     setLoading(true)
     const paramUpdate = {
@@ -388,7 +363,6 @@ const FilterMobile = ({
     saveRecommendation(response?.carRecommendations || [])
     setResetTmp(false)
 
-    trackPLPSubmitFilter(trackFilterAction())
     setResetTmp(false)
     navigateToPLP(
       PreviousButton.SmartSearch,
@@ -448,7 +422,6 @@ const FilterMobile = ({
     setResetTmp(true)
     if (isApplied) {
       setIsFilter(false)
-      trackPLPClearFilter(trackFilterAction())
       setIsResetFilter && setIsResetFilter(true)
       setIsErrorMinMaxDP('0')
       setIsErrorAge(false)
@@ -462,7 +435,6 @@ const FilterMobile = ({
         className={`${styles.wrapper} ${styles.headerContent}`}
         open={isButtonClick || false}
         onDismiss={() => {
-          !isResetFilter && trackPLPFilterShow(false)
           onClickClose()
         }}
         title="Filter"

@@ -1,10 +1,11 @@
 import React, { TextareaHTMLAttributes } from 'react'
 import styles from '../../../styles/components/atoms/modal.module.scss'
 import { PropsModal } from 'utils/types'
-import { Modal } from 'antd'
 import { IconClose } from '../icon'
 import { colors } from 'styles/colors'
 import clsx from 'clsx'
+import dynamic from 'next/dynamic'
+const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 export const CustomModal = ({
   children,
