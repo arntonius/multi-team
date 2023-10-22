@@ -110,6 +110,9 @@ export const PLPUsedCar = ({
     priceEnd,
     yearStart,
     yearEnd,
+    mileageEnd,
+    mileageStart,
+    transmission,
     age,
     sortBy,
   } = router.query as FilterParam
@@ -137,9 +140,9 @@ export const PLPUsedCar = ({
     yearStart ||
     yearEnd ||
     tenure ||
-    age ||
-    downPaymentAmount ||
-    monthlyIncome
+    mileageStart ||
+    mileageEnd ||
+    transmission
       ? true
       : false
 
@@ -397,11 +400,6 @@ export const PLPUsedCar = ({
   }, [interactive])
 
   useEffect(() => {
-    if (funnelQuery.age && funnelQuery.monthlyIncome) {
-      setIsFilterCredit(true)
-    } else {
-      setIsFilterCredit(false)
-    }
     if (
       (funnelQuery.brand && funnelQuery.brand.length > 0) ||
       (funnelQuery.bodyType && funnelQuery.bodyType.length > 0) ||
@@ -434,15 +432,6 @@ export const PLPUsedCar = ({
       setIsFilter(false)
     }
   }, [funnelQuery, brand])
-
-  useEffect(() => {
-    if (
-      isFilterFinancial &&
-      getLocalStorage(LocalStorageKey.flagResultFilterInfoPLP) !== true
-    ) {
-      setOpenLabelResultInfo(true)
-    }
-  }, [isFilterFinancial])
 
   useEffect(() => {
     setPage(1)
