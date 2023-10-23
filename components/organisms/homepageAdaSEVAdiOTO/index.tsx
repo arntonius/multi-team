@@ -48,6 +48,7 @@ const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
   )
   const { saveDataAnnouncementBox } = useUtils()
   const [isActive, setIsActive] = useState(false)
+  const [isProduct, setIsProduct] = useState(false)
   const { saveRecommendation } = useContext(CarContext) as CarContextType
   const [openCitySelectorModal, setOpenCitySelectorModal] = useState(false)
   const [cityListApi, setCityListApi] =
@@ -153,10 +154,12 @@ const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
 
   const closeLeadsForm = () => {
     setIsModalOpened(false)
+    setIsProduct(false)
   }
 
   const showLeadsForm = () => {
     setIsModalOpened(true)
+    setIsProduct(true)
   }
 
   useEffect(() => {
@@ -280,7 +283,11 @@ const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
           cityListFromApi={cityListApi}
         />
         {isModalOpenend && (
-          <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} onPage="LP" />
+          <AdaOTOdiSEVALeadsForm
+            onCancel={closeLeadsForm}
+            onPage="LP"
+            isProduct={isProduct}
+          />
         )}
 
         <CSAButton onClick={showLeadsForm} />

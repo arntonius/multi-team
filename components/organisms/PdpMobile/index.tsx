@@ -103,6 +103,7 @@ export default function NewCarVariantList({
     isOTO ? PdpDataOTOLocalContext : PdpDataLocalContext,
   )
   const [isModalOpenend, setIsModalOpened] = useState<boolean>(false)
+  const [isProduct, setIsProduct] = useState(false)
 
   const [isOpenCitySelectorOTRPrice, setIsOpenCitySelectorOTRPrice] =
     useState(false)
@@ -118,10 +119,12 @@ export default function NewCarVariantList({
 
   const closeLeadsForm = () => {
     setIsModalOpened(false)
+    setIsProduct(false)
   }
 
   const showLeadsForm = () => {
     setIsModalOpened(true)
+    setIsProduct(true)
   }
 
   const handlePreviewOpened = (payload: number) => {
@@ -758,7 +761,11 @@ export default function NewCarVariantList({
         sourceButton={isOpenCitySelectorOTRPrice ? 'OTR Price (PDP)' : ''}
       />
       {isModalOpenend && (
-        <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} onPage="PDP" />
+        <AdaOTOdiSEVALeadsForm
+          onCancel={closeLeadsForm}
+          onPage="PDP"
+          isProduct={isProduct}
+        />
       )}
       <ShareModal
         open={isOpenShareModal}
