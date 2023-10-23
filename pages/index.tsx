@@ -29,6 +29,7 @@ import {
   getCarofTheMonth,
   getMenu,
   getAnnouncementBox as gab,
+  getMobileFooterMenu,
 } from 'services/api'
 
 interface HomePageDataLocalContextType {
@@ -43,6 +44,7 @@ interface HomePageDataLocalContextType {
   dataMainArticle: any
   dataTypeCar: any
   dataCarofTheMonth: any
+  dataFooterMenu: any
 }
 /**
  * used to pass props without drilling through components
@@ -60,6 +62,7 @@ export const HomePageDataLocalContext =
     dataMainArticle: null,
     dataTypeCar: null,
     dataCarofTheMonth: null,
+    dataFooterMenu: [],
   })
 
 export default function WithTracker({
@@ -76,6 +79,7 @@ export default function WithTracker({
   dataTypeCar,
   dataCarofTheMonth,
   ssr,
+  dataFooterMenu,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { saveTypeCar, saveCarOfTheMonth, saveRecommendationToyota } = useCar()
   const {
@@ -83,6 +87,7 @@ export default function WithTracker({
     saveDesktopWebTopMenu,
     saveMobileWebTopMenus,
     saveDataAnnouncementBox,
+    saveMobileWebFooterMenus,
   } = useUtils()
 
   const getAnnouncementBox = async () => {
@@ -104,6 +109,7 @@ export default function WithTracker({
     saveTypeCar(dataTypeCar)
     saveRecommendationToyota(dataRecToyota)
     getAnnouncementBox()
+    saveMobileWebFooterMenus(dataFooterMenu)
   }, [])
 
   return (
@@ -120,6 +126,7 @@ export default function WithTracker({
         dataMainArticle,
         dataTypeCar,
         dataCarofTheMonth,
+        dataFooterMenu,
       }}
     >
       <Script
@@ -157,6 +164,7 @@ export async function getServerSideProps(context: any) {
       typeCarRes,
       carofTheMonthRes,
       menuDesktopRes,
+      footerMenuRes,
     ]: any = await Promise.all([
       getRecommendation(params),
       getBanner(),
@@ -170,6 +178,7 @@ export async function getServerSideProps(context: any) {
       getTypeCar('?city=jakarta'),
       getCarofTheMonth('?city=' + getCity().cityCode),
       getMenu(),
+      getMobileFooterMenu(),
     ])
     const [
       dataReccomendation,
@@ -184,6 +193,7 @@ export async function getServerSideProps(context: any) {
       dataTypeCar,
       dataCarofTheMonth,
       dataDesktopMenu,
+      dataFooterMenu,
     ] = await Promise.all([
       recommendationRes.carRecommendations,
       bannerRes.data,
@@ -197,6 +207,7 @@ export async function getServerSideProps(context: any) {
       typeCarRes,
       carofTheMonthRes.data,
       menuDesktopRes.data,
+      footerMenuRes.data,
     ])
     return {
       props: {
@@ -214,6 +225,7 @@ export async function getServerSideProps(context: any) {
         isSsrMobile: getIsSsrMobile(context),
         dataDesktopMenu,
         ssr: 'success',
+        dataFooterMenu,
       },
     }
   } catch (error) {
