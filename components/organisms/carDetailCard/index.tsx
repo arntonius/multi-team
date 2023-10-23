@@ -40,6 +40,7 @@ import {
   saveSessionStorage,
 } from 'utils/handler/sessionStorage'
 import { getLocalStorage } from 'utils/handler/localStorage'
+import { useUtils } from 'services/context/utilsContext'
 
 type CarDetailCardProps = {
   order?: number
@@ -67,6 +68,7 @@ export const CarDetailCard = ({
   isOTO,
 }: CarDetailCardProps) => {
   const router = useRouter()
+  const { saveDataLeads } = useUtils()
   const { funnelQuery } = useFunnelQueryData()
   const [cityOtr] = useLocalStorage<Location | null>(
     LocalStorageKey.CityOtr,
@@ -248,6 +250,20 @@ export const CarDetailCard = ({
     saveDataCarForLoginPageView()
   }
 
+  const generalImgProps = {
+    src: recommendation.images[0],
+    className: styles.heroImg,
+    alt: `${recommendation.brand} ${recommendation.model}`,
+    'data-testid': elementId.CarImage,
+    width: 279,
+    onClick: navigateToPDP(order),
+  }
+
+  const onClickInterested = () => {
+    saveDataLeads(recommendation)
+    setOpenInterestingModal(true)
+  }
+
   return (
     <div className={styles.container}>
       <CardShadow className={styles.cardWrapper}>
@@ -359,7 +375,7 @@ export const CarDetailCard = ({
           version={ButtonVersion.Secondary}
           size={ButtonSize.Big}
           onClick={() =>
-            isOTO ? setOpenInterestingModal(true) : navigateToLoanCalculator()
+            isOTO ? onClickInterested() : navigateToLoanCalculator()
           }
           data-testid={elementId.PLP.Button.HitungKemampuan}
         >
