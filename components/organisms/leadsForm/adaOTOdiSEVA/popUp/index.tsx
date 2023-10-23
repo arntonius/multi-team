@@ -202,7 +202,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
         ...(cityOtr?.id && { cityId: cityOtr.id }),
         platform,
       }
-      console.log('qwer lp icon', data)
     } else if (onPage === 'LP') {
       data = {
         origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_PLP_LEADS_FORM,
@@ -213,7 +212,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
         carBrand: dataLeads?.brand,
         carModelText: dataLeads?.model,
       }
-      console.log('qwer lp ', data)
     } else if (onPage === 'PLP' && isProduct) {
       data = {
         origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_PLP_LEADS_FORM,
@@ -222,7 +220,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
         ...(cityOtr?.id && { cityId: cityOtr.id }),
         platform,
       }
-      console.log('qwer plp icon', data)
     } else if (onPage === 'PLP') {
       data = {
         origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_PLP_LEADS_FORM,
@@ -233,7 +230,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
         carBrand: dataLeads?.brand,
         carModelText: dataLeads?.model,
       }
-      console.log('qwer plp', data)
     } else if (onPage === 'PDP' && isProduct) {
       data = {
         origination: UnverifiedLeadSubCategory.OTO_NEW_CAR_PDP_LEADS_FORM,
@@ -242,7 +238,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
         ...(cityOtr?.id && { cityId: cityOtr.id }),
         platform,
       }
-      console.log('qwer pdp icon', data)
     } else if (onPage === 'PDP') {
       const variants = carModelDetails?.variants
         .map((variant) => variant.name)
@@ -257,7 +252,6 @@ export const AdaOTOdiSEVALeadsForm: React.FC<PropsLeadsForm> = ({
         carModelText: carModelDetails?.model,
         carVariantText: variants,
       }
-      console.log('qwer pdp', data)
     }
     try {
       await createUnverifiedLeadNew(data)
