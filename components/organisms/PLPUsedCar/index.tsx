@@ -69,6 +69,8 @@ import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
 import { useUtils } from 'services/context/utilsContext'
 import dynamic from 'next/dynamic'
 import { usedCar } from 'services/context/usedCarContext'
+import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 
 const LeadsFormPrimary = dynamic(() =>
   import('components/organisms').then((mod) => mod.LeadsFormPrimary),
@@ -105,7 +107,6 @@ export const PLPUsedCar = ({
     brand,
     downPaymentAmount,
     monthlyIncome,
-    tenure,
     priceStart,
     priceEnd,
     yearStart,
@@ -116,8 +117,8 @@ export const PLPUsedCar = ({
     age,
     sortBy,
   } = router.query as FilterParam
-
   const [minMaxPrice, setMinMaxPrice] = useState<MinMaxPrice>(minmaxPrice)
+
   const [minMaxYear, setMinMaxYear] = useState<MinMaxYear>(minmaxYear)
   const [minMaxMileage, setMinMaxMileage] =
     useState<MinMaxMileage>(minmaxMileage)
@@ -139,7 +140,6 @@ export const PLPUsedCar = ({
     priceEnd ||
     yearStart ||
     yearEnd ||
-    tenure ||
     mileageStart ||
     mileageEnd ||
     transmission
@@ -170,8 +170,9 @@ export const PLPUsedCar = ({
     items: recommendation,
   })
   const [isOpenCitySelectorModal, setIsOpenCitySelectorModal] = useState(false)
-  const { cities, saveDataAnnouncementBox } = useUtils()
-  const [showAnnouncementBox, setIsShowAnnouncementBox] = useState(false)
+  const { cities, dataAnnouncementBox } = useUtils()
+  const { showAnnouncementBox, saveShowAnnouncementBox } =
+    useAnnouncementBoxContext()
   const [interactive, setInteractive] = useState(false)
   const [isLogin] = useState(!!getToken())
   const [dataCarForPromo, setDataCarForPromo] = useState({
@@ -251,7 +252,6 @@ export const PLPUsedCar = ({
       ...(downPaymentAmount && {
         downpayment: `Rp${Currency(String(downPaymentAmount))}`,
       }),
-      ...(tenure && { loantenure: `${tenure} years` }),
     }
     setTrackEventMoEngage(MoengageEventName.view_car_search, properties)
   }
@@ -283,31 +283,19 @@ export const PLPUsedCar = ({
     trackEventCountly(CountlyEventNames.WEB_PLP_OPEN_SORT_CLICK)
   }
   const getAnnouncementBox = () => {
-    if (!interactive) {
-      setInteractive(true)
-      api
-        .getAnnouncementBox({
-          headers: {
-            'is-login': getToken() ? 'true' : 'false',
-          },
-        })
-        .then((res: { data: AnnouncementBoxDataType }) => {
-          if (res.data === undefined) {
-            setIsShowAnnouncementBox(false)
-          } else {
-            saveDataAnnouncementBox(res.data)
-            const sessionAnnouncmentBox = getSessionStorage(
-              getToken()
-                ? SessionStorageKey.ShowWebAnnouncementLogin
-                : SessionStorageKey.ShowWebAnnouncementNonLogin,
-            )
-            if (typeof sessionAnnouncmentBox !== 'undefined') {
-              setIsShowAnnouncementBox(sessionAnnouncmentBox as boolean)
-            } else {
-              setIsShowAnnouncementBox(true)
-            }
-          }
-        })
+    if (dataAnnouncementBox) {
+      const isShowAnnouncement = getSessionStorage(
+        getToken()
+          ? SessionStorageKey.ShowWebAnnouncementLogin
+          : SessionStorageKey.ShowWebAnnouncementNonLogin,
+      )
+      if (typeof isShowAnnouncement !== 'undefined') {
+        saveShowAnnouncementBox(isShowAnnouncement as boolean)
+      } else {
+        saveShowAnnouncementBox(true)
+      }
+    } else {
+      saveShowAnnouncementBox(false)
     }
   }
 
@@ -336,8 +324,7 @@ export const PLPUsedCar = ({
     const prevPage = getSessionStorage(SessionStorageKey.PreviousPage) as any
     const filterUsage =
       brand || bodyType || (priceStart && priceEnd) ? 'Yes' : 'No'
-    const fincapUsage =
-      downPaymentAmount && tenure && age && monthlyIncome ? 'Yes' : 'No'
+    const fincapUsage = downPaymentAmount && age && monthlyIncome ? 'Yes' : 'No'
     const initialPage = valueForInitialPageProperty()
     const track = {
       CAR_FILTER_USAGE: filterUsage,
@@ -373,17 +360,19 @@ export const PLPUsedCar = ({
     }
   }
 
+  useAfterInteractive(() => {
+    getAnnouncementBox()
+  }, [dataAnnouncementBox])
+
   //handle scrolling
   useEffect(() => {
     window.scrollTo(0, 0)
     moengageViewPLP()
 
-    window.addEventListener('touchstart', getAnnouncementBox)
     window.addEventListener('scroll', handleScroll)
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('touchstart', getAnnouncementBox)
     }
   }, [])
 
@@ -422,7 +411,6 @@ export const PLPUsedCar = ({
       (funnelQuery.mileageEnd !== minMaxMileage.maxMileageValue.toString() &&
         funnelQuery.mileageEnd !== '' &&
         funnelQuery.mileageEnd !== undefined) ||
-      funnelQuery.tenure !== 5 ||
       (funnelQuery.transmission !== '' &&
         funnelQuery.transmission !== undefined) ||
       (brand && brand.length > 0)
@@ -456,10 +444,6 @@ export const PLPUsedCar = ({
         .getMinMaxPrice('', { params })
         .then((response) => {
           if (response) {
-            setMinMaxPrice({
-              minPriceValue: response.minPriceValue,
-              maxPriceValue: response.maxPriceValue,
-            })
             const minTemp = priceStart
               ? response?.data?.minPriceValue >
                 Number(priceStart && priceStart?.toString())
@@ -477,9 +461,6 @@ export const PLPUsedCar = ({
               brand: brand?.split(',')?.map((item) => getCarBrand(item)) || '',
               priceStart: priceStart ? minTemp : '',
               priceEnd: priceEnd ? maxTemp : '',
-              tenure: Number(tenure) || 5,
-              monthlyIncome: monthlyIncome || '',
-              sortBy: sortBy || 'lowToHigh',
             }
 
             getUsedCarFunnelRecommendations(queryParam)
@@ -525,7 +506,6 @@ export const PLPUsedCar = ({
         priceEnd: priceEnd,
         yearStart: yearStart,
         yearEnd: yearEnd,
-        tenure: Number(tenure) || 5,
         sortBy: sortBy || 'lowToHigh',
       }
       patchFunnelQuery(queryParam)
@@ -602,7 +582,6 @@ export const PLPUsedCar = ({
           ...(priceStart && { priceStart }),
           ...(priceEnd && { priceEnd }),
           ...(brand && { brand }),
-          ...(tenure && { tenure }),
           sortBy: val,
         },
       })
@@ -637,7 +616,7 @@ export const PLPUsedCar = ({
           isActive={isActive}
           setIsActive={setIsActive}
           emitClickCityIcon={() => setIsOpenCitySelectorModal(true)}
-          setShowAnnouncementBox={setIsShowAnnouncementBox}
+          setShowAnnouncementBox={saveShowAnnouncementBox}
           isShowAnnouncementBox={showAnnouncementBox}
           pageOrigination={'PLP'}
           isOTO={isOTO}
