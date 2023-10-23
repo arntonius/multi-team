@@ -42,6 +42,7 @@ import {
 } from 'utils/handler/sessionStorage'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { LocationRed } from 'components/atoms/icon/LocationRed'
+import urls from 'utils/helpers/url'
 
 const CarSkeleton = '/revamp/illustration/car-skeleton.webp'
 
@@ -239,7 +240,7 @@ export const UsedCarDetailCard = ({
   // }
 
   const onClickSeeDetail = () => {
-    saveDataForCountlyTrackerPageViewPDP(PreviousButton.ProductCard, 'PLP')
+    router.push(urls.internalUrls.usedCarDetailUrl)
   }
 
   const transmisi = recommendation?.carSpecifications?.find(
@@ -250,7 +251,7 @@ export const UsedCarDetailCard = ({
     (item) => item.specCode === 'fuel_type',
   )
   return (
-    <div className={styles.container}>
+    <div className={styles.container} onClick={onClickSeeDetail}>
       <CardShadow className={styles.cardWrapper}>
         {order === 0 ? (
           <Image
@@ -332,7 +333,9 @@ export const UsedCarDetailCard = ({
         <Button
           version={ButtonVersion.Secondary}
           size={ButtonSize.Big}
-          // onClick={() => navigateToLoanCalculator()}
+          onClick={() => {
+            router.push(urls.internalUrls.usedCarDetailUrl)
+          }}
           data-testid={elementId.PLP.Button.HitungKemampuan}
         >
           Tanya Unit
