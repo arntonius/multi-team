@@ -14,7 +14,6 @@ import { getLocalStorage } from 'utils/handler/localStorage'
 import { UTMTagsData } from 'utils/types/utils'
 import { LocalStorageKey } from 'utils/enum'
 import { useUtils } from 'services/context/utilsContext'
-import Link from 'next/link'
 import {
   trackEventCountly,
   valueMenuTabCategory,
@@ -58,11 +57,17 @@ export const FooterMobile = ({ pageOrigination }: FooterProps) => {
   }
 
   const formatMenuUrl = (url: string) => {
-    if (!url.startsWith('https://')) {
-      return 'https://' + url
+    // wordpress pages need to have trailing slash
+    let urlWithTrailingSlash = url
+    if (url.slice(-1) !== '/') {
+      urlWithTrailingSlash = url + '/'
     }
 
-    return url
+    if (!urlWithTrailingSlash.startsWith('https://')) {
+      return 'https://' + urlWithTrailingSlash
+    }
+
+    return urlWithTrailingSlash
   }
   const trackCountlyFooter = (menuUrl: string) => {
     if (pageOrigination && pageOrigination.length !== 0) {
@@ -97,7 +102,7 @@ export const FooterMobile = ({ pageOrigination }: FooterProps) => {
         <div className={styles.linkedTextWrapper}>
           {mobileWebFooterMenus?.length > 0 &&
             mobileWebFooterMenus.map((item, index) => (
-              <Link
+              <a
                 key={index}
                 href={formatMenuUrl(item.menuUrl)}
                 rel="noreferrer noopener"
@@ -108,7 +113,7 @@ export const FooterMobile = ({ pageOrigination }: FooterProps) => {
                 data-testid={dataTestId(item.menuCode)}
               >
                 {item.menuName}
-              </Link>
+              </a>
             ))}
         </div>
         <div className={styles.socialWrapper}>
