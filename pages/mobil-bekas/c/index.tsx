@@ -234,24 +234,9 @@ export const getServerSideProps: GetServerSideProps<{
     }
 
     const queryParam: any = {
-      ...(brand && {
-        brand: String(brand)
-          ?.split(',')
-          .map((item) => getCarBrand(item)),
-      }),
-      ...(transmission && {
-        transmission: String(transmission)
-          ?.split(',')
-          .map((item) => item),
-      }),
-      ...(priceStart && priceEnd
-        ? { priceStart, priceEnd }
-        : {
-            priceStart: meta.MinMaxPrice.minPriceValue,
-            priceEnd: meta.MinMaxPrice.maxPriceValue,
-          }),
-      ...(cityId && { cityId }),
-      ...(sortBy && { sortBy: 'lowToHigh' }),
+      ...{ sortBy: 'lowToHigh' },
+      ...{ page: '1' },
+      ...{ perPage: '10' },
     }
 
     const response = await getUsedCarFunnelRecommendations({ ...queryParam })
