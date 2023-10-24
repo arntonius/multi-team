@@ -40,7 +40,7 @@ interface ParamsUrl {
   yearStart?: string | number
   yearEnd?: string | number
   transmission?: string
-  city_id?: string
+  cityId?: string
 }
 
 type FilterMobileProps = {
@@ -119,7 +119,7 @@ const FilterMobileUsedCar = ({
   )
 
   const [locationSelected, setLocationSelected] = useState(
-    funnelQuery.city_id ? funnelQuery.city_id : [],
+    funnelQuery.cityId ? funnelQuery.cityId : [],
   )
 
   const [cityList, setCityList] = useState([])
@@ -155,11 +155,19 @@ const FilterMobileUsedCar = ({
       const resetBrandAndBodyType: FunnelQuery = {
         bodyType: [],
         brand: [],
-        city_id: [],
+        cityId: [],
+        transmission: [],
+        yearEnd: '',
+        yearStart: '',
+        mileageEnd: '',
+        mileageStart: '',
+        priceEnd: '',
+        priceStart: '',
       }
       setIsFilter(false)
       setIsCheckedBrand([])
       setLocationSelected([])
+      setTransmissionFilter([])
       patchFunnelQuery(resetBrandAndBodyType)
       setIsResetFilter && setIsResetFilter(true)
     }
@@ -174,7 +182,7 @@ const FilterMobileUsedCar = ({
     const paramUpdate = {
       ...paramQuery,
       brand: !resetTmp && isCheckedBrand.length > 0 ? isCheckedBrand : [],
-      city_id: !resetTmp && locationSelected.length > 0 ? locationSelected : [],
+      cityId: !resetTmp && locationSelected.length > 0 ? locationSelected : [],
       transmission:
         !resetTmp && transmissionFilter.length > 0 ? transmissionFilter : [],
       sortBy: funnelQuery.sortBy,
@@ -223,21 +231,27 @@ const FilterMobileUsedCar = ({
   const handleSuccess = async (response: any) => {
     const dataFunnelQuery: FunnelQuery = {
       brand: !resetTmp && isCheckedBrand.length > 0 ? isCheckedBrand : [],
-      city_id: !resetTmp && locationSelected.length > 0 ? locationSelected : [],
+      cityId: !resetTmp && locationSelected.length > 0 ? locationSelected : [],
       transmission:
         !resetTmp && transmissionFilter.length > 0 ? transmissionFilter : [],
       sortBy: funnelQuery.sortBy || 'lowToHigh',
+      priceStart: '',
+      priceEnd: '',
+      yearStart: '',
+      yearEnd: '',
+      mileageEnd: '',
+      mileageStart: '',
     }
     const paramUrl: ParamsUrl = {
       ...(!resetTmp &&
         isCheckedBrand.length > 0 && { brand: String(isCheckedBrand) }),
       ...(!resetTmp &&
         locationSelected.length > 0 && {
-          city_id: String(locationSelected),
-          ...(!resetTmp &&
-            transmissionFilter.length > 0 && {
-              transmission: String(transmissionFilter),
-            }),
+          cityId: String(locationSelected),
+        }),
+      ...(!resetTmp &&
+        transmissionFilter.length > 0 && {
+          transmission: String(transmissionFilter),
         }),
       ...(funnelQuery.sortBy && { sortBy: String(funnelQuery.sortBy) }),
     }
