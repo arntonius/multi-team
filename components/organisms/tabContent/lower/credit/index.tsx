@@ -233,6 +233,8 @@ export const CreditTab = () => {
   const referralCodeFromUrl: string | null = getLocalStorage(
     LocalStorageKey.referralTemanSeva,
   )
+  const [finalMinInputDp, setFinalMinInputDp] = useState(0)
+  const [finalMaxInputDp, setFinalMaxInputDp] = useState(0)
 
   const isUsingFilterFinancial =
     !!filterStorage?.age &&
@@ -1052,6 +1054,65 @@ export const CreditTab = () => {
       JSON.stringify(dataCarTemp),
     )
   }
+
+  const validateDpInputRange = async () => {
+    if (!!forms.variant?.variantId && !!forms.city.cityCode) {
+      try {
+        const finalDpRange = await api.getFinalDpRangeValidation(
+          forms.variant?.variantId,
+          forms.city.cityCode,
+        )
+
+        if (finalDpRange?.minAmount !== 0 && finalDpRange?.maxAmount !== 0) {
+          setFinalMinInputDp(finalDpRange?.minAmount)
+          setFinalMaxInputDp(finalDpRange?.maxAmount)
+          if (forms.downPaymentAmount < finalDpRange?.minAmount) {
+            setIsDpTooLow(true)
+            setIsDpExceedLimit(false)
+            scrollToElement('loan-calculator-form-dp')
+            return false
+          } else if (forms.downPaymentAmount > finalDpRange?.maxAmount) {
+            setIsDpTooLow(false)
+            setIsDpExceedLimit(true)
+            scrollToElement('loan-calculator-form-dp')
+            return false
+          } else {
+            setIsDpTooLow(false)
+            setIsDpExceedLimit(false)
+            return true
+          }
+        } else {
+          const minDp20Percent = getCarOtrNumber() * 0.2
+          const maxDp90Percent = getCarOtrNumber() * 0.9
+          setFinalMinInputDp(minDp20Percent)
+          setFinalMaxInputDp(maxDp90Percent)
+          if (
+            parseInt(forms.downPaymentAmount) >= minDp20Percent &&
+            parseInt(forms.downPaymentAmount) <= maxDp90Percent
+          ) {
+            setIsDpTooLow(false)
+            setIsDpExceedLimit(false)
+            return true
+          } else if (parseInt(forms.downPaymentAmount) < minDp20Percent) {
+            setIsDpTooLow(true)
+            setIsDpExceedLimit(false)
+            scrollToElement('loan-calculator-form-dp')
+            return false
+          } else if (parseInt(forms.downPaymentAmount) > maxDp90Percent) {
+            setIsDpTooLow(false)
+            setIsDpExceedLimit(true)
+            scrollToElement('loan-calculator-form-dp')
+            return false
+          }
+        }
+      } catch {
+        return false
+      }
+    } else {
+      return false
+    }
+  }
+
   const onClickCalculate = async () => {
     validateFormFields()
 
@@ -1059,83 +1120,91 @@ export const CreditTab = () => {
       return
     }
 
-    const promoCodeValidity = await checkPromoCode()
+    setIsLoadingCalculation(true)
 
-    if (promoCodeValidity) {
-      setIsLoadingCalculation(true)
-
-      const dataFinancial = {
-        ...financialQuery,
-        downPaymentAmount: dpValue,
-        age: forms.age ? String(forms.age) : financialQuery.age,
-        monthlyIncome: forms.monthlyIncome
-          ? forms.monthlyIncome
-          : financialQuery.monthlyIncome,
-      }
-
-      patchFinancialQuery(dataFinancial)
-      patchFunnelQuery({
-        age: forms.age,
-        monthlyIncome: forms.monthlyIncome,
-        downPaymentAmount: forms.downPaymentAmount,
-      })
-
-      fetchCarRecommendations()
-
-      const payload: LoanCalculatorIncludePromoPayloadType = {
-        brand: forms.model?.brandName ?? '',
-        model: removeFirstWordFromString(forms.model?.modelName ?? ''),
-        age: forms.age,
-        angsuranType: forms.paymentOption,
-        city: forms.city.cityCode,
-        discount: getCarDiscountNumber(),
-        dp: mappedDpPercentage,
-        dpAmount: dpValue,
-        monthlyIncome: forms.monthlyIncome,
-        otr: getCarOtrNumber() - getCarDiscountNumber(),
-        variantId: forms.variant?.variantId,
-      }
-
-      api
-        .postLoanPermutationIncludePromo(payload)
-        .then((response) => {
-          const result = response.data.reverse()
-          const filteredResult = getFilteredCalculationResults(result)
-          setCalculationResult(filteredResult)
-          generateSelectedInsuranceAndPromo(filteredResult)
-          trackCountlyResult(filteredResult)
-
-          // select loan with the longest tenure as default
-          const selectedLoanInitialValue =
-            filteredResult.sort(
-              (
-                a: SpecialRateListWithPromoType,
-                b: SpecialRateListWithPromoType,
-              ) => b.tenure - a.tenure,
-            )[0] ?? null
-          setSelectedLoan(selectedLoanInitialValue)
-          saveDefaultTenureCarForLoginPageView(
-            selectedLoanInitialValue.tenure,
-            selectedLoanInitialValue.loanRank,
-          )
-          setIsDataSubmitted(true)
-          setCalculationApiPayload(payload)
-          // scrollToResult()
-        })
-        .catch((error: any) => {
-          if (error?.response?.data?.message) {
-            setToastMessage(`${error?.response?.data?.message}`)
-          } else {
-            setToastMessage(
-              'Mohon maaf, terjadi kendala jaringan silahkan coba kembali lagi',
-            )
-          }
-          setIsOpenToast(true)
-        })
-        .finally(() => {
-          setIsLoadingCalculation(false)
-        })
+    const dpInputRangeValidity = await validateDpInputRange()
+    if (!dpInputRangeValidity) {
+      setIsLoadingCalculation(false)
+      return
     }
+
+    const promoCodeValidity = await checkPromoCode()
+    if (!promoCodeValidity) {
+      setIsLoadingCalculation(false)
+      return
+    }
+
+    const dataFinancial = {
+      ...financialQuery,
+      downPaymentAmount: dpValue,
+      age: forms.age ? String(forms.age) : financialQuery.age,
+      monthlyIncome: forms.monthlyIncome
+        ? forms.monthlyIncome
+        : financialQuery.monthlyIncome,
+    }
+
+    patchFinancialQuery(dataFinancial)
+    patchFunnelQuery({
+      age: forms.age,
+      monthlyIncome: forms.monthlyIncome,
+      downPaymentAmount: forms.downPaymentAmount,
+    })
+
+    fetchCarRecommendations()
+
+    const payload: LoanCalculatorIncludePromoPayloadType = {
+      brand: forms.model?.brandName ?? '',
+      model: removeFirstWordFromString(forms.model?.modelName ?? ''),
+      age: forms.age,
+      angsuranType: forms.paymentOption,
+      city: forms.city.cityCode,
+      discount: getCarDiscountNumber(),
+      dp: mappedDpPercentage,
+      dpAmount: dpValue,
+      monthlyIncome: forms.monthlyIncome,
+      otr: getCarOtrNumber() - getCarDiscountNumber(),
+      variantId: forms.variant?.variantId,
+    }
+
+    api
+      .postLoanPermutationIncludePromo(payload)
+      .then((response) => {
+        const result = response.data.reverse()
+        const filteredResult = getFilteredCalculationResults(result)
+        setCalculationResult(filteredResult)
+        generateSelectedInsuranceAndPromo(filteredResult)
+        trackCountlyResult(filteredResult)
+
+        // select loan with the longest tenure as default
+        const selectedLoanInitialValue =
+          filteredResult.sort(
+            (
+              a: SpecialRateListWithPromoType,
+              b: SpecialRateListWithPromoType,
+            ) => b.tenure - a.tenure,
+          )[0] ?? null
+        setSelectedLoan(selectedLoanInitialValue)
+        saveDefaultTenureCarForLoginPageView(
+          selectedLoanInitialValue.tenure,
+          selectedLoanInitialValue.loanRank,
+        )
+        setIsDataSubmitted(true)
+        setCalculationApiPayload(payload)
+        // scrollToResult()
+      })
+      .catch((error: any) => {
+        if (error?.response?.data?.message) {
+          setToastMessage(`${error?.response?.data?.message}`)
+        } else {
+          setToastMessage(
+            'Mohon maaf, terjadi kendala jaringan silahkan coba kembali lagi',
+          )
+        }
+        setIsOpenToast(true)
+      })
+      .finally(() => {
+        setIsLoadingCalculation(false)
+      })
   }
 
   const validateFormFields = () => {
@@ -1801,6 +1870,8 @@ export const CreditTab = () => {
               emitOnFocusDpAmountField={onFocusDpAmountField}
               emitOnFocusDpPercentageField={onFocusDpPercentageField}
               emitOnAfterChangeDpSlider={onAfterChangeDpSlider}
+              finalMinInputDp={finalMinInputDp}
+              finalMaxInputDp={finalMaxInputDp}
             />
           </div>
           <div id="loan-calculator-form-installment-type">
