@@ -537,7 +537,7 @@ const jsonLD = (
     SiteNavigationElement: {
       '@type': 'SiteNavigationElement',
       name: 'SEVA',
-      potencialAction: [
+      potentialAction: [
         {
           '@type': 'Action',
           name: 'Mobil',
