@@ -29,10 +29,12 @@ export const FormCarLocation = ({
 }: CarLocationProps) => {
   const { funnelQuery } = useFunnelQueryUsedCarData()
   const [chosen, setChosen] = useState(
-    funnelQuery.city_id ? funnelQuery.city_id : [],
+    funnelQuery.cityId ? funnelQuery.cityId : [],
   )
   const [totalChosen, setTotalChosen] = useState(0)
   const [changeIcon, setChangeIcon] = useState(false)
+  const [options, setOptions] = useState(cityList)
+
   const handleChange = (value: any) => {
     setTotalChosen(value.length)
     setChosen(value)
@@ -88,7 +90,7 @@ export const FormCarLocation = ({
                 <IconChevronDown color="#13131B" width={33} height={27} />
               )
             }
-            optionFilterProp="value"
+            optionFilterProp="label"
             dropdownStyle={{ padding: '4px 0' }}
             getPopupContainer={() =>
               document.getElementById('formCarLocation')!
@@ -117,7 +119,7 @@ export const FormCarLocation = ({
               </>
             )}
           >
-            {cityList.map((item: Option) => (
+            {options.map((item: Option) => (
               <Option
                 key={item.cityId}
                 value={item.cityId}

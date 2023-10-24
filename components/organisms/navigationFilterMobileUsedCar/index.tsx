@@ -87,17 +87,6 @@ export const NavigationFilterMobileUsedCar = ({
     newFunnel(filter)
   }
 
-  const removeTransmissionFilter = () => {
-    patchFunnelQuery({
-      transmission: '',
-    })
-    const filter = {
-      ...funnelQuery,
-      transmission: '',
-    }
-    newFunnel(filter)
-  }
-
   const removeYearRangeFilter = () => {
     patchFunnelQuery({
       yearStart: '',
@@ -136,19 +125,34 @@ export const NavigationFilterMobileUsedCar = ({
           funnelQuery.brand.filter((item: any) => item !== key),
       }
       newFunnel(filter)
-    } else {
+    } else if (type === 'city') {
       patchFunnelQuery({
-        city_id:
-          funnelQuery.city_id &&
-          funnelQuery.city_id.filter((item: any) => {
+        cityId:
+          funnelQuery.cityId &&
+          funnelQuery.cityId.filter((item: any) => {
             return item !== key
           }),
       })
       const filter = {
         ...funnelQuery,
-        city_id:
-          funnelQuery.city_id &&
-          funnelQuery.city_id.filter((item: any) => item !== key),
+        cityId:
+          funnelQuery.cityId &&
+          funnelQuery.cityId.filter((item: any) => item !== key),
+      }
+      newFunnel(filter)
+    } else {
+      patchFunnelQuery({
+        transmission:
+          funnelQuery.transmission &&
+          funnelQuery.transmission.filter((item: any) => {
+            return item !== key
+          }),
+      })
+      const filter = {
+        ...funnelQuery,
+        transmission:
+          funnelQuery.transmission &&
+          funnelQuery.transmission.filter((item: any) => item !== key),
       }
       newFunnel(filter)
     }
@@ -156,12 +160,17 @@ export const NavigationFilterMobileUsedCar = ({
 
   useEffect(() => {
     const resultFilter = cityList?.filter((item: any) => {
-      return funnelQuery.city_id?.includes(item.cityId)
+      return funnelQuery.cityId?.includes(item.cityId)
     })
 
     setLocation(resultFilter)
-  }, [funnelQuery.city_id])
+  }, [funnelQuery.cityId])
   const newFunnel = async (filter: any) => {
+    const filerPagePerpage = {
+      ...filter,
+      page: '1',
+      perPage: '10',
+    }
     getUsedCarFunnelRecommendations(filter).then((response: any) => {
       setTotalItems(response.totalItems)
       setRecommendations(response.carData)
@@ -172,8 +181,11 @@ export const NavigationFilterMobileUsedCar = ({
         yearEnd: filter.yearEnd,
         mileageStart: filter.mileageStart,
         mileageEnd: filter.mileageEnd,
-        city_id: filter.city_id,
-        transmission: filter.transmission,
+        cityId: filter.cityId,
+        transmission:
+          filter.transmission.length > 0
+            ? String(filter.transmission).replace(' ', ',')
+            : '',
         // sortBy: sortBy,
         brand:
           filter.brand.length > 0 ? String(filter.brand).replace(' ', ',') : '',
@@ -250,7 +262,7 @@ export const NavigationFilterMobileUsedCar = ({
                 <div key={item} className={styles.navOuter}>
                   <div
                     className={styles.navFrame}
-                    onClick={() => removeFilter('location', item.cityId)}
+                    onClick={() => removeFilter('city', item.cityId)}
                   >
                     <span className={styles.text}>{item.cityName}</span>{' '}
                     <div className={styles.onClick}>
@@ -276,21 +288,20 @@ export const NavigationFilterMobileUsedCar = ({
                 </div>
               </div>
             )}
-            {funnelQuery.transmission && (
-              <div className={styles.navOuter}>
-                <div
-                  className={styles.navFrame}
-                  onClick={removeTransmissionFilter}
-                >
-                  <span className={styles.text}>
-                    {funnelQuery.transmission}
-                  </span>{' '}
-                  <div className={styles.onClick}>
-                    <IconRemove width={16} height={16} color="#878D98" />
+            {funnelQuery.transmission &&
+              funnelQuery.transmission.map((item: string) => (
+                <div key={item} className={styles.navOuter}>
+                  <div
+                    className={styles.navFrame}
+                    onClick={() => removeFilter('transmission', item)}
+                  >
+                    <span className={styles.text}>{item}</span>{' '}
+                    <div className={styles.onClick}>
+                      <IconRemove width={16} height={16} color="#878D98" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              ))}
             {funnelQuery.yearStart && funnelQuery.yearEnd && (
               <div className={styles.navOuter}>
                 <div

@@ -4,6 +4,8 @@ import { Input, Slider } from 'antd'
 import { addSeparator, filterNonDigitCharacters } from 'utils/stringUtils'
 import { useFunnelQueryUsedCarData } from 'services/context/funnelQueryUsedCarContext'
 import elementId from 'helpers/elementIds'
+import { LanguageCode } from 'utils/enum'
+import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
 
 type FormMileageProps = {
   minMaxMileage?: any
@@ -25,6 +27,12 @@ export const FormMileage = ({
 }: FormMileageProps) => {
   const { funnelQuery } = useFunnelQueryUsedCarData()
 
+  const separatorThousand = (value: any) => {
+    return replacePriceSeparatorByLocalization(
+      filterNonDigitCharacters(value.toString()),
+      LanguageCode.id,
+    )
+  }
   const [minDefault] = useState(minMaxMileage.minMileageValue)
   const [maxDefault] = useState(minMaxMileage.maxMileageValue)
   const [minTemp, setMinTemp] = useState(
@@ -43,13 +51,13 @@ export const FormMileage = ({
   const [isErrorMaxTwo, setIsErrorMaxTwo] = useState(false)
   const [minTempCurrency, setMinTempCurrency] = useState(
     funnelQuery.mileageStart
-      ? funnelQuery.mileageStart?.toString()
-      : minMaxMileage.minMileageValue,
+      ? separatorThousand(funnelQuery.mileageStart?.toString())
+      : separatorThousand(minMaxMileage.minMileageValue),
   )
   const [maxTempCurrency, setMaxTempCurrency] = useState(
     funnelQuery.mileageEnd
-      ? funnelQuery.mileageEnd?.toString()
-      : minMaxMileage.maxMileageValue,
+      ? separatorThousand(funnelQuery.mileageEnd?.toString())
+      : separatorThousand(minMaxMileage.maxMileageValue),
   )
 
   const onChangeInputMinimum = (event: ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +80,7 @@ export const FormMileage = ({
       setIsErrorForm(false)
     }
     setIsErrorMaxTwo(false)
-    setMinTempCurrency(event.target.value)
+    setMinTempCurrency(separatorThousand(event.target.value))
     setMinMileageFilter(filterNonDigitCharacters(event.target.value))
     setMinTemp(Number(filterNonDigitCharacters(event.target.value)))
     return
@@ -98,17 +106,17 @@ export const FormMileage = ({
     }
     setIsErrorMinTwo(false)
     setMaxMileageFilter(filterNonDigitCharacters(event.target.value))
-    setMaxTempCurrency(event.target.value)
+    setMaxTempCurrency(separatorThousand(event.target.value))
     setMaxTemp(Number(filterNonDigitCharacters(event.target.value)))
     return
   }
   const onChangeSlider = (newValue: any) => {
     setMinTemp(newValue[0])
-    setMinTempCurrency(newValue[0].toString())
+    setMinTempCurrency(separatorThousand(newValue[0].toString()))
     setMinMileageFilter(newValue[0].toString())
     setMaxMileageFilter(newValue[1].toString())
     setMaxTemp(newValue[1])
-    setMaxTempCurrency(newValue[1].toString())
+    setMaxTempCurrency(separatorThousand(newValue[1].toString()))
     if (newValue[0] > minDefault) {
       setIsErrorMin(false)
       setIsErrorMinTwo(false)
@@ -126,17 +134,21 @@ export const FormMileage = ({
     if (isResetFilter) {
       setMinTemp(minMaxMileage.minMileageValue)
       setMaxTemp(minMaxMileage.maxMileageValue)
-      setMinTempCurrency(minMaxMileage.minMileageValue)
-      setMaxTempCurrency(minMaxMileage.maxMileageValue)
+      setMinTempCurrency(separatorThousand(minMaxMileage.minMileageValue))
+      setMaxTempCurrency(separatorThousand(minMaxMileage.maxMileageValue))
     }
     if (funnelQuery.mileageEnd && !isApplied) {
       if (maxTemp === minMaxMileage.maxMileageValue) {
         setMaxTemp(funnelQuery.mileageEnd?.toString())
-        setMaxTempCurrency(funnelQuery.mileageEnd?.toString())
+        setMaxTempCurrency(
+          separatorThousand(funnelQuery.mileageEnd?.toString()),
+        )
       }
       if (minTemp === minMaxMileage.minMileageValue) {
         setMinTemp(funnelQuery.mileageStart?.toString())
-        setMinTempCurrency(funnelQuery.mileageStart?.toString())
+        setMinTempCurrency(
+          separatorThousand(funnelQuery.mileageStart?.toString()),
+        )
       }
     }
   }, [isResetFilter, isApplied, isButtonClick])

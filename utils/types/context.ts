@@ -58,6 +58,7 @@ export interface FilterParam extends NextParsedUrlQuery {
   mileageStart?: string
   mileageEnd?: string
   transmission?: string
+  cityId?: string
   age: string
   sortBy: string
 }
@@ -77,14 +78,16 @@ export interface FunnelQuery extends Filter {
   yearEnd?: string
   mileageStart?: string
   mileageEnd?: string
-  transmission?: string
-  city_id?: string[]
+  transmission?: string[]
+  cityId?: string[]
   priceStart?: string
   priceEnd?: string
   priceRangeGroup?: string
   phoneNumber?: string
   isDefaultTenureChanged?: boolean
   filterFincap?: boolean
+  page?: string
+  perPage?: string
 }
 
 export interface UTM {

@@ -250,6 +250,9 @@ export const UsedCarDetailCard = ({
   const bahanBakar = recommendation?.carSpecifications?.find(
     (item) => item.specCode === 'fuel_type',
   )
+
+  const priceFormated = recommendation.priceFormatedValue.replace(/\s/g, '')
+
   return (
     <div className={styles.container} onClick={onClickSeeDetail}>
       <CardShadow className={styles.cardWrapper}>
@@ -258,7 +261,7 @@ export const UsedCarDetailCard = ({
             src={recommendation.mainImage || CarSkeleton}
             className={styles.heroImg}
             alt={`${recommendation.variantName}`}
-            // onClick={navigateToPDP(order)}
+            onClick={onClickSeeDetail}
             data-testid={elementId.CarImage}
             width={279}
             height={209}
@@ -269,7 +272,7 @@ export const UsedCarDetailCard = ({
             src={recommendation.mainImage || CarSkeleton}
             className={styles.heroImg}
             alt={`${recommendation.variantName}`}
-            // onClick={navigateToPDP(order)}
+            onClick={onClickSeeDetail}
             data-testid={elementId.CarImage}
             width={279}
           />
@@ -277,19 +280,19 @@ export const UsedCarDetailCard = ({
         <div
           className={styles.contentWrapper}
           role="button"
-          // onClick={navigateToPDP(order)}
+          onClick={onClickSeeDetail}
         >
           <h2
             className={styles.brandModelText}
             data-testid={elementId.PLP.Text + 'brand-model-mobil'}
           >
-            {recommendation.variantName}
+            {recommendation.variantName} {recommendation.year}
           </h2>
           <span
             className={styles.priceOtrRange}
             data-testid={elementId.PLP.Text + 'range-harga'}
           >
-            {recommendation.priceFormatedValue}
+            {priceFormated}
           </span>
           <span className={styles.locationSmallRegular}>
             <LocationRed />
