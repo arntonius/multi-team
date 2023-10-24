@@ -75,9 +75,7 @@ const LoginModalMultiKK = dynamic(
 )
 
 const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
-  const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
-    HomePageDataLocalContext,
-  )
+  const { dataCities, dataCarofTheMonth } = useContext(HomePageDataLocalContext)
   const { saveRecommendation } = useCar()
   const [openCitySelectorModal, setOpenCitySelectorModal] = useState(false)
   const [cityListApi, setCityListApi] =
@@ -89,14 +87,17 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const [isLoginModalOpened, setIsLoginModalOpened] = useState(false)
   const [carOfTheMonthData, setCarOfTheMonthData] =
     useState<COMData[]>(dataCarofTheMonth)
-  const [articles, setArticles] = useState<Article[]>(dataMainArticle)
-  const [articlesTabList, setArticlesTabList] =
-    useState<Article[]>(dataMainArticle)
+  const { articles } = useUtils()
+  const [articlesTabList, setArticlesTabList] = useState<Article[]>(articles)
   const [isModalOpenend, setIsModalOpened] = useState<boolean>(false)
   const [selectedCarOfTheMonth, setSelectedCarOfTheMonth] =
     useState<COMDataTracking>()
   const enableAnnouncementBoxAleph =
     getCurrentEnvironment.featureToggles.enableAnnouncementBoxAleph
+
+  useEffect(() => {
+    setArticlesTabList(articles)
+  }, [articles])
 
   const router = useRouter()
 
@@ -137,15 +138,6 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
     } catch {
       saveRecommendation(dataReccomendation)
     }
-  }
-
-  const getArticles = async () => {
-    const response = await fetch(
-      'https://www.seva.id/wp-json/foodicious/latest-posts/65',
-    )
-    const responseData = await response.json()
-    setArticles(responseData)
-    setArticlesTabList(responseData)
   }
 
   const onClickCategory = async (value: string) => {
@@ -261,7 +253,6 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
       loadCarRecommendation()
       getCarOfTheMonth()
       checkCitiesData()
-      getArticles()
     } else {
       saveRecommendation(dataReccomendation)
     }
