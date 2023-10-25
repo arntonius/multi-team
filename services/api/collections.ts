@@ -38,7 +38,7 @@ const product = {
 
 const usedCar = {
   usedCars: `${baseUrl}/used-car`,
-  skuCode: `${baseUrl}/used-car/detail/:sku_code`,
+  skuCode: `${baseUrl}/used-car/details/:sku_code`,
   cityList: `${baseUrl}/used-car/city-list`,
   pricing: `${baseUrl}/used-car/get-price-car-min-max-by-city`,
   years: `${baseUrl}/used-car/get-years-car-min-max-by-city`,
