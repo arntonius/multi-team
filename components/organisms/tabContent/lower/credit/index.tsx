@@ -1340,7 +1340,10 @@ export const CreditTab = () => {
         : selectedLoanData.tdpBeforePromo,
       LanguageCode.id,
     )}, cicilan per bulannya Rp${replacePriceSeparatorByLocalization(
-      loan?.installment,
+      !!selectedLoanData.installmentAfterPromo &&
+        selectedLoanData.installmentAfterPromo !== 0
+        ? selectedLoanData.installmentAfterPromo
+        : selectedLoanData.installmentBeforePromo,
       LanguageCode.id,
     )}, dan tenor ${loan?.tenure} tahun. ${getLastSentenceMessage()}`
 
