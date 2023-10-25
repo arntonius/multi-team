@@ -199,7 +199,8 @@ export type UsedCarRecommendation = {
   cityCode: number
   cityId: number
   cityName: string
-  model: string
+  brandName: string
+  modelName: string
   priceFormatedValue: string
   sevaUrl: string
   skuCode: string
@@ -211,4 +212,28 @@ export type UsedCarRecommendation = {
 export interface UsedCarRecommendationResponse {
   carRecommendations: UsedCarRecommendation[]
   totalItems: number
+}
+
+export interface UsedCarDetail {
+  carGallery: UsedCarMedia[]
+  carId: string
+  carSpecifications: UsedCarSpecification[]
+  cityCode: number
+  cityId: number
+  cityName: string
+  color: string
+  isShow: boolean
+  mileage: number
+  modelName: string
+  nik: number
+  partnerId: number
+  partnerName: string
+  plate: string
+  priceValue: string
+  productCat: string
+  sevaUrl: string
+  skuCode: string
+  taxDate: string
+  variantName: string
+  variantTitle: string
 }
