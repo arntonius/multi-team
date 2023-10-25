@@ -56,6 +56,8 @@ import LeadsFormAdaOTOdiSEVA from './leadsForm/adaOTOdiSEVA'
 import { AdaOTOdiSEVALeadsForm } from './leadsForm/adaOTOdiSEVA/popUp'
 import { LoginModalMultiKK } from './loginModalMultiKK'
 import { UsedCarDetailCard } from './usedCarDetailCard'
+import { Login } from './login'
+import { Register } from './register'
 const Exterior360ViewerTab = dynamic(
   () => import('./tabContent/upper/exterior360Viewer'),
 )
@@ -119,4 +121,6 @@ export {
   AdaOTOdiSEVALeadsForm,
   UsedCarDetailCard,
   InformationSection,
+  Login,
+  Register,
 }
