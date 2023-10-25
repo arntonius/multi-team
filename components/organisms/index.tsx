@@ -58,6 +58,8 @@ import { LoginModalMultiKK } from './loginModalMultiKK'
 import { UsedCarDetailCard } from './usedCarDetailCard'
 import { Login } from './login'
 import { Register } from './register'
+import UsedPdpMobile from './UsedPdpMobile'
+
 const Exterior360ViewerTab = dynamic(
   () => import('./tabContent/upper/exterior360Viewer'),
 )
@@ -123,4 +125,5 @@ export {
   InformationSection,
   Login,
   Register,
+  UsedPdpMobile,
 }
