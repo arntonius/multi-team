@@ -78,6 +78,7 @@ export const getUsedCarFunnelRecommendations = (
     cityId,
     priceStart,
     priceEnd,
+    plate,
     page,
     perPage,
   } = funnelQuery
@@ -92,6 +93,7 @@ export const getUsedCarFunnelRecommendations = (
   transmission &&
     transmission.length > 0 &&
     transmission.map((item) => params.append('transmission', item))
+  plate && plate.length > 0 && plate.map((item) => params.append('plate', item))
   priceStart && params.append('priceStart', priceStart?.toString() as string)
   priceEnd && params.append('priceEnd', priceEnd?.toString() as string)
   mileageStart &&
