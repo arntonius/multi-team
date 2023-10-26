@@ -131,9 +131,16 @@ export const UsedCarDetailCard = ({
   //   !!filterStorage?.monthlyIncome &&
   //   !!filterStorage?.tenure
 
+  const parseUrl = (url: any) => {
+    const urlObj = new URL(url)
+    const pathnameSegments = urlObj.pathname.split('/')
+    const id = pathnameSegments[pathnameSegments.length - 1]
+    return id
+  }
+
   const detailCarRoute = usedCarDetailUrl.replace(
     ':id',
-    recommendation.sevaUrl.replace(/ +/g, '').toLowerCase(),
+    parseUrl(recommendation.sevaUrl).toLowerCase(),
   )
 
   const cityName = getCity()?.cityName || 'Jakarta Pusat'
@@ -240,9 +247,6 @@ export const UsedCarDetailCard = ({
 
   const onClickSeeDetail = () => {
     // router.push(urls.internalUrls.usedCarDetailUrl)
-    api
-      .getUsedCarBySKU(recommendation.skuCode, '')
-      .then((data) => saveDetail(data.data[0]))
     router.push(detailCarRoute)
   }
 
