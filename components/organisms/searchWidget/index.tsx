@@ -38,7 +38,6 @@ import {
   SelectWidget,
   TenureOptionWidget,
 } from 'components/molecules'
-import { useRouter } from 'next/router'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { SearchWidgetContext, SearchWidgetContextType } from 'services/context'
 

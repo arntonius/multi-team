@@ -11,7 +11,6 @@ import { getLocalStorage } from 'utils/handler/localStorage'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import getCurrentEnvironment from 'utils/handler/getCurrentEnvironment'
 import { alephArticleCategoryList } from 'utils/config/articles.config'
-
 import { countDaysDifference } from 'utils/handler/date'
 import {
   CtaWidget,
@@ -53,7 +52,6 @@ import {
 import { RouteName } from 'utils/navigate'
 import { useCar } from 'services/context/carContext'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
-import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 import { useUtils } from 'services/context/utilsContext'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
