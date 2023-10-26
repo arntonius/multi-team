@@ -59,6 +59,7 @@ import { UsedCarDetailCard } from './usedCarDetailCard'
 import { Login } from './login'
 import { Register } from './register'
 import UsedPdpMobile from './UsedPdpMobile'
+import Profile from './profile'
 
 const Exterior360ViewerTab = dynamic(
   () => import('./tabContent/upper/exterior360Viewer'),
@@ -126,4 +127,5 @@ export {
   Login,
   Register,
   UsedPdpMobile,
+  Profile,
 }
