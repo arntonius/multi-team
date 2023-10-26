@@ -7,12 +7,10 @@ import {
   LoanCalculatorInsuranceAndPromoType,
   PromoItemType,
 } from 'utils/types/utils'
-import { useContextCalculator } from 'services/context/calculatorContext'
 import { ShimmerPromoCard } from 'components/molecules/shimmerPromoCard'
 import { SelectablePromo } from 'components/molecules/selectablePromo'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
-import { api } from 'services/api'
 import {
   getInstallmentAffectedByPromo,
   getInterestRateAffectedByPromo,
@@ -23,6 +21,7 @@ import {
   saveSessionStorage,
 } from 'utils/handler/sessionStorage'
 import { SessionStorageKey } from 'utils/enum'
+import { postLoanPermutationIncludePromo } from 'services/api'
 
 interface Props {
   selectedTenure: number
@@ -182,11 +181,10 @@ export const PromoBottomList = ({
           promoInsuranceTemp[indexForSelectedTenure].interestRateAfterPromo
 
         setIsLoadingRecalculateSDD01(true)
-        api
-          .postLoanPermutationIncludePromo({
-            ...calculationApiPayload,
-            calculateIncludeSubsidi: false,
-          })
+        postLoanPermutationIncludePromo({
+          ...calculationApiPayload,
+          calculateIncludeSubsidi: false,
+        })
           .then((response) => {
             const result = response.data.reverse()
             const permutationMatchingCurrentTenure = result.filter(
