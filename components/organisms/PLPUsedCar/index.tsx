@@ -430,6 +430,9 @@ export const PLPUsedCar = ({
     setHasMore(true)
     setSampleArray({ items: recommendation })
     saveRecommendation(recommendation)
+    if (sampleArray.items.length >= totalItems!) {
+      setHasMore(false)
+    }
   }, [recommendation])
 
   useEffect(() => {
