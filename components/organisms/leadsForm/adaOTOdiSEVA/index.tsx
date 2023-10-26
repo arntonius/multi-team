@@ -15,8 +15,7 @@ import elementId from 'utils/helpers/trackerId'
 import { Button, Input, InputPhone, Toast } from 'components/atoms'
 import Image from 'next/image'
 import { IconLoading } from 'components/atoms/icon'
-import { PageOriginationName } from 'utils/types/tracker'
-import { api } from 'services/api'
+
 import { setTrackEventMoEngageWithoutValue } from 'services/moengage'
 import { FunnelQueryContext, FunnelQueryContextType } from 'services/context'
 import { useRouter } from 'next/router'
@@ -24,6 +23,7 @@ import { OTP } from 'components/organisms/otp'
 import { InputVersionType, LocalStorageKey } from 'utils/enum'
 import { CityOtrOption } from 'utils/types'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
+import { postUnverifiedLeadsNew } from 'services/api'
 
 interface PropsLeadsForm {
   otpStatus?: any
@@ -143,7 +143,7 @@ const LeadsFormAdaOTOdiSEVA: React.FC<PropsLeadsForm> = ({}: any) => {
       }),
     }
     try {
-      await api.postUnverifiedLeadsNew(data)
+      await postUnverifiedLeadsNew(data)
       setModalOpened('success-toast')
       setIsLoading(false)
       onSubmitLeadSuccess()

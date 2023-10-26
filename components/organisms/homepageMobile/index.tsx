@@ -11,7 +11,6 @@ import { getLocalStorage } from 'utils/handler/localStorage'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import getCurrentEnvironment from 'utils/handler/getCurrentEnvironment'
 import { alephArticleCategoryList } from 'utils/config/articles.config'
-import { api } from 'services/api'
 import { countDaysDifference } from 'utils/handler/date'
 import {
   CtaWidget,
@@ -53,11 +52,11 @@ import {
 import { RouteName } from 'utils/navigate'
 import { useCar } from 'services/context/carContext'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
-import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 import { useUtils } from 'services/context/utilsContext'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import dynamic from 'next/dynamic'
+import { getCarofTheMonth, getCities, getRecommendation } from 'services/api'
 
 const CitySelectorModal = dynamic(
   () => import('components/molecules').then((mod) => mod.CitySelectorModal),
@@ -113,14 +112,14 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const { saveShowAnnouncementBox } = useAnnouncementBoxContext()
 
   const checkCitiesData = () => {
-    api.getCities().then((res: any) => {
+    getCities().then((res: any) => {
       setCityListApi(res)
     })
   }
 
   const getCarOfTheMonth = async () => {
     try {
-      const carofmonth: any = await api.getCarofTheMonth(
+      const carofmonth: any = await getCarofTheMonth(
         '?city=' + getCity().cityCode,
       )
 
@@ -133,7 +132,7 @@ const HomepageMobile = ({ dataReccomendation, ssr }: any) => {
   const loadCarRecommendation = async () => {
     try {
       const params = `?city=${getCity().cityCode}&cityId=${getCity().id}`
-      const recommendation: any = await api.getRecommendation(params)
+      const recommendation: any = await getRecommendation(params)
       saveRecommendation(recommendation.carRecommendations)
     } catch {
       saveRecommendation(dataReccomendation)

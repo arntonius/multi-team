@@ -13,8 +13,6 @@ import elementId from 'utils/helpers/trackerId'
 import { Button, Input, InputPhone, Toast } from 'components/atoms'
 import Image from 'next/image'
 import { IconLoading } from 'components/atoms/icon'
-import { PageOriginationName } from 'utils/types/tracker'
-import { api } from 'services/api'
 import { setTrackEventMoEngageWithoutValue } from 'services/moengage'
 import { FunnelQueryContext, FunnelQueryContextType } from 'services/context'
 import { useRouter } from 'next/router'
@@ -29,6 +27,7 @@ import {
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { getToken } from 'utils/handler/auth'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
+import { postUnverifiedLeadsNew } from 'services/api'
 
 interface PropsLeadsForm {
   otpStatus?: any
@@ -170,7 +169,7 @@ const LeadsFormTertiary: React.FC<PropsLeadsForm> = ({}: any) => {
           temanSevaStatus = 'Yes'
         }
       }
-      await api.postUnverifiedLeadsNew(data)
+      await postUnverifiedLeadsNew(data)
       trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
         PAGE_ORIGINATION: 'Homepage - Bottom Section',
         LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
