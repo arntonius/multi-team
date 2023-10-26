@@ -764,6 +764,7 @@ export default function NewCarVariantList({
         <AdaOTOdiSEVALeadsForm
           onCancel={closeLeadsForm}
           onPage="PDP"
+          isProduct={true}
         />
       )}
       <ShareModal
