@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { PdpMobile } from 'components/organisms'
-import { api } from 'services/api'
+
 import {
   CarModelDetailsResponse,
   CarRecommendation,
@@ -29,6 +29,18 @@ import { lowerSectionNavigationTab } from 'config/carVariantList.config'
 import Script from 'next/script'
 import { mergeModelDetailsWithLoanRecommendations } from 'utils/handler/carRecommendation'
 import { formatShortPrice } from 'components/organisms/tabContent/lower/summary'
+import {
+  getRecommendation,
+  getMetaTagData,
+  getCarVideoReview,
+  getMobileHeaderMenu,
+  getMobileFooterMenu,
+  getCities,
+  getMenu,
+  getCarModelDetails,
+  getCarVariantDetails,
+  getAnnouncementBox as gab,
+} from 'services/api'
 interface PdpDataLocalContextType {
   /**
    * this variable use "jakarta" as default payload, so that search engine could see page content.
@@ -120,7 +132,7 @@ export default function index({
 
   const getAnnouncementBox = async () => {
     try {
-      const res: any = await api.getAnnouncementBox({
+      const res: any = await gab({
         headers: {
           'is-login': getToken() ? 'true' : 'false',
         },
@@ -256,13 +268,13 @@ export async function getServerSideProps(context: any) {
       cityRes,
       menuDesktopRes,
     ]: any = await Promise.all([
-      api.getRecommendation('?city=jakarta&cityId=118'),
-      api.getMetaTagData(context.query.model.replaceAll('-', '')),
-      api.getCarVideoReview(),
-      api.getMobileHeaderMenu(),
-      api.getMobileFooterMenu(),
-      api.getCities(),
-      api.getMenu(),
+      getRecommendation('?city=jakarta&cityId=118'),
+      getMetaTagData(context.query.model.replaceAll('-', '')),
+      getCarVideoReview(),
+      getMobileHeaderMenu(),
+      getMobileFooterMenu(),
+      getCities(),
+      getMenu(),
     ])
     let id = ''
     const carList = carRecommendationsRes.carRecommendations
@@ -277,14 +289,14 @@ export async function getServerSideProps(context: any) {
         notFound: true,
       }
     }
-    const carModelDetailsRes: any = await api.getCarModelDetails(
+    const carModelDetailsRes: any = await getCarModelDetails(
       id,
       '?city=jakarta&cityId=118',
     )
     const sortedVariantsOfCurrentModel = carModelDetailsRes.variants
       .map((item: any) => item)
       .sort((a: any, b: any) => a.priceValue - b.priceValue)
-    const carVariantDetailsRes: any = await api.getCarVariantDetails(
+    const carVariantDetailsRes: any = await getCarVariantDetails(
       sortedVariantsOfCurrentModel[0].id,
       '?city=jakarta&cityId=118',
     )

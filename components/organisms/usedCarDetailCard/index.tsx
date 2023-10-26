@@ -44,8 +44,9 @@ import {
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { LocationRed } from 'components/atoms/icon/LocationRed'
 import urls from 'utils/helpers/url'
-import { api } from 'services/api'
+
 import { usedCar } from 'services/context/usedCarContext'
+import { getUsedCarBySKU } from 'services/api'
 
 const CarSkeleton = '/revamp/illustration/car-skeleton.webp'
 
@@ -240,9 +241,9 @@ export const UsedCarDetailCard = ({
 
   const onClickSeeDetail = () => {
     // router.push(urls.internalUrls.usedCarDetailUrl)
-    api
-      .getUsedCarBySKU(recommendation.skuCode, '')
-      .then((data) => saveDetail(data.data[0]))
+    getUsedCarBySKU(recommendation.skuCode, '').then((data) =>
+      saveDetail(data.data[0]),
+    )
     router.push(detailCarRoute)
   }
 

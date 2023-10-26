@@ -82,11 +82,18 @@ import {
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { removeCarBrand } from 'utils/handler/removeCarBrand'
 import dynamic from 'next/dynamic'
-import { api } from 'services/api'
+
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
+import {
+  getFinalDpRangeValidation,
+  getLoanCalculatorInsurance,
+  getRecommendation,
+  postCheckPromoGiias,
+  postLoanPermutationIncludePromo,
+} from 'services/api'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -690,7 +697,7 @@ export const CreditTab = () => {
     params.append('cityId', defaultCity.id as string)
     params.append('city', defaultCity.cityCode as string)
 
-    const response = await api.getRecommendation('', { params })
+    const response = await getRecommendation('', { params })
 
     setAllModalCarList(response.carRecommendations)
   }
@@ -876,7 +883,7 @@ export const CreditTab = () => {
 
     try {
       setIsLoadingPromoCode(true)
-      const result: any = await api.postCheckPromoGiias(forms.promoCode)
+      const result: any = await postCheckPromoGiias(forms.promoCode)
       setIsLoadingPromoCode(false)
 
       if (result.message === 'valid promo code') {
@@ -931,7 +938,7 @@ export const CreditTab = () => {
       )
 
       try {
-        const responseInsurance = await api.getLoanCalculatorInsurance({
+        const responseInsurance = await getLoanCalculatorInsurance({
           modelId: forms.model?.modelId ?? '',
           cityCode: forms.city.cityCode,
           tenure: allTenure[i],
@@ -1058,7 +1065,7 @@ export const CreditTab = () => {
   const validateDpInputRange = async () => {
     if (!!forms.variant?.variantId && !!forms.city.cityCode) {
       try {
-        const finalDpRange = await api.getFinalDpRangeValidation(
+        const finalDpRange = await getFinalDpRangeValidation(
           forms.variant?.variantId,
           forms.city.cityCode,
         )
@@ -1166,8 +1173,7 @@ export const CreditTab = () => {
       variantId: forms.variant?.variantId,
     }
 
-    api
-      .postLoanPermutationIncludePromo(payload)
+    postLoanPermutationIncludePromo(payload)
       .then((response) => {
         const result = response.data.reverse()
         const filteredResult = getFilteredCalculationResults(result)

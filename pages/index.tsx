@@ -1,7 +1,7 @@
 import { InferGetServerSidePropsType } from 'next'
 import { createContext, useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
-import { api } from 'services/api'
+
 import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import { HomepageMobile } from 'components/organisms'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
@@ -17,6 +17,19 @@ import {
 } from 'utils/types/utils'
 import Script from 'next/script'
 import { getToken } from 'utils/handler/auth'
+import {
+  getRecommendation,
+  getBanner,
+  getMobileHeaderMenu,
+  getCities,
+  getTestimony,
+  getUsage,
+  getMainArticle,
+  getTypeCar,
+  getCarofTheMonth,
+  getMenu,
+  getAnnouncementBox as gab,
+} from 'services/api'
 
 interface HomePageDataLocalContextType {
   dataBanner: any
@@ -74,7 +87,7 @@ export default function WithTracker({
 
   const getAnnouncementBox = async () => {
     try {
-      const res: any = await api.getAnnouncementBox({
+      const res: any = await gab({
         headers: {
           'is-login': getToken() ? 'true' : 'false',
         },
@@ -145,18 +158,18 @@ export async function getServerSideProps(context: any) {
       carofTheMonthRes,
       menuDesktopRes,
     ]: any = await Promise.all([
-      api.getRecommendation(params),
-      api.getBanner(),
-      api.getMobileHeaderMenu(),
-      api.getCities(),
-      api.getTestimony(),
-      api.getRecommendation('?brand=Toyota&city=jakarta&cityId=118'),
-      api.getRecommendation('?bodyType=MPV&city=jakarta&cityId=118'),
-      api.getUsage(),
-      api.getMainArticle('65'),
-      api.getTypeCar('?city=jakarta'),
-      api.getCarofTheMonth('?city=' + getCity().cityCode),
-      api.getMenu(),
+      getRecommendation(params),
+      getBanner(),
+      getMobileHeaderMenu(),
+      getCities(),
+      getTestimony(),
+      getRecommendation('?brand=Toyota&city=jakarta&cityId=118'),
+      getRecommendation('?bodyType=MPV&city=jakarta&cityId=118'),
+      getUsage(),
+      getMainArticle('65'),
+      getTypeCar('?city=jakarta'),
+      getCarofTheMonth('?city=' + getCity().cityCode),
+      getMenu(),
     ])
     const [
       dataReccomendation,

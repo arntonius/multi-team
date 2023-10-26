@@ -8,10 +8,11 @@ import { differentDateStatus } from 'utils/handler/date'
 import Image from 'next/image'
 import { TestimonialData } from 'utils/types/props'
 import { CardShadow } from 'components/atoms'
-import { api } from 'services/api'
+
 import PopupTestimony from '../popupTestimony'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { getTestimony } from 'services/api'
 
 const TestimonyWidget = () => {
   const [testimony, setTestimony] = useState<Array<TestimonialData>>([])
@@ -23,7 +24,7 @@ const TestimonyWidget = () => {
   const descRef = useRef() as MutableRefObject<HTMLSpanElement>
 
   useEffect(() => {
-    api.getTestimony().then((result: any) => setTestimony(result.data))
+    getTestimony().then((result: any) => setTestimony(result.data))
   }, [])
 
   if (testimony.length === 0) return <></>

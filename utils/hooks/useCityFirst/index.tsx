@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
-import { api } from 'services/api'
+
 import { LocalStorageKey } from 'utils/enum'
 import { countDaysDifference } from 'utils/handler/date'
 import { getLocalStorage, saveLocalStorage } from 'utils/handler/localStorage'

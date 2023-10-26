@@ -5,12 +5,11 @@ import { setTrackEventMoEngageWithoutValue } from 'services/moengage'
 import { EventName } from 'services/moengage/type'
 import { LeadsActionParam, PageOriginationName } from 'utils/types/tracker'
 import { AlephArticleCategoryType, Article, CityOtrOption } from 'utils/types'
-import { COMData, COMDataTracking } from 'utils/types/models'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import getCurrentEnvironment from 'utils/handler/getCurrentEnvironment'
 import { alephArticleCategoryList } from 'utils/config/articles.config'
-import { api } from 'services/api'
+
 import { countDaysDifference } from 'utils/handler/date'
 import { CitySelectorModal, FooterMobile } from 'components/molecules'
 import {
@@ -41,6 +40,11 @@ import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import logoOTO from '/public/revamp/images/logo/logo-oto.webp'
 import logoSEVA from '/public/revamp/images/logo/seva-header.png'
 import supergraphic from '/public/revamp/illustration/supergraphic-crop.webp'
+import {
+  getCities,
+  getRecommendation,
+  getAnnouncementBox as gab,
+} from 'services/api'
 
 const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
   const { dataCities, dataCarofTheMonth, dataMainArticle } = useContext(
@@ -85,7 +89,7 @@ const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
   })
 
   const checkCitiesData = () => {
-    api.getCities().then((res: any) => {
+    getCities().then((res: any) => {
       setCityListApi(res)
     })
   }
@@ -93,7 +97,7 @@ const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
   const loadCarRecommendation = async () => {
     try {
       const params = `?city=${getCity().cityCode}&cityId=${getCity().id}`
-      const recommendation: any = await api.getRecommendation(params)
+      const recommendation: any = await getRecommendation(params)
       saveRecommendation(recommendation.carRecommendations)
     } catch {
       saveRecommendation([])
@@ -121,7 +125,7 @@ const HomepageAdaSEVAdiOTO = ({ dataReccomendation }: any) => {
   }
   const getAnnouncementBox = () => {
     try {
-      const res: any = api.getAnnouncementBox({
+      const res: any = gab({
         headers: {
           'is-login': getToken() ? 'true' : 'false',
         },

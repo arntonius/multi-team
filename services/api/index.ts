@@ -268,7 +268,7 @@ const getUsedCarBySKU = (
   config?: AxiosRequestConfig,
 ) => get(collections.usedCar.uuid.replace(':uuid', id) + params, config)
 
-export const api = {
+export {
   getMenu,
   getCities,
   getAgent,
@@ -306,7 +306,6 @@ export const api = {
   getUsedCarBySKU,
   getBrandList,
   getFinalDpRangeValidation,
-
   postUpdateLeadsOTO,
   postUnverifiedLeadsNew,
   postRefreshToken,

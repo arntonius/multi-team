@@ -45,7 +45,7 @@ import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { navigateToKK } from 'utils/navigate'
 import Image from 'next/image'
-import { api } from 'services/api'
+
 import {
   getCustomerInfoSeva,
   getCustomerKtpSeva,
@@ -56,6 +56,7 @@ import { getCarVariantDetailsById } from 'utils/handler/carRecommendation'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { CreditQualificationReviewParam } from 'utils/types/props'
 import dynamic from 'next/dynamic'
+import { postInstantApproval } from 'services/api'
 
 const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
@@ -177,7 +178,7 @@ const CreditQualificationReviewPage = () => {
         cityDom: mainKtpDomicileOptionData.lastChoosenDomicile,
         leadName: mainKTP === 'spouse' ? ktpData[1].name : ktpData[0].name,
       }
-      const res = await api.postInstantApproval(dataBodyIA, {
+      const res = await postInstantApproval(dataBodyIA, {
         headers: { Authorization: getToken()?.idToken },
       })
       if (res) {
