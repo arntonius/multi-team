@@ -31,6 +31,7 @@ import {
   getCities,
   getMenu,
   getAnnouncementBox as gab,
+  getUsedCarBySKU,
 } from 'services/api'
 interface UsedPdpDataLocalContextType {
   // /**
@@ -61,7 +62,7 @@ export const UsedPdpDataLocalContext =
     usedCarModelDetailsRes: null,
   })
 export default function index({
-  // carModelDetailsRes,
+  carModelDetailsRes,
   dataDesktopMenu,
   dataMobileMenu,
   dataFooter,
@@ -191,7 +192,7 @@ export default function index({
     <>
       <UsedPdpDataLocalContext.Provider
         value={{
-          usedCarModelDetailsRes: null,
+          usedCarModelDetailsRes: carModelDetailsRes,
         }}
       >
         <UsedPdpMobile />
@@ -210,6 +211,11 @@ export async function getServerSideProps(context: any) {
     //     notFound: true,
     //   }
     // }
+
+    let id = context.query.slug[0]
+    const parts = id.split('/')
+    const combined = parts[parts.length - 1].split('-').slice(-5)
+    const uuid = combined.join('-')
     const [
       // carRecommendationsRes,
       // metaTagDataRes,
@@ -218,16 +224,18 @@ export async function getServerSideProps(context: any) {
       footerRes,
       cityRes,
       menuDesktopRes,
+      carDetailRes,
     ]: any = await Promise.all([
-      // getRecommendation('?city=jakarta&cityId=118'),
-      // getMetaTagData(context.query.model.replaceAll('-', '')),
-      // getCarVideoReview(),
+      // api.getRecommendation('?city=jakarta&cityId=118'),
+      // api.getMetaTagData(context.query.model.replaceAll('-', '')),
+      // api.getCarVideoReview(),
       getMobileHeaderMenu(),
       getMobileFooterMenu(),
       getCities(),
       getMenu(),
+      getUsedCarBySKU(uuid, ''),
     ])
-    let id = ''
+
     // const carList = carRecommendationsRes.carRecommendations
     // const currentCar = carList.filter(
     //   (value: CarRecommendation) =>
@@ -279,6 +287,7 @@ export async function getServerSideProps(context: any) {
         // metaTagDataRes,
         // carVideoReviewRes,
         // carArticleReviewRes,
+        carModelDetailsRes: carDetailRes.data[0],
         isSsrMobile: getIsSsrMobile(context),
         dataMobileMenu: menuMobileRes.data,
         dataFooter: footerRes.data,

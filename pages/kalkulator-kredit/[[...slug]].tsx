@@ -1113,6 +1113,7 @@ export default function LoanCalculatorPage() {
       monthlyIncome: forms.monthlyIncome,
       otr: getCarOtrNumber() - getCarDiscountNumber(),
       variantId: forms.variant?.variantId,
+      calculateIncludeSubsidi: true,
     }
 
     postLoanPermutationIncludePromo(payload)
