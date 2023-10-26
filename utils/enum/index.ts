@@ -162,6 +162,7 @@ export enum SessionStorageKey {
   PageReferrerProfilePage = 'pageReferrerProfilePage',
   prevLoginPath = 'prevLoginPath',
   PAAmbassadorError = 'PAAmbassadorError',
+  BackupDataLoanPermutationWhenIncludeSDD01 = 'backupDataLoanPermutationWhenIncludeSDD01',
 }
 
 export enum HTTPResponseStatusCode {
