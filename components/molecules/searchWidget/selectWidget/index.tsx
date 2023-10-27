@@ -1,21 +1,23 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import clsx from 'clsx'
-import React, {
-  ForwardedRef,
-  forwardRef,
-  use,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import React, { ForwardedRef, forwardRef, useContext, useState } from 'react'
 import styles from 'styles/components/molecules/searchWidget/selectWidget.module.scss'
 import { colors } from 'utils/helpers/style/colors'
-import { BottomSheet, IconChevronDown } from 'components/atoms'
-import { BottomSheetList } from 'components/molecules'
+import { IconChevronDown } from 'components/atoms'
 import { SearchWidgetContext, SearchWidgetContextType } from 'services/context'
 import { FormControlValue, Option } from 'utils/types'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
+import dynamic from 'next/dynamic'
+
+const BottomSheet = dynamic(() => import('components/atoms/bottomSheet'), {
+  ssr: false,
+})
+
+const BottomSheetList = dynamic(
+  () => import('components/molecules/bottomSheetList'),
+  { ssr: false },
+)
 
 type ContentSheetProps = {
   onClose: () => void
