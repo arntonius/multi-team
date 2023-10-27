@@ -74,6 +74,15 @@ export const FormSelectModelCar = ({
     OptionWithImage<FormControlValue>[]
   >([])
   const inputRef = useRef() as React.MutableRefObject<HTMLInputElement>
+  const [isDisabledField, setIsDisabledField] = useState(false)
+
+  useEffect(() => {
+    if (!selectedCity || overrideDisabled) {
+      setIsDisabledField(true)
+    } else {
+      setIsDisabledField(false)
+    }
+  }, [selectedCity, overrideDisabled])
 
   useEffect(() => {
     setInputValue(value)
@@ -295,7 +304,7 @@ export const FormSelectModelCar = ({
           (isError && !!selectedCity && isCheckForError) ||
           overrideIsErrorFieldOnly
         }
-        disabled={!selectedCity || overrideDisabled}
+        disabled={isDisabledField}
         datatestid={elementId.Field.CarMobil}
         onShowDropdown={onShowDropdown}
       />

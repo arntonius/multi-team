@@ -14,7 +14,6 @@ import { getLocalStorage } from 'utils/handler/localStorage'
 import { UTMTagsData } from 'utils/types/utils'
 import { LocalStorageKey } from 'utils/enum'
 import { useUtils } from 'services/context/utilsContext'
-import Link from 'next/link'
 import {
   trackEventCountly,
   valueMenuTabCategory,
@@ -58,11 +57,17 @@ export const FooterMobile = ({ pageOrigination }: FooterProps) => {
   }
 
   const formatMenuUrl = (url: string) => {
-    if (!url.startsWith('https://')) {
-      return 'https://' + url
+    // wordpress pages need to have trailing slash
+    let urlWithTrailingSlash = url
+    if (url.slice(-1) !== '/') {
+      urlWithTrailingSlash = url + '/'
     }
 
-    return url
+    if (!urlWithTrailingSlash.startsWith('https://')) {
+      return 'https://' + urlWithTrailingSlash
+    }
+
+    return urlWithTrailingSlash
   }
   const trackCountlyFooter = (menuUrl: string) => {
     if (pageOrigination && pageOrigination.length !== 0) {
@@ -95,36 +100,21 @@ export const FooterMobile = ({ pageOrigination }: FooterProps) => {
           pembiayaan dan dealer resmi dari Astra Group
         </span>
         <div className={styles.linkedTextWrapper}>
-          <span className={styles.gap}>
-            <Link
-              href={urls.about}
-              onClick={() => {
-                trackCountlyFooter(urls.about)
-              }}
-            >
-              Tentang Kami
-            </Link>
-            <Link
-              href={urls.termsAndConditionsSeva}
-              onClick={() => trackCountlyFooter(urls.termsAndConditionsSeva)}
-            >
-              Syarat & Ketentuan
-            </Link>
-          </span>
-          <span className={styles.gap}>
-            <Link
-              href={urls.privacyPolicySeva}
-              onClick={() => trackCountlyFooter(urls.privacyPolicySeva)}
-            >
-              Kebijakan Privasi
-            </Link>
-            <Link
-              href={urls.contactUs}
-              onClick={() => trackCountlyFooter(urls.contactUs)}
-            >
-              Hubungi Kami
-            </Link>
-          </span>
+          {mobileWebFooterMenus?.length > 0 &&
+            mobileWebFooterMenus.map((item, index) => (
+              <a
+                key={index}
+                href={formatMenuUrl(item.menuUrl)}
+                rel="noreferrer noopener"
+                target="_blank"
+                onClick={() => {
+                  trackCountlyFooter(item.menuUrl)
+                }}
+                data-testid={dataTestId(item.menuCode)}
+              >
+                {item.menuName}
+              </a>
+            ))}
         </div>
         <div className={styles.socialWrapper}>
           <a

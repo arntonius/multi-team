@@ -83,5 +83,13 @@ export const useAddUtmTagsToApiCall = () => {
         new Date().getTime().toString(),
       )
     }
-  }, [])
+  }, [
+    utm_source,
+    utm_medium,
+    utm_campaign,
+    utm_content,
+    utm_id,
+    utm_term,
+    adset,
+  ])
 }
