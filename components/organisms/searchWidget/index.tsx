@@ -10,7 +10,6 @@ import React, {
 } from 'react'
 import styles from 'styles/components/organisms/searchWidget.module.scss'
 import { MinAmount } from 'utils/types/models'
-import urls from 'utils/helpers/url'
 import elementId from 'utils/helpers/trackerId'
 import { colors } from 'utils/helpers/style/colors'
 import { Button, CardShadow } from 'components/atoms'
@@ -31,16 +30,9 @@ import {
   RequiredFunnelErrorMessage,
 } from 'utils/config/funnel.config'
 import { Currency } from 'utils/handler/calculation'
-import {
-  GridOptionWidget,
-  InputWidget,
-  PriceRangeWidget,
-  SelectWidget,
-  TenureOptionWidget,
-} from 'components/molecules'
+import { InputWidget, SelectWidget } from 'components/molecules'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { SearchWidgetContext, SearchWidgetContextType } from 'services/context'
-
 import { getCity } from 'utils/hooks/useGetCity'
 import { useFinancialQueryData } from 'services/context/finnancialQueryContext'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
@@ -51,6 +43,20 @@ import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { getMinMaxPrice } from 'services/api'
+import dynamic from 'next/dynamic'
+
+const GridOptionWidget = dynamic(
+  () => import('components/molecules').then((mod) => mod.GridOptionWidget),
+  { ssr: false },
+)
+const PriceRangeWidget = dynamic(
+  () => import('components/molecules').then((mod) => mod.PriceRangeWidget),
+  { ssr: false },
+)
+const TenureOptionWidget = dynamic(
+  () => import('components/molecules').then((mod) => mod.TenureOptionWidget),
+  { ssr: false },
+)
 
 export const initDataWidget = {
   downPaymentAmount: '',

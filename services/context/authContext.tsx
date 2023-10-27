@@ -3,6 +3,7 @@ import { User, Token, Filter } from 'utils/types'
 import { encryptValue } from 'utils/encryptionUtils'
 import { saveLocalStorage } from 'utils/handler/localStorage'
 import { LocalStorageKey } from 'utils/enum'
+import { getUserInfo as gui } from 'services/api'
 
 export type AuthContextType = {
   isLoggedIn: boolean
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }: any) => {
 
   const getUserInfo = async () => {
     try {
-      const res: any = await getUserInfo()
+      const res: any = await gui()
       const dataUser: any = res[0]
       saveAuthData(dataUser)
       const encryptedData = encryptValue(JSON.stringify(dataUser))
