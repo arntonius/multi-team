@@ -567,6 +567,13 @@ export interface FunnelWidget {
   monthlyIncome: string
 }
 
+export interface UsedCarFunnelWidget {
+  brand: string[]
+  minYear: string
+  maxYear: string
+  transmission: string[]
+}
+
 export interface FinancialFunnelWidgetError {
   downPaymentAmount: string | JSX.Element
   tenure: string

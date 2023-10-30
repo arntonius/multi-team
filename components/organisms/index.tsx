@@ -44,6 +44,7 @@ import HomepageMobile from './homepageMobile'
 import LeadsFormTertiary from './leadsForm/tertiary'
 import ArticleWidget from './articleWidget'
 import SearchWidget from './searchWidget'
+import UsedCarSearchWidget from './searchWidget/usedCarSearchWidget'
 import { WebAnnouncementBox } from './webAnnouncementBox'
 import LpSkeleton from './lpSkeleton'
 import MainHeroLP from './mainHeroLP'
@@ -64,6 +65,7 @@ import { Register } from './register'
 import UsedPdpMobile from './UsedPdpMobile'
 import { LeadsFormUsedCar } from './leadsForm/usedCar'
 import Profile from './profile'
+import { SearchWidgetSection } from './searchWidgetSection'
 
 const Exterior360ViewerTab = dynamic(
   () => import('./tabContent/upper/exterior360Viewer'),
@@ -136,4 +138,6 @@ export {
   PdpUsedCarLowerSection,
   CreditUsedCarTab,
   Profile,
+  SearchWidgetSection,
+  UsedCarSearchWidget,
 }

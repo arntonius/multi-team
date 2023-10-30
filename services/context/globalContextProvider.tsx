@@ -16,6 +16,7 @@ import { GalleryContextProvider } from './galleryContext'
 import { FunnelQueryUsedCarContextProvider } from './funnelQueryUsedCarContext'
 import { AnnouncementBoxProvider } from './announcementBoxContext'
 import { ContactFormProvider } from './contactFormContext'
+import { SearchUsedCarWidgetProvider } from './searchUsedCarWidgetContext'
 
 const providers: Array<
   React.JSXElementConstructor<React.PropsWithChildren<any>>
@@ -38,6 +39,7 @@ const providers: Array<
   GalleryContextProvider,
   AnnouncementBoxProvider,
   ContactFormProvider,
+  SearchUsedCarWidgetProvider,
 ]
 
 export const GlobalContextProvider = (props: HTMLAttributes<HTMLElement>) => {

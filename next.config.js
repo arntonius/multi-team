@@ -33,6 +33,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'www.mobbi.id',
+      },
+      {
+        protocol: 'https',
         hostname: 'storage.googleapis.com',
       },
       {

@@ -11,6 +11,11 @@ import {
   SearchWidgetProvider,
 } from './searchWidgetContext'
 import {
+  SearchUsedCarWidgetContext,
+  SearchUsedCarWidgetContextType,
+  SearchUsedCarWidgetProvider,
+} from './searchUsedCarWidgetContext'
+import {
   UtilsContext,
   UtilsContextProvider,
   UtilsContextType,
@@ -50,6 +55,8 @@ export {
   ConfigProvider,
   SearchWidgetContext,
   SearchWidgetProvider,
+  SearchUsedCarWidgetContext,
+  SearchUsedCarWidgetProvider,
   UtilsContext,
   UtilsContextProvider,
   FunnelQueryContext,
@@ -67,6 +74,7 @@ export type {
   CarContextType,
   ConfigContextType,
   SearchWidgetContextType,
+  SearchUsedCarWidgetContextType,
   UtilsContextType,
   FunnelQueryContextType,
   FunnelQueryUsedCarContextType,
