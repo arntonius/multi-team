@@ -1,7 +1,8 @@
 export const rootUrl = '/'
 export const rootOTOUrl = '/adaSEVAdiOTO'
 export const carResultsUrl = '/mobil-baru'
-export const usedCarResultUrl = '/mobil-bekas'
+export const usedCarResultUrl = '/mobil-bekas/c'
+export const usedCarDetailUrl = '/mobil-bekas/p/:id'
 export const OTONewCarUrl = '/adaSEVAdiOTO/mobil-baru'
 export const OTOCarResultsUrl = '/adaSEVAdiOTO/mobil-baru/:brand/:model'
 export const loanCalculatorWithCityBrandModelVariantUrl =
@@ -14,13 +15,17 @@ export const loanCalculatorWithCityBrandModelUrl =
 export const preApprovalStartUrl = '/pre-approval-start'
 export const LoginSevaUrl = '/masuk-akun'
 export const TemanSevaDashboardUrl = '/teman-seva/dashboard'
+export const TemanSevaRegisterSuccessUrl = '/teman-seva/register-success'
 export const TemanSevaOnboardingUrl = '/teman-seva/onboarding'
 export const preApprovalQuestionFlowUrl = '/pre-approval-question-flow'
 export const loginUrl = '/login'
 export const SalesDashboardUrl = '/event/giias/sales-dashboard'
 export const SalesDashboardPAUrl = '/sales-dashboard'
 export const refinancingUrl = '/fasilitas-dana'
-
+export const preApprovalQuestionFlowUrlWithType =
+  '/pre-approval-question-flow/:paFlowType'
+export const AlreadyPreApprovedSevaUrl = '/pre-approval-check-fail'
+export const refinancingFormUrl = '/fasilitas-dana/form'
 // ktp
 export const cameraKtpUrl = '/ktp/upload'
 export const verifyKtpUrl = '/ktp/verifikasi'

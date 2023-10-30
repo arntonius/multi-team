@@ -1,4 +1,3 @@
-import { api } from 'services/api'
 import { AxiosResponse } from 'axios'
 import { defaultCSANumber } from 'utils/helpers/const'
 import urls from 'helpers/urls'
@@ -14,6 +13,11 @@ import {
   encryptValue,
   encryptedPrefix,
 } from 'utils/encryptionUtils'
+import {
+  postCustomerAssistantDetails,
+  postUnverifiedLeadsNew,
+  postUnverifiedLeadsNewUsedCar,
+} from 'services/api'
 
 export enum UnverifiedLeadSubCategory {
   SEVA_NEW_CAR_LP_LEADS_FORM = 'SEVNCLFH',
@@ -62,14 +66,30 @@ export interface CreateUnverifiedLeadRequestNew {
 }
 
 const getCustomerAssistantDetails = (phoneNumber: string) => {
-  return api.postCustomerAssistantDetails(phoneNumber)
+  return postCustomerAssistantDetails(phoneNumber)
 }
 
 export const createUnverifiedLeadNew = (
   requestBody: CreateUnverifiedLeadRequestNew,
 ) => {
   const UTMTags = getLocalStorage<UTMTagsData>(LocalStorageKey.UtmTags)
-  return api.postUnverifiedLeadsNew({
+  return postUnverifiedLeadsNew({
+    ...requestBody,
+    utmSource: UTMTags?.utm_source,
+    utmMedium: UTMTags?.utm_medium,
+    utmCampaign: UTMTags?.utm_campaign,
+    utmId: UTMTags?.utm_id,
+    utmContent: null, // temporary
+    utmTerm: UTMTags?.utm_term,
+    adSet: UTMTags?.adset,
+  })
+}
+
+export const createUnverifiedLeadNewUsedCar = (
+  requestBody: CreateUnverifiedLeadRequestNew,
+) => {
+  const UTMTags = getLocalStorage<UTMTagsData>(LocalStorageKey.UtmTags)
+  return postUnverifiedLeadsNewUsedCar({
     ...requestBody,
     utmSource: UTMTags?.utm_source,
     utmMedium: UTMTags?.utm_medium,

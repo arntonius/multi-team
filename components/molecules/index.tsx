@@ -6,14 +6,18 @@ import Refinancing from './refinancing'
 import { LabelWithTooltip } from './label/LabelWithTooltip'
 import { NavigationTabV1 } from './navigationTabV1'
 import NavigationTabV2 from './navigationTabV2'
+import NavigationTabUsedCar from './navigationTabUsedCar'
 import { VideoItemCard } from './videoItemCard'
 import { FormPromoCode } from './form/formPromoCode'
 import { FormSelectCarVariant } from './form/formSelectCarVariant'
 import FormSelectCity from './form/formSelectCity'
+import { FormSearchModel } from './form/formSearchModel'
 import { FormSelectModelCar } from './form/formSelectModelCar'
 import InfoCard from './card/infoCard'
 import { Gallery } from './gallery/index'
+import { UsedCarGallery } from './gallery/usedCarGallery'
 import { OverlayGallery } from './overlay'
+import { UsedCarOverlayGallery } from './overlay/usedCarOverlay'
 import { ShareModal } from './shareModal'
 import { CalculationResultItem } from './calculationResultItem'
 import { MenuList } from './menuList'
@@ -37,6 +41,8 @@ import GridOptionWidget from './searchWidget/option/gridOptionWidget'
 import PriceRangeWidget from './searchWidget/option/priceRangeWidget'
 import TenureOptionWidget from './searchWidget/option/tenureOptionWidget'
 import { SearchModal } from './searchModal'
+import { ProfileUploadKtp } from './profileUploadKtp'
+import BrandUsedCarWidget from './searchWidget/option/brandUsedCarWidget'
 export {
   HowToUseSection,
   Testimony,
@@ -50,8 +56,11 @@ export {
   FormSelectCarVariant,
   FormSelectCity,
   FormSelectModelCar,
+  FormSearchModel,
   InfoCard,
   Gallery,
+  UsedCarGallery,
+  UsedCarOverlayGallery,
   OverlayGallery,
   ShareModal,
   CalculationResultItem,
@@ -76,4 +85,7 @@ export {
   GridOptionWidget,
   PriceRangeWidget,
   TenureOptionWidget,
+  ProfileUploadKtp,
+  NavigationTabUsedCar,
+  BrandUsedCarWidget,
 }

@@ -12,8 +12,9 @@ import {
 import styles from 'styles/components/molecules/form/formSelectModelCar.module.scss'
 import { CarModel } from 'utils/types/carModel'
 import Image from 'next/image'
-import { api } from 'services/api'
+
 import { getCity } from 'utils/hooks/useGetCity'
+import { getRecommendation } from 'services/api'
 
 const CarSillhouete = '/revamp/illustration/car-sillhouete.webp'
 
@@ -73,6 +74,15 @@ export const FormSelectModelCar = ({
     OptionWithImage<FormControlValue>[]
   >([])
   const inputRef = useRef() as React.MutableRefObject<HTMLInputElement>
+  const [isDisabledField, setIsDisabledField] = useState(false)
+
+  useEffect(() => {
+    if (!selectedCity || overrideDisabled) {
+      setIsDisabledField(true)
+    } else {
+      setIsDisabledField(false)
+    }
+  }, [selectedCity, overrideDisabled])
 
   useEffect(() => {
     setInputValue(value)
@@ -89,7 +99,7 @@ export const FormSelectModelCar = ({
     if (selectedCity) {
       params.set('city', selectedCity as string)
     }
-    const response = await api.getRecommendation('', { params })
+    const response = await getRecommendation('', { params })
     setModelCarList(response.carRecommendations)
   }
 
@@ -294,7 +304,7 @@ export const FormSelectModelCar = ({
           (isError && !!selectedCity && isCheckForError) ||
           overrideIsErrorFieldOnly
         }
-        disabled={!selectedCity || overrideDisabled}
+        disabled={isDisabledField}
         datatestid={elementId.Field.CarMobil}
         onShowDropdown={onShowDropdown}
       />

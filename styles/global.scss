@@ -423,3 +423,50 @@ button {
 .qualification-custom-modal .ant-modal-content {
   @include centeredWithMaxWidth(343.33px);
 }
+
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
+  color: white;
+  padding: 2px;
+  border: 1px solid #05256e;
+  border-radius: 4px;
+  height: 24px;
+  width: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #05256e;
+}
+
+.ant-select-item.ant-select-item-option {
+  border: 1px solid #{$shades-grey-10};
+  border-radius: 0;
+  &:after {
+    content: ' ';
+    border: 1px solid #05256e;
+    height: 24px;
+    width: 24px;
+    border-radius: 4px;
+    padding: 2px;
+    position: absolute;
+    right: 16px;
+  }
+}
+
+span.ant-select-selection-item {
+  background-color: #{$shades-grey-5} !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 12px;
+  color: #{$shades-grey-75} !important;
+  padding: 4px 8px !important;
+  border: 0 !important;
+  margin: 8px 0px 8px 8px !important;
+  display: flex;
+  align-items: center;
+}
+
+span.ant-select-selection-placeholder {
+  font-size: 14px !important;
+}

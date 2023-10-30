@@ -289,7 +289,7 @@ const FilterMobile = ({
       FINCAP_AGE: paramUpdate.age || 'Null',
     })
     getNewFunnelRecommendations(paramUpdate)
-      .then((response) => {
+      .then((response: any) => {
         handleSuccess(response)
         setLoading(false)
       })

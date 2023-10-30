@@ -10,7 +10,7 @@ import {
   NavbarItemResponse,
 } from 'utils/types/utils'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
-import { api } from 'services/api'
+
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { useUtils } from 'services/context/utilsContext'
@@ -21,6 +21,12 @@ import { generateBlurRecommendations } from 'utils/generateBlur'
 import { monthId } from 'utils/handler/date'
 import { getCity } from 'utils/hooks/useGetCity'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
+import {
+  getMobileHeaderMenu,
+  getMobileFooterMenu,
+  getCities,
+  getMinMaxPrice,
+} from 'services/api'
 
 const NewCarResultPage = ({
   meta,
@@ -39,8 +45,8 @@ const NewCarResultPage = ({
 
   const todayDate = new Date()
 
-  const metaTitle = `Beli mobil terbaru ${todayDate.getFullYear()} dengan promo cicilan menarik dari SEVA di OTO.com`
-  const metaDesc = `Temukan beragam mobil Astra ${todayDate.getFullYear()} dari SEVA di OTO.com. Beli mobil secara kredit dengan Instant Approval*.`
+  const metaTitle = `Beli mobil terbaru ${todayDate.getFullYear()} dengan promo cicilan menarik dari SEVA | SEVA x OTO`
+  const metaDesc = `Temukan beragam mobil Astra dari SEVA. Mulai dari Toyota, Daihatsu, Isuzu, BMW, higga Peugeot. Beli mobil secara kredit dengan Instant Approval*`
 
   return (
     <>
@@ -139,9 +145,9 @@ export const getServerSideProps: GetServerSideProps<{
       await Promise.all([
         axios.get(metaTagBaseApi + metabrand),
         axios.get(footerTagBaseApi + metabrand),
-        api.getMobileHeaderMenu(),
-        api.getMobileFooterMenu(),
-        api.getCities(),
+        getMobileHeaderMenu(),
+        getMobileFooterMenu(),
+        getCities(),
       ])
 
     const metaData = fetchMeta.data.data
@@ -151,7 +157,7 @@ export const getServerSideProps: GetServerSideProps<{
       const params = new URLSearchParams()
       getCity().cityCode && params.append('city', getCity().cityCode as string)
 
-      const minmax = await api.getMinMaxPrice('', { params })
+      const minmax = await getMinMaxPrice('', { params })
       const minmaxPriceData = minmax
       meta.MinMaxPrice = {
         minPriceValue: minmaxPriceData.minPriceValue,

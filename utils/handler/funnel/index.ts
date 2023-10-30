@@ -1,5 +1,10 @@
 import { AxiosRequestConfig } from 'axios'
-import { api } from 'services/api'
+import {
+  getRecommendation,
+  getUsedCars,
+  postNewFunnelLoanSpecialRate,
+} from 'services/api'
+
 import { PaymentType } from 'utils/enum'
 import { getCity } from 'utils/hooks/useCurrentCityOtr/useCurrentCityOtr'
 import { FunnelQuery } from 'utils/types/context'
@@ -58,7 +63,56 @@ export const getNewFunnelRecommendations = (
   getCity().cityCode && params.append('city', getCity().cityCode as string)
   getCity().id && params.append('cityId', getCity().id as string)
 
-  return api.getRecommendation('', { params })
+  return getRecommendation('', { params })
+}
+
+export const getUsedCarFunnelRecommendations = (
+  funnelQuery: FunnelQuery,
+  surveyForm = false,
+  useKeySearch = true,
+) => {
+  const params = new URLSearchParams()
+  const {
+    brand,
+    sortBy,
+    mileageStart,
+    mileageEnd,
+    yearStart,
+    yearEnd,
+    transmission,
+    cityId,
+    priceStart,
+    priceEnd,
+    plate,
+    page,
+    perPage,
+  } = funnelQuery
+
+  brand && brand.length > 0 && brand.map((item) => params.append('brand', item))
+
+  sortBy && params.append('sortBy', sortBy as string)
+
+  cityId &&
+    cityId.length > 0 &&
+    cityId.map((item) => params.append('cityId', item))
+  transmission &&
+    transmission.length > 0 &&
+    transmission.map((item) => params.append('transmission', item))
+  plate && plate.length > 0 && plate.map((item) => params.append('plate', item))
+  priceStart && params.append('priceStart', priceStart?.toString() as string)
+  priceEnd && params.append('priceEnd', priceEnd?.toString() as string)
+  mileageStart &&
+    params.append('mileageStart', mileageStart?.toString() as string)
+  mileageEnd && params.append('mileageEnd', mileageEnd?.toString() as string)
+  yearStart && params.append('yearStart', yearStart?.toString() as string)
+  yearEnd && params.append('yearEnd', yearEnd?.toString() as string)
+  page && params.append('page', page?.toString() as string)
+  perPage && params.append('perPage', perPage?.toString() as string)
+
+  // getCity().cityCode && params.append('city', getCity().cityCode as string)
+  // getCity().id && params.append('cityId', getCity().id as string)
+
+  return getUsedCars('', { params })
 }
 
 export const getNewFunnelLoanSpecialRate = (
@@ -78,7 +132,7 @@ export const getNewFunnelLoanSpecialRate = (
 ) => {
   const params = new URLSearchParams()
   getCity().cityCode && params.append('city', getCity().cityCode as string)
-  return api.postNewFunnelLoanSpecialRate(
+  return postNewFunnelLoanSpecialRate(
     {
       otr,
       dp,

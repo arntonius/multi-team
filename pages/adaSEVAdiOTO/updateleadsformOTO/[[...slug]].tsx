@@ -19,15 +19,16 @@ import { Button, InputPhone } from 'components/atoms'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { FormSelectModelCarSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectModelCarSevaOTO'
 import { FormSelectCarVariantSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectCarVariant'
-import { getLeadsDetail, updateLeadFormOTO } from 'services/leadsSeva'
+import { updateLeadFormOTO } from 'services/leadsSeva'
 import { FormSelectBrandCarSevaOTO } from 'components/molecules/formUpdateLeadsSevaOTO/formSelectBrandCarSevaOTO'
 import { InputVersionType } from 'utils/enum'
 import { Input } from 'antd'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
-import { api } from 'services/api'
+
 import CarSillhouete from '/public/revamp/illustration/car-sillhouete.webp'
+import { getLeadsDetail, getRecommendation } from 'services/api'
 
 const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
 const LabelTooltipSevaOTO = dynamic(() =>
@@ -221,7 +222,7 @@ const UpdateLeadsFormOTO = ({
       params.append('cityId', forms?.city?.id as string)
       params.append('city', forms?.city?.cityCode as string)
 
-      const response = await api.getRecommendation('', { params })
+      const response = await getRecommendation('', { params })
 
       setAllModalCarList(
         response.carRecommendations.filter(

@@ -1,4 +1,5 @@
 import getCurrentEnvironment from 'helpers/environments'
+import urls from 'utils/helpers/url'
 import { temanSevaUrlPath } from 'utils/types/props'
 const baseUrl = getCurrentEnvironment.apiBaseUrl
 const baseUrlTemanSeva = getCurrentEnvironment.temanSevaApiBaseUrl
@@ -36,9 +37,21 @@ const product = {
   carVideoReview: baseUrl + '/car-video-review',
 }
 
+const usedCar = {
+  usedCars: `${baseUrl}/used-car`,
+  uuid: `${baseUrl}/used-car/details/:uuid`,
+  cityList: `${baseUrl}/used-car/city-list`,
+  pricing: `${baseUrl}/used-car/get-price-car-min-max-by-city`,
+  years: `${baseUrl}/used-car/get-years-car-min-max-by-city`,
+  mileage: `${baseUrl}/used-car/get-mileage-car-min-max-by-city`,
+  brandList: `${baseUrl}/used-car/get-list-brand`,
+  usedCarsLeads: `${baseUrl}/used-car/submit-leads`,
+}
+
 const leads = {
   unverifiedLeadNew: `${baseUrl}/unverifiedLeads/new`,
   customerAssistantDetails: `${baseUrl}/unverifiedLeads/csaDetails`,
+  paIaInfo: `${baseUrl}${urls.internalUrls.paaIAInfo}`,
 }
 
 const omnicom = {
@@ -52,6 +65,8 @@ const auth = {
   refresh: `${baseUrl}/auth/token`,
   otp: `${baseUrl}/auth/otp`,
   otpVerification: `${baseUrl}/auth/verification`,
+  checkRegistered: `${baseUrl}${urls.internalUrls.checkRegistered}`,
+  createCustomer: `${baseUrl}${urls.internalUrls.createCustomerSeva}`,
 }
 
 const loanCalculator = {
@@ -59,6 +74,7 @@ const loanCalculator = {
   insurance: `${baseUrl}/loan-calculator-v2/insurance/:modelId/:cityCode/:tenure`,
   loanPermutationIncludePromo: `${baseUrl}/loan-calculator-v2/calculate-included-promo`,
   loanPermutationAsuransiKombinasi: `${baseUrl}/loan-calculator-v2/calculate-asuransi-kombinasi`,
+  finalDpValidation: `${baseUrl}/loan-calculator-v2/final-dp-validation/:variantId/:cityCode`,
 }
 
 const article = {
@@ -106,5 +122,6 @@ export const collections = {
   ktp,
   profile,
   omnicom,
+  usedCar,
   temanSeva,
 }

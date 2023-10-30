@@ -5,16 +5,12 @@ import { encryptValue } from 'utils/encryptionUtils'
 import { IconLoading, Modal } from 'components/atoms'
 import styles from '../../../styles/components/organisms/otp.module.scss'
 import elementId from 'helpers/elementIds'
-import {
-  HTTPResponseStatusCode,
-  LanguageCode,
-  LocalStorageKey,
-} from 'utils/enum'
+import { HTTPResponseStatusCode, LocalStorageKey } from 'utils/enum'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { useUtils } from 'services/context/utilsContext'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
-import { api } from 'services/api'
+import { postVerifyOTPGeneration, postSendSMSGeneration } from 'services/api'
 
 export const OTP = ({
   phoneNumber,
@@ -220,13 +216,13 @@ export const OTP = ({
 
   const handleSubmit = async (payload: string) => {
     try {
-      const res: any = await api.postVerifyOTPGeneration(
+      const res: any = await postVerifyOTPGeneration(
         payload,
         `+62${phoneNumber}`,
       )
       isOtpVerified()
       if (savedTokenAfterVerify)
-        localStorage.setItem('token', JSON.stringify(res.data))
+        localStorage.setItem('token', JSON.stringify(res))
       sessionStorage.removeItem('lastOtpSent')
       sessionStorage.removeItem('lastOtpSentPhoneNumber')
     } catch (error: any) {
@@ -245,7 +241,7 @@ export const OTP = ({
 
   const sendOtpCode = async () => {
     try {
-      await api.postSendSMSGeneration(`+62${phoneNumber}`)
+      await postSendSMSGeneration(`+62${phoneNumber}`)
       setIsInit(false)
       setCountDownTimeInMilliseconds(0)
       setLastOtpSentTime(Date.now())
@@ -286,7 +282,7 @@ export const OTP = ({
       if (recaptchaWrapperRef) {
         recaptchaWrapperRef.current.innerHTML = RecaptchaNode
       }
-      await api.postSendSMSGeneration(`+62${phoneNumber}`)
+      await postSendSMSGeneration(`+62${phoneNumber}`)
       setLastOtpSentTime(Date.now())
       setLastOptSentPhoneNumber(encryptValue(phoneNumber.toString()))
       saveOtpTimerIsStart('true')
@@ -354,11 +350,13 @@ export const OTP = ({
         width={343}
         open={isOpened}
         onCancel={() => handleCloseModal()}
-        maskStyle={{
-          background: 'rgba(19, 19, 27, 0.5)',
-          maxWidth: '570px',
-          marginLeft: 'auto',
-          marginRight: 'auto',
+        styles={{
+          mask: {
+            background: 'rgba(19, 19, 27, 0.5)',
+            maxWidth: '570px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          },
         }}
       >
         <div className={styles.content}>

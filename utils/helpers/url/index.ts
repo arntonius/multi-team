@@ -10,9 +10,11 @@ const internalUrls = {
   appDownloadUrl: '/appDownload',
   questionsUrl: '/questions',
   carResultsUrl: '/mobil-baru',
-  usedCarResultsUrl: '/mobil-bekas',
+  usedCarResultsUrl: '/mobil-bekas/c',
+  usedCarDetailUrl: '/mobil-bekas/p',
   duplicatedCarResultsUrl: '/adaSEVAdiOTO/mobil-baru',
   carResultsUrlId: '/mobil-baru/:id',
+  usedCarResultUrlId: 'mobil-bekas/p/:id',
   variantListOldDesignUrl: '/var/mobil-baru/:brand/:model',
   variantListUrlId: '/mobil-baru/:brand/:model/:id/:tab?',
   variantListPriceUrl: '/mobil-baru/:brand/:model/:tab',
@@ -160,6 +162,10 @@ const internalUrls = {
   successKtpUrl: '/akun/profil/ktp/success',
   successChangeKtpUrl: '/akun/profil/ktp/success-change-ktp',
   previewKtpUrl: '/akun/profil/ktp/preview',
+  paaIAInfo: '/pa-ambassador/info/',
+  checkRegistered: '/customers/check-customer-register',
+  createCustomerSeva: '/customers/register',
+  sendRefiContact: '/refinancing/contact',
 }
 
 const externalUrls = {

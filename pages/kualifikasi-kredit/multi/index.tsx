@@ -31,7 +31,7 @@ import { useDownPayment } from 'utils/hooks/useDownPayment'
 import { getToken } from 'utils/handler/auth'
 import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { occupations } from 'utils/occupations'
-import { api } from 'services/api'
+
 import {
   AnnouncementBoxDataType,
   FormControlValue,
@@ -64,6 +64,11 @@ import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import dynamic from 'next/dynamic'
+import {
+  getCities,
+  postMultiCreditQualification,
+  getAnnouncementBox as gab,
+} from 'services/api'
 
 const DatePicker = dynamic(
   () => import('components/atoms/inputDate/datepicker'),
@@ -166,22 +171,20 @@ const MultiKK = () => {
   }, [multiForm.priceRangeGroup, limitPrice.max])
 
   const getAnnouncementBox = () => {
-    api
-      .getAnnouncementBox({
-        headers: {
-          'is-login': getToken() ? 'true' : 'false',
-        },
-      })
-      .then((res: AxiosResponse<{ data: AnnouncementBoxDataType }>) => {
-        if (res.data === undefined) {
-          setIsShowAnnouncementBox(false)
-        }
-      })
+    gab({
+      headers: {
+        'is-login': getToken() ? 'true' : 'false',
+      },
+    }).then((res: AxiosResponse<{ data: AnnouncementBoxDataType }>) => {
+      if (res.data === undefined) {
+        setIsShowAnnouncementBox(false)
+      }
+    })
   }
 
   const checkCitiesData = () => {
     if (cityListApi.length === 0) {
-      api.getCities().then((res) => {
+      getCities().then((res) => {
         setCityListApi(res)
       })
     }
@@ -363,10 +366,9 @@ const MultiKK = () => {
       }),
     }
 
-    api
-      .postMultiCreditQualification(sendData, {
-        headers: { Authorization: getToken()?.idToken },
-      })
+    postMultiCreditQualification(sendData, {
+      headers: { Authorization: getToken()?.idToken },
+    })
       .then((result) => {
         const carListNonSulit = filteredCarList(result.carRecommendations)
         if (

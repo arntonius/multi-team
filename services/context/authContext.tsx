@@ -1,9 +1,9 @@
 import { createContext, useEffect, useState } from 'react'
-import { api } from '../api'
 import { User, Token, Filter } from 'utils/types'
 import { encryptValue } from 'utils/encryptionUtils'
 import { saveLocalStorage } from 'utils/handler/localStorage'
 import { LocalStorageKey } from 'utils/enum'
+import { getUserInfo as gui } from 'services/api'
 
 export type AuthContextType = {
   isLoggedIn: boolean
@@ -17,13 +17,13 @@ export const AuthContext = createContext<AuthContextType | null>(null)
 
 const getDataToken = (): Token => {
   const dataToken = localStorage.getItem('token')
-  const token = dataToken !== null ? JSON.parse(dataToken) : null
+  const token = !!dataToken ? JSON.parse(dataToken) : null
   return token
 }
 
 const getDataFilter = (): Filter => {
   const dataFilter = localStorage.getItem('filter')
-  const filter = dataFilter !== null ? JSON.parse(dataFilter) : null
+  const filter = !!dataFilter ? JSON.parse(dataFilter) : null
   return filter
 }
 
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: any) => {
 
   const getUserInfo = async () => {
     try {
-      const res: any = await api.getUserInfo()
+      const res: any = await gui()
       const dataUser: any = res[0]
       saveAuthData(dataUser)
       const encryptedData = encryptValue(JSON.stringify(dataUser))

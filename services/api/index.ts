@@ -139,6 +139,12 @@ const getAvailableNIK = (config?: AxiosRequestConfig) =>
   get(collections.utils.checkNIKAvailable, config)
 const getLeadsDetail = (id: string) =>
   get(collections.omnicom.check.replace(':id', id))
+const getFinalDpRangeValidation = (variantId: string, cityCode: string) =>
+  get(
+    collections.loanCalculator.finalDpValidation
+      .replace(':variantId', variantId)
+      .replace(':cityCode', cityCode),
+  )
 
 // post request
 const postUnverifiedLeadsNew = (body: any) => {
@@ -155,6 +161,22 @@ const postUnverifiedLeadsNew = (body: any) => {
   ).toString()
 
   return post(collections.leads.unverifiedLeadNew, encryptedPayload, config)
+}
+
+const postUnverifiedLeadsNewUsedCar = (body: any) => {
+  const config = {
+    headers: {
+      'torq-api-key': environments.unverifiedLeadApiKey,
+      'Content-Type': 'text/plain',
+    },
+  }
+
+  const encryptedPayload = AES.encrypt(
+    JSON.stringify(body),
+    process.env.NEXT_PUBLIC_LEAD_PAYLOAD_ENCRYPTION_KEY ?? '',
+  ).toString()
+
+  return post(collections.usedCar.usedCarsLeads, encryptedPayload, config)
 }
 const postRefreshToken = (body: any, config?: AxiosRequestConfig) =>
   post(collections.auth.refresh, body, config)
@@ -238,7 +260,31 @@ const postUpdateLeadsCM = (
 const postCheckTemanSeva = (body: CheckTemanSeva) =>
   post(collections.temanSeva.checkTemanSeva, body)
 
-export const api = {
+const getUsedCars = (params?: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.usedCars + params, config)
+
+const getUsedCarCityList = (config?: AxiosRequestConfig) =>
+  get(collections.usedCar.cityList, config)
+
+const getMinMaxPriceUsedCar = (params: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.pricing + params, config)
+
+const getMinMaxYearsUsedCar = (params: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.years + params, config)
+
+const getMinMaxMileageUsedCar = (params: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.mileage + params, config)
+
+const getBrandList = (params: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.brandList + params, config)
+
+const getUsedCarBySKU = (
+  id: string,
+  params: string,
+  config?: AxiosRequestConfig,
+) => get(collections.usedCar.uuid.replace(':uuid', id) + params, config)
+
+export {
   getMenu,
   getCities,
   getAgent,
@@ -268,9 +314,17 @@ export const api = {
   getCustomerSpouseKtpSeva,
   getAvailableNIK,
   getLeadsDetail,
+  getUsedCars,
+  getUsedCarCityList,
+  getMinMaxPriceUsedCar,
+  getMinMaxYearsUsedCar,
+  getMinMaxMileageUsedCar,
+  getUsedCarBySKU,
+  getBrandList,
+  getFinalDpRangeValidation,
   postUpdateLeadsOTO,
-
   postUnverifiedLeadsNew,
+  postUnverifiedLeadsNewUsedCar,
   postRefreshToken,
   postSendSMSGeneration,
   postVerifyOTPGeneration,

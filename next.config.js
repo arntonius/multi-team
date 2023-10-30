@@ -1,7 +1,4 @@
 const path = require('path')
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-  enabled: process.env.ANALYZE === "true",
-});
 
 const nextConfig = {
   basePath: '',
@@ -36,6 +33,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'www.mobbi.id',
+      },
+      {
+        protocol: 'https',
         hostname: 'storage.googleapis.com',
       },
       {
@@ -49,6 +50,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'drive.google.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.setirkanan.co.id',
       },
     ],
   },
@@ -82,4 +87,3 @@ const nextConfig = {
 
 module.exports = nextConfig
 // module.exports = withBundleAnalyzer({})
-

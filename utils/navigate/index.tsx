@@ -1,12 +1,6 @@
-import { valueForUserTypeProperty } from 'helpers/countly/countly'
-import Router from 'next/router'
-import { use } from 'react'
 import { SessionStorageKey } from 'utils/enum'
-import {
-  getSessionStorage,
-  saveSessionStorage,
-} from 'utils/handler/sessionStorage'
-import { carResultsUrl, creditQualificationUrl } from 'utils/helpers/routes'
+import { saveSessionStorage } from 'utils/handler/sessionStorage'
+import { creditQualificationUrl } from 'utils/helpers/routes'
 import urls from 'utils/helpers/url'
 
 export enum RouteName {
@@ -185,15 +179,21 @@ export const navigateToPLP = (
   )
 
   if (!navigate) return
-  if (replace)
-    return Router.replace({
-      pathname: urls.internalUrls.carResultsUrl,
-      ...option,
+
+  import('next/router')
+    .then((mod) => mod.default)
+    .then((Router) => {
+      if (replace)
+        Router.replace({
+          pathname: urls.internalUrls.carResultsUrl,
+          ...option,
+        })
+      else
+        Router.push({
+          pathname: customUrl || urls.internalUrls.carResultsUrl,
+          ...option,
+        })
     })
-  return Router.push({
-    pathname: customUrl || urls.internalUrls.carResultsUrl,
-    ...option,
-  })
 }
 
 export const navigateToKK = (
@@ -212,7 +212,11 @@ export const navigateToKK = (
   if (navigateWithWindowLocation) {
     return (window.location.href = creditQualificationUrl)
   } else {
-    return Router.push({ pathname: creditQualificationUrl, ...option })
+    import('next/router')
+      .then((mod) => mod.default)
+      .then((Router) =>
+        Router.push({ pathname: creditQualificationUrl, ...option }),
+      )
   }
 }
 

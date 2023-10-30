@@ -10,7 +10,7 @@ import {
   NavbarItemResponse,
 } from 'utils/types/utils'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
-import { api } from 'services/api'
+
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { useUtils } from 'services/context/utilsContext'
@@ -22,6 +22,14 @@ import { useRouter } from 'next/router'
 import { getCity } from 'utils/hooks/useGetCity'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { getToken } from 'utils/handler/auth'
+import {
+  getMenu,
+  getMobileHeaderMenu,
+  getMobileFooterMenu,
+  getCities,
+  getMinMaxPrice,
+  getAnnouncementBox as gab,
+} from 'services/api'
 
 const NewCarResultPage = ({
   meta,
@@ -34,7 +42,7 @@ const NewCarResultPage = ({
   const todayDate = new Date()
   const brand = router.query.brand
 
-  const metaTitle = `Beli Mobil Terbaru ${todayDate.getFullYear()} - Harga OTR dengan Promo Cicilan bulan ${monthId(
+  const metaTitle = `Daftar Mobil Baru ${todayDate.getFullYear()} - Promo Cicilan ${monthId(
     todayDate.getMonth(),
   )} | SEVA`
   const metaDesc = `Beli mobil  ${todayDate.getFullYear()} terbaru di SEVA. Beli mobil secara kredit dengan Instant Approval*.`
@@ -49,7 +57,7 @@ const NewCarResultPage = ({
 
   const getAnnouncementBox = async () => {
     try {
-      const res: any = await api.getAnnouncementBox({
+      const res: any = await gab({
         headers: {
           'is-login': getToken() ? 'true' : 'false',
         },
@@ -174,10 +182,10 @@ export const getServerSideProps: GetServerSideProps<{
       cityRes,
     ]: any = await Promise.all([
       axios.get(footerTagBaseApi + metabrand),
-      api.getMenu(),
-      api.getMobileHeaderMenu(),
-      api.getMobileFooterMenu(),
-      api.getCities(),
+      getMenu(),
+      getMobileHeaderMenu(),
+      getMobileFooterMenu(),
+      getCities(),
     ])
 
     const footerData = fetchFooter.data.data
@@ -186,7 +194,7 @@ export const getServerSideProps: GetServerSideProps<{
       const params = new URLSearchParams()
       getCity().cityCode && params.append('city', getCity().cityCode as string)
 
-      const minmax = await api.getMinMaxPrice('', { params })
+      const minmax = await getMinMaxPrice('', { params })
       const minmaxPriceData = minmax
       meta.MinMaxPrice = {
         minPriceValue: minmaxPriceData.minPriceValue,
