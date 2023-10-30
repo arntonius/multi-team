@@ -377,7 +377,11 @@ export const CarOverview = ({
         </button>
       </div>
       {isModalOpenend && (
-        <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} onPage="PDP" />
+        <AdaOTOdiSEVALeadsForm
+          onCancel={closeLeadsForm}
+          onPage="PDP"
+          isProduct={true}
+        />
       )}
     </div>
   )

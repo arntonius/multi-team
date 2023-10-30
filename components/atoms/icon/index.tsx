@@ -92,6 +92,8 @@ import { InfoCircleOutlined } from './InfoCircleOutlined'
 import { Contact } from './Contact'
 import { IconSquareCheckBox } from './SquareCheckBox'
 import { IconSquareCheckedBox } from './SquareCheckedBox'
+import { IconYoutubeOutlined } from './YoutubeOutlined'
+import { IconLinkedinOutlined } from './LinkedinOutlined'
 import { IconLockFill } from './LockFill'
 
 // const IconChevronUp: React.FC<PropsIcon> = ({
@@ -808,4 +810,6 @@ export {
   IconColor,
   IconNumberField,
   IconDocumentSigned,
+  IconYoutubeOutlined,
+  IconLinkedinOutlined,
 }

@@ -44,8 +44,9 @@ import {
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { LocationRed } from 'components/atoms/icon/LocationRed'
 import urls from 'utils/helpers/url'
-import { api } from 'services/api'
+
 import { usedCar } from 'services/context/usedCarContext'
+import { getUsedCarBySKU } from 'services/api'
 
 const CarSkeleton = '/revamp/illustration/car-skeleton.webp'
 

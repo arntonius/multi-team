@@ -82,11 +82,18 @@ import {
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { removeCarBrand } from 'utils/handler/removeCarBrand'
 import dynamic from 'next/dynamic'
-import { api } from 'services/api'
+
 import { getCarModelDetailsById } from 'utils/handler/carRecommendation'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { getCustomerAssistantWhatsAppNumber } from 'utils/handler/lead'
+import {
+  getFinalDpRangeValidation,
+  getLoanCalculatorInsurance,
+  getRecommendation,
+  postCheckPromoGiias,
+  postLoanPermutationIncludePromo,
+} from 'services/api'
 
 const CalculationResult = dynamic(() =>
   import('components/organisms').then((mod) => mod.CalculationResult),
@@ -233,6 +240,8 @@ export const CreditTab = () => {
   const referralCodeFromUrl: string | null = getLocalStorage(
     LocalStorageKey.referralTemanSeva,
   )
+  const [finalMinInputDp, setFinalMinInputDp] = useState(0)
+  const [finalMaxInputDp, setFinalMaxInputDp] = useState(0)
 
   const isUsingFilterFinancial =
     !!filterStorage?.age &&
@@ -273,7 +282,7 @@ export const CreditTab = () => {
       (storedFilter?.downPaymentAmount &&
         storedFilter?.downPaymentAmount.toString()) ||
       '',
-    paymentOption: InstallmentTypeOptions.ADDM,
+    paymentOption: InstallmentTypeOptions.ADDB,
     isValidPromoCode: true,
   })
 
@@ -688,7 +697,7 @@ export const CreditTab = () => {
     params.append('cityId', defaultCity.id as string)
     params.append('city', defaultCity.cityCode as string)
 
-    const response = await api.getRecommendation('', { params })
+    const response = await getRecommendation('', { params })
 
     setAllModalCarList(response.carRecommendations)
   }
@@ -874,7 +883,7 @@ export const CreditTab = () => {
 
     try {
       setIsLoadingPromoCode(true)
-      const result: any = await api.postCheckPromoGiias(forms.promoCode)
+      const result: any = await postCheckPromoGiias(forms.promoCode)
       setIsLoadingPromoCode(false)
 
       if (result.message === 'valid promo code') {
@@ -929,7 +938,7 @@ export const CreditTab = () => {
       )
 
       try {
-        const responseInsurance = await api.getLoanCalculatorInsurance({
+        const responseInsurance = await getLoanCalculatorInsurance({
           modelId: forms.model?.modelId ?? '',
           cityCode: forms.city.cityCode,
           tenure: allTenure[i],
@@ -981,6 +990,7 @@ export const CreditTab = () => {
           subsidiDp: isAppliedSDD01Promo
             ? currentTenurePermutation[0]?.subsidiDp
             : 0,
+          dpDiscount: currentTenurePermutation[0]?.dpDiscount,
         })
       } catch (e: any) {
         if (e?.response?.data?.message) {
@@ -1051,6 +1061,65 @@ export const CreditTab = () => {
       JSON.stringify(dataCarTemp),
     )
   }
+
+  const validateDpInputRange = async () => {
+    if (!!forms.variant?.variantId && !!forms.city.cityCode) {
+      try {
+        const finalDpRange = await getFinalDpRangeValidation(
+          forms.variant?.variantId,
+          forms.city.cityCode,
+        )
+
+        if (finalDpRange?.minAmount !== 0 && finalDpRange?.maxAmount !== 0) {
+          setFinalMinInputDp(finalDpRange?.minAmount)
+          setFinalMaxInputDp(finalDpRange?.maxAmount)
+          if (forms.downPaymentAmount < finalDpRange?.minAmount) {
+            setIsDpTooLow(true)
+            setIsDpExceedLimit(false)
+            scrollToElement('loan-calculator-form-dp')
+            return false
+          } else if (forms.downPaymentAmount > finalDpRange?.maxAmount) {
+            setIsDpTooLow(false)
+            setIsDpExceedLimit(true)
+            scrollToElement('loan-calculator-form-dp')
+            return false
+          } else {
+            setIsDpTooLow(false)
+            setIsDpExceedLimit(false)
+            return true
+          }
+        } else {
+          const minDp20Percent = getCarOtrNumber() * 0.2
+          const maxDp90Percent = getCarOtrNumber() * 0.9
+          setFinalMinInputDp(minDp20Percent)
+          setFinalMaxInputDp(maxDp90Percent)
+          if (
+            parseInt(forms.downPaymentAmount) >= minDp20Percent &&
+            parseInt(forms.downPaymentAmount) <= maxDp90Percent
+          ) {
+            setIsDpTooLow(false)
+            setIsDpExceedLimit(false)
+            return true
+          } else if (parseInt(forms.downPaymentAmount) < minDp20Percent) {
+            setIsDpTooLow(true)
+            setIsDpExceedLimit(false)
+            scrollToElement('loan-calculator-form-dp')
+            return false
+          } else if (parseInt(forms.downPaymentAmount) > maxDp90Percent) {
+            setIsDpTooLow(false)
+            setIsDpExceedLimit(true)
+            scrollToElement('loan-calculator-form-dp')
+            return false
+          }
+        }
+      } catch {
+        return false
+      }
+    } else {
+      return false
+    }
+  }
+
   const onClickCalculate = async () => {
     validateFormFields()
 
@@ -1058,82 +1127,91 @@ export const CreditTab = () => {
       return
     }
 
-    const promoCodeValidity = await checkPromoCode()
+    setIsLoadingCalculation(true)
 
-    if (promoCodeValidity) {
-      setIsLoadingCalculation(true)
-
-      const dataFinancial = {
-        ...financialQuery,
-        downPaymentAmount: dpValue,
-        age: forms.age ? String(forms.age) : financialQuery.age,
-        monthlyIncome: forms.monthlyIncome
-          ? forms.monthlyIncome
-          : financialQuery.monthlyIncome,
-      }
-
-      patchFinancialQuery(dataFinancial)
-      patchFunnelQuery({
-        age: forms.age,
-        monthlyIncome: forms.monthlyIncome,
-        downPaymentAmount: forms.downPaymentAmount,
-      })
-
-      fetchCarRecommendations()
-
-      const payload: LoanCalculatorIncludePromoPayloadType = {
-        brand: forms.model?.brandName ?? '',
-        model: removeFirstWordFromString(forms.model?.modelName ?? ''),
-        age: forms.age,
-        angsuranType: forms.paymentOption,
-        city: forms.city.cityCode,
-        discount: getCarDiscountNumber(),
-        dp: mappedDpPercentage,
-        dpAmount: dpValue,
-        monthlyIncome: forms.monthlyIncome,
-        otr: getCarOtrNumber() - getCarDiscountNumber(),
-      }
-
-      api
-        .postLoanPermutationIncludePromo(payload)
-        .then((response) => {
-          const result = response.data.reverse()
-          const filteredResult = getFilteredCalculationResults(result)
-          setCalculationResult(filteredResult)
-          generateSelectedInsuranceAndPromo(filteredResult)
-          trackCountlyResult(filteredResult)
-
-          // select loan with the longest tenure as default
-          const selectedLoanInitialValue =
-            filteredResult.sort(
-              (
-                a: SpecialRateListWithPromoType,
-                b: SpecialRateListWithPromoType,
-              ) => b.tenure - a.tenure,
-            )[0] ?? null
-          setSelectedLoan(selectedLoanInitialValue)
-          saveDefaultTenureCarForLoginPageView(
-            selectedLoanInitialValue.tenure,
-            selectedLoanInitialValue.loanRank,
-          )
-          setIsDataSubmitted(true)
-          setCalculationApiPayload(payload)
-          // scrollToResult()
-        })
-        .catch((error: any) => {
-          if (error?.response?.data?.message) {
-            setToastMessage(`${error?.response?.data?.message}`)
-          } else {
-            setToastMessage(
-              'Mohon maaf, terjadi kendala jaringan silahkan coba kembali lagi',
-            )
-          }
-          setIsOpenToast(true)
-        })
-        .finally(() => {
-          setIsLoadingCalculation(false)
-        })
+    const dpInputRangeValidity = await validateDpInputRange()
+    if (!dpInputRangeValidity) {
+      setIsLoadingCalculation(false)
+      return
     }
+
+    const promoCodeValidity = await checkPromoCode()
+    if (!promoCodeValidity) {
+      setIsLoadingCalculation(false)
+      return
+    }
+
+    const dataFinancial = {
+      ...financialQuery,
+      downPaymentAmount: dpValue,
+      age: forms.age ? String(forms.age) : financialQuery.age,
+      monthlyIncome: forms.monthlyIncome
+        ? forms.monthlyIncome
+        : financialQuery.monthlyIncome,
+    }
+
+    patchFinancialQuery(dataFinancial)
+    patchFunnelQuery({
+      age: forms.age,
+      monthlyIncome: forms.monthlyIncome,
+      downPaymentAmount: forms.downPaymentAmount,
+    })
+
+    fetchCarRecommendations()
+
+    const payload: LoanCalculatorIncludePromoPayloadType = {
+      brand: forms.model?.brandName ?? '',
+      model: removeFirstWordFromString(forms.model?.modelName ?? ''),
+      age: forms.age,
+      angsuranType: forms.paymentOption,
+      city: forms.city.cityCode,
+      discount: getCarDiscountNumber(),
+      dp: mappedDpPercentage,
+      dpAmount: dpValue,
+      monthlyIncome: forms.monthlyIncome,
+      otr: getCarOtrNumber() - getCarDiscountNumber(),
+      variantId: forms.variant?.variantId,
+      calculateIncludeSubsidi: true,
+    }
+
+    postLoanPermutationIncludePromo(payload)
+      .then((response) => {
+        const result = response.data.reverse()
+        const filteredResult = getFilteredCalculationResults(result)
+        setCalculationResult(filteredResult)
+        generateSelectedInsuranceAndPromo(filteredResult)
+        trackCountlyResult(filteredResult)
+
+        // select loan with the longest tenure as default
+        const selectedLoanInitialValue =
+          filteredResult.sort(
+            (
+              a: SpecialRateListWithPromoType,
+              b: SpecialRateListWithPromoType,
+            ) => b.tenure - a.tenure,
+          )[0] ?? null
+        setSelectedLoan(selectedLoanInitialValue)
+        saveDefaultTenureCarForLoginPageView(
+          selectedLoanInitialValue.tenure,
+          selectedLoanInitialValue.loanRank,
+        )
+        setIsDataSubmitted(true)
+        setCalculationApiPayload(payload)
+        // scrollToResult()
+      })
+      .catch((error: any) => {
+        if (error?.response?.data?.message) {
+          setToastMessage(`${error?.response?.data?.message}`)
+        } else {
+          setToastMessage(
+            'Mohon maaf, terjadi kendala jaringan silahkan coba kembali lagi',
+          )
+        }
+        setIsOpenToast(true)
+      })
+      .finally(() => {
+        setIsLoadingCalculation(false)
+      })
   }
 
   const validateFormFields = () => {
@@ -1180,9 +1258,7 @@ export const CreditTab = () => {
     }
   }
 
-  const handleRedirectToWhatsapp = async (
-    loan: SpecialRateListWithPromoType,
-  ) => {
+  const trackCountlyDirectToWhatsapp = async (tenure: number) => {
     let temanSevaStatus = 'No'
     if (referralCodeFromUrl) {
       temanSevaStatus = 'Yes'
@@ -1206,7 +1282,7 @@ export const CreditTab = () => {
           : carModelLoanRankPLP && carModelLoanRankPLP === 'Red'
           ? 'Sulit disetujui'
           : 'Null',
-      TENOR_OPTION: loan?.tenure ? loan?.tenure + ' Tahun' : 'Null',
+      TENOR_OPTION: tenure ? tenure + ' Tahun' : 'Null',
       TENOR_RESULT:
         dataCar?.TENOR_RESULT && dataCar?.TENOR_RESULT === 'Green'
           ? 'Mudah disetujui'
@@ -1221,8 +1297,62 @@ export const CreditTab = () => {
       INCOME_CHANGE: 'Null',
       OCCUPATION: 'Null',
     })
-    const { model, variant, downPaymentAmount } = forms
-    const message = `Halo, saya tertarik dengan ${model?.modelName} ${variant?.variantName} dengan DP sebesar Rp ${downPaymentAmount}, cicilan per bulannya Rp ${loan?.installment}, dan tenor ${loan?.tenure} tahun.`
+  }
+
+  const handleRedirectToWhatsapp = async (
+    loan: SpecialRateListWithPromoType,
+  ) => {
+    trackCountlyDirectToWhatsapp(loan.tenure)
+
+    const { model, variant } = forms
+
+    const selectedLoanData = insuranceAndPromoForAllTenure.filter(
+      (x) => x.tenure === loan.tenure,
+    )[0]
+
+    const getPromoListForWhatsapp = (): string => {
+      const allParentPromoTitle = selectedLoanData.selectedPromo.map((item) => {
+        return item.promo
+      })
+      if (allParentPromoTitle.length > 1) {
+        return allParentPromoTitle.join(', ') + ','
+      } else {
+        return allParentPromoTitle.join()
+      }
+    }
+
+    const getLastSentenceMessage = (): string => {
+      if (getPromoListForWhatsapp().length > 0 && loan.dpDiscount !== 0) {
+        return `Saya juga ingin menggunakan promo ${getPromoListForWhatsapp()} dan diskon unit sebesar Rp${replacePriceSeparatorByLocalization(
+          loan.dpDiscount,
+          LanguageCode.id,
+        )}.`
+      } else if (getPromoListForWhatsapp().length > 0) {
+        return `Saya juga ingin menggunakan promo ${getPromoListForWhatsapp()}.`
+      } else if (loan.dpDiscount !== 0) {
+        return `Saya juga ingin menggunakan diskon unit sebesar Rp${replacePriceSeparatorByLocalization(
+          loan.dpDiscount,
+          LanguageCode.id,
+        )}.`
+      } else {
+        return ''
+      }
+    }
+
+    const message = `Halo saya tertarik dengan ${model?.modelName} ${
+      variant?.variantName
+    } dengan DP sebesar Rp${replacePriceSeparatorByLocalization(
+      selectedLoanData.tdpAfterPromo !== 0
+        ? selectedLoanData.tdpAfterPromo
+        : selectedLoanData.tdpBeforePromo,
+      LanguageCode.id,
+    )}, cicilan per bulannya Rp${replacePriceSeparatorByLocalization(
+      !!selectedLoanData.installmentAfterPromo &&
+        selectedLoanData.installmentAfterPromo !== 0
+        ? selectedLoanData.installmentAfterPromo
+        : selectedLoanData.installmentBeforePromo,
+      LanguageCode.id,
+    )}, dan tenor ${loan?.tenure} tahun. ${getLastSentenceMessage()}`
 
     const whatsAppUrl = await getCustomerAssistantWhatsAppNumber()
     window.open(`${whatsAppUrl}?text=${encodeURI(message)}`, '_blank')
@@ -1727,7 +1857,7 @@ export const CreditTab = () => {
           {/* TODO : Implement carPrice by Car Variant Price */}
           <div id="loan-calculator-form-dp">
             <DpForm
-              label="Kemampuan DP (Min. 20%)"
+              label="Kemampuan DP"
               value={dpValue}
               percentage={dpPercentage}
               onChange={handleDpChange}
@@ -1750,6 +1880,8 @@ export const CreditTab = () => {
               emitOnFocusDpAmountField={onFocusDpAmountField}
               emitOnFocusDpPercentageField={onFocusDpPercentageField}
               emitOnAfterChangeDpSlider={onAfterChangeDpSlider}
+              finalMinInputDp={finalMinInputDp}
+              finalMaxInputDp={finalMaxInputDp}
             />
           </div>
           <div id="loan-calculator-form-installment-type">

@@ -6,7 +6,6 @@ import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { api } from 'services/api'
 import { useCar } from 'services/context/carContext'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
@@ -47,6 +46,7 @@ import { LeadsActionParam, PageOriginationName } from 'utils/types/props'
 import { getNewFunnelRecommendations } from 'utils/handler/funnel'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
+import { getMinMaxPrice, postCheckTemanSeva } from 'services/api'
 
 const Spin = dynamic(() => import('antd/lib/spin'), { ssr: false })
 const LeadsFormPrimary = dynamic(() =>
@@ -138,6 +138,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
   const [openLabelResultInfo, setOpenLabelResultInfo] = useState(false)
   const [openSorting, setOpenSorting] = useState(false)
   const [openInterestingModal, setOpenInterestingModal] = useState(false)
+  const [isProduct, setIsProduct] = useState(false)
   const [startScroll, setStartScroll] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [sticky, setSticky] = useState(false)
@@ -294,7 +295,8 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
   }
 
   const showLeadsForm = () => {
-    setIsModalOpened(true)
+    setOpenInterestingModal(true)
+    setIsProduct(true)
     trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_BUTTON_CLICK, {
       PAGE_ORIGINATION: 'PLP',
     })
@@ -306,6 +308,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
 
   const closeInterestingBtn = () => {
     setOpenInterestingModal(false)
+    setIsProduct(false)
   }
 
   const handleShowFilter = () => {
@@ -346,7 +349,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
       }
 
       try {
-        const temanSeva = await api.postCheckTemanSeva({
+        const temanSeva = await postCheckTemanSeva({
           phoneNumber: decryptUser.phoneNumber,
         })
         if (temanSeva.data.isTemanSeva) return 'Yes'
@@ -493,8 +496,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
       const params = new URLSearchParams()
       getCity().cityCode && params.append('city', getCity().cityCode as string)
 
-      api
-        .getMinMaxPrice('', { params })
+      getMinMaxPrice('', { params })
         .then((response) => {
           if (response) {
             setMinMaxPrice({
@@ -525,7 +527,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
             }
 
             getNewFunnelRecommendations(queryParam)
-              .then((response) => {
+              .then((response: any) => {
                 if (response) {
                   patchFunnelQuery(queryParam)
                   saveRecommendation(response.carRecommendations)
@@ -609,7 +611,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
       ...funnelQuery,
       sortBy: val || 'lowToHigh',
     }
-    getNewFunnelRecommendations(queryParam).then((response) => {
+    getNewFunnelRecommendations(queryParam).then((response: any) => {
       if (response) {
         patchFunnelQuery(queryParam)
         saveRecommendation(response.carRecommendations)
@@ -844,6 +846,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
             onCancel={closeInterestingBtn}
             trackerProperties={trackLeads()}
             onPage="PLP"
+            isProduct={isProduct}
           />
         )}
       </div>

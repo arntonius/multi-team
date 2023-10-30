@@ -103,6 +103,7 @@ export default function NewCarVariantList({
     isOTO ? PdpDataOTOLocalContext : PdpDataLocalContext,
   )
   const [isModalOpenend, setIsModalOpened] = useState<boolean>(false)
+  const [isProduct, setIsProduct] = useState(false)
 
   const [isOpenCitySelectorOTRPrice, setIsOpenCitySelectorOTRPrice] =
     useState(false)
@@ -118,10 +119,12 @@ export default function NewCarVariantList({
 
   const closeLeadsForm = () => {
     setIsModalOpened(false)
+    setIsProduct(false)
   }
 
   const showLeadsForm = () => {
     setIsModalOpened(true)
+    setIsProduct(true)
   }
 
   const handlePreviewOpened = (payload: number) => {
@@ -426,7 +429,7 @@ export default function NewCarVariantList({
     if (variantIdFuel)
       getCarVariantDetailsById(
         variantIdFuel, // get cheapest variant
-      ).then((result) => {
+      ).then((result: any) => {
         setVariantFuelRatio(result.variantDetail.rasioBahanBakar)
       })
   }
@@ -530,7 +533,7 @@ export default function NewCarVariantList({
 
     if (!isCurrentCitySameWithSSR) {
       getNewFunnelRecommendations(getQueryParamForApiRecommendation()).then(
-        (result) => {
+        (result: any) => {
           let id = ''
           const carList = result.carRecommendations
           const currentCar = carList.filter(
@@ -563,7 +566,7 @@ export default function NewCarVariantList({
                 .sort((a: any, b: any) => a.priceValue - b.priceValue)
               getCarVariantDetailsById(
                 sortedVariantsOfCurrentModel[0].id, // get cheapest variant
-              ).then((result3) => {
+              ).then((result3: any) => {
                 if (result3.variantDetail.priceValue == null) {
                   setStatus('empty')
                 } else {
@@ -758,7 +761,11 @@ export default function NewCarVariantList({
         sourceButton={isOpenCitySelectorOTRPrice ? 'OTR Price (PDP)' : ''}
       />
       {isModalOpenend && (
-        <AdaOTOdiSEVALeadsForm onCancel={closeLeadsForm} onPage="PDP" />
+        <AdaOTOdiSEVALeadsForm
+          onCancel={closeLeadsForm}
+          onPage="PDP"
+          isProduct={true}
+        />
       )}
       <ShareModal
         open={isOpenShareModal}

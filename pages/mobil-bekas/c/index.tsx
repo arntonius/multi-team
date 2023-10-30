@@ -17,7 +17,7 @@ import {
   NavbarItemResponse,
 } from 'utils/types/utils'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
-import { api } from 'services/api'
+
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { useUtils } from 'services/context/utilsContext'
@@ -32,6 +32,16 @@ import { getCity } from 'utils/hooks/useGetCity'
 import { PLPUsedCar } from 'components/organisms/PLPUsedCar'
 import { getUsedCarFunnelRecommendations } from 'utils/handler/funnel'
 import { getToken } from 'utils/handler/auth'
+import {
+  getMenu,
+  getMobileHeaderMenu,
+  getMobileFooterMenu,
+  getCities,
+  getMinMaxPriceUsedCar,
+  getMinMaxYearsUsedCar,
+  getMinMaxMileageUsedCar,
+  getAnnouncementBox as gab,
+} from 'services/api'
 
 const UsedCarResultPage = ({
   meta,
@@ -61,7 +71,7 @@ const UsedCarResultPage = ({
 
   const getAnnouncementBox = async () => {
     try {
-      const res: any = await api.getAnnouncementBox({
+      const res: any = await gab({
         headers: {
           'is-login': getToken() ? 'true' : 'false',
         },
@@ -193,16 +203,16 @@ export const getServerSideProps: GetServerSideProps<{
       cityRes,
     ]: any = await Promise.all([
       axios.get(footerTagBaseApi + metabrand),
-      api.getMenu(),
-      api.getMobileHeaderMenu(),
-      api.getMobileFooterMenu(),
-      api.getCities(),
+      getMenu(),
+      getMobileHeaderMenu(),
+      getMobileFooterMenu(),
+      getCities(),
     ])
 
     const footerData = fetchFooter.data.data
 
     if (!priceStart && !priceEnd) {
-      const minmax = await api.getMinMaxPriceUsedCar('')
+      const minmax = await getMinMaxPriceUsedCar('')
       const minmaxPriceData = minmax.data
       minmaxPriceData.minPrice = parseInt(
         minmaxPriceData.minPrice.replace(/^0+/, ''),
@@ -216,7 +226,7 @@ export const getServerSideProps: GetServerSideProps<{
       }
     }
     if (!yearStart && !yearEnd) {
-      const minmax = await api.getMinMaxYearsUsedCar('')
+      const minmax = await getMinMaxYearsUsedCar('')
       const minmaxYearData = minmax.data
 
       meta.MinMaxYear = {
@@ -226,7 +236,7 @@ export const getServerSideProps: GetServerSideProps<{
     }
 
     if (!mileageStart && !mileageEnd) {
-      const minmax = await api.getMinMaxMileageUsedCar('')
+      const minmax = await getMinMaxMileageUsedCar('')
       const minmaxMileageData = minmax.data
       meta.MinMaxMileage = {
         minMileageValue: minmaxMileageData.minMileages,
