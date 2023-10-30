@@ -28,7 +28,7 @@ import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { FormTransmission } from 'components/molecules/form/formTransmission'
 import { FormPlate } from 'components/molecules/form/formPlate'
 import { getUsedCarFunnelRecommendations } from 'utils/handler/funnel'
-import { api } from 'services/api'
+import { getBrandList, getUsedCarCityList } from 'services/api'
 
 interface ParamsUrl {
   bodyType?: string
@@ -137,13 +137,13 @@ const FilterMobileUsedCar = ({
   const [resetTmp, setResetTmp] = useState(false)
 
   const getCiyList = async () => {
-    const response = await api.getUsedCarCityList()
+    const response = await getUsedCarCityList()
     setCityList(response.data)
     setCityListPLP(response.data)
   }
 
   const getListBrand = async () => {
-    const response = await api.getBrandList('')
+    const response = await getBrandList('')
     setBrandList(response.data)
   }
 
@@ -239,7 +239,7 @@ const FilterMobileUsedCar = ({
     }
 
     getUsedCarFunnelRecommendations(paramUpdate)
-      .then((response) => {
+      .then((response: any) => {
         handleSuccess(response)
         setLoading(false)
       })

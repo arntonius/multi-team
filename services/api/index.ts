@@ -139,6 +139,12 @@ const getAvailableNIK = (config?: AxiosRequestConfig) =>
   get(collections.utils.checkNIKAvailable, config)
 const getLeadsDetail = (id: string) =>
   get(collections.omnicom.check.replace(':id', id))
+const getFinalDpRangeValidation = (variantId: string, cityCode: string) =>
+  get(
+    collections.loanCalculator.finalDpValidation
+      .replace(':variantId', variantId)
+      .replace(':cityCode', cityCode),
+  )
 
 // post request
 const postUnverifiedLeadsNew = (body: any) => {
@@ -278,7 +284,7 @@ const getUsedCarBySKU = (
   config?: AxiosRequestConfig,
 ) => get(collections.usedCar.uuid.replace(':uuid', id) + params, config)
 
-export const api = {
+export {
   getMenu,
   getCities,
   getAgent,
@@ -315,7 +321,7 @@ export const api = {
   getMinMaxMileageUsedCar,
   getUsedCarBySKU,
   getBrandList,
-
+  getFinalDpRangeValidation,
   postUpdateLeadsOTO,
   postUnverifiedLeadsNew,
   postUnverifiedLeadsNewUsedCar,

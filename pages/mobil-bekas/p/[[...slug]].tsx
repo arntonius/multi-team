@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { PdpMobile, UsedPdpMobile } from 'components/organisms'
-import { api } from 'services/api'
+
 import {
   CarModelDetailsResponse,
   CarRecommendation,
@@ -12,8 +12,6 @@ import { InferGetServerSidePropsType } from 'next'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
 import { useUtils } from 'services/context/utilsContext'
 import { getToken } from 'utils/handler/auth'
-import Seo from 'components/atoms/seo'
-import { defaultSeoImage } from 'utils/helpers/const'
 import { LanguageCode } from 'utils/enum'
 import {
   formatPriceNumber,
@@ -23,13 +21,18 @@ import { getModelPriceRange } from 'utils/carModelUtils/carModelUtils'
 import { articleDateFormat, monthId } from 'utils/handler/date'
 import { useRouter } from 'next/router'
 import { getCity, saveCity } from 'utils/hooks/useGetCity'
-import { useCar } from 'services/context/carContext'
 import { capitalizeFirstLetter } from 'utils/stringUtils'
 import { lowerSectionNavigationTab } from 'config/carVariantList.config'
-import Script from 'next/script'
-import { mergeModelDetailsWithLoanRecommendations } from 'utils/handler/carRecommendation'
 import { formatShortPrice } from 'components/organisms/tabContent/lower/summary'
 import { usedCar } from 'services/context/usedCarContext'
+import {
+  getMobileHeaderMenu,
+  getMobileFooterMenu,
+  getCities,
+  getMenu,
+  getAnnouncementBox as gab,
+  getUsedCarBySKU,
+} from 'services/api'
 interface UsedPdpDataLocalContextType {
   // /**
   //  * this variable use "jakarta" as default payload, so that search engine could see page content.
@@ -109,7 +112,7 @@ export default function index({
 
   const getAnnouncementBox = async () => {
     try {
-      const res: any = await api.getAnnouncementBox({
+      const res: any = await gab({
         headers: {
           'is-login': getToken() ? 'true' : 'false',
         },
@@ -226,11 +229,11 @@ export async function getServerSideProps(context: any) {
       // api.getRecommendation('?city=jakarta&cityId=118'),
       // api.getMetaTagData(context.query.model.replaceAll('-', '')),
       // api.getCarVideoReview(),
-      api.getMobileHeaderMenu(),
-      api.getMobileFooterMenu(),
-      api.getCities(),
-      api.getMenu(),
-      api.getUsedCarBySKU(uuid, ''),
+      getMobileHeaderMenu(),
+      getMobileFooterMenu(),
+      getCities(),
+      getMenu(),
+      getUsedCarBySKU(uuid, ''),
     ])
 
     // const carList = carRecommendationsRes.carRecommendations
@@ -245,14 +248,14 @@ export async function getServerSideProps(context: any) {
     //     notFound: true,
     //   }
     // }
-    // const carModelDetailsRes: any = await api.getCarModelDetails(
+    // const carModelDetailsRes: any = await getCarModelDetails(
     //   id,
     //   '?city=jakarta&cityId=118',
     // )
     // const sortedVariantsOfCurrentModel = carModelDetailsRes.variants
     //   .map((item: any) => item)
     //   .sort((a: any, b: any) => a.priceValue - b.priceValue)
-    // const carVariantDetailsRes: any = await api.getCarVariantDetails(
+    // const carVariantDetailsRes: any = await getCarVariantDetails(
     //   sortedVariantsOfCurrentModel[0].id,
     //   '?city=jakarta&cityId=118',
     // )

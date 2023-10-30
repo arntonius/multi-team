@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavigationTabV2 } from 'components/molecules'
 import styles from 'styles/components/organisms/carRecomendations.module.scss'
 import stylec from 'styles/components/organisms/cardetailcard.module.scss'
@@ -19,7 +19,6 @@ import brandList from 'utils/config'
 import { LabelPromo } from 'components/molecules'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { CarContext, CarContextType } from 'services/context'
 import { AlternativeCarCard } from '../alternativeCarCard'
 import { PopupPromo } from '../popupPromo'
 import { LocalStorageKey } from 'utils/enum'
@@ -31,10 +30,10 @@ import {
   saveDataForCountlyTrackerPageViewPDP,
 } from 'utils/navigate'
 import { AdaOTOdiSEVALeadsForm } from '../leadsForm/adaOTOdiSEVA/popUp'
-import { it } from 'node:test'
 import { trackEventCountly } from 'helpers/countly/countly'
 import { CountlyEventNames } from 'helpers/countly/eventNames'
 import { useCar } from 'services/context/carContext'
+import { useUtils } from 'services/context/utilsContext'
 
 type LPCarRecommendationsProps = {
   dataReccomendation: any
@@ -48,6 +47,7 @@ const LpCarRecommendations = ({
   isOTO = false,
 }: LPCarRecommendationsProps) => {
   const router = useRouter()
+  const { saveDataLeads } = useUtils()
   const swiperRef = useRef<SwiperType>()
   const { recommendation } = useCar()
   const [recommendationList, setRecommendationList] =
@@ -179,6 +179,11 @@ const LpCarRecommendations = ({
     })
   }
 
+  const onClickInterested = (item: CarRecommendation) => {
+    saveDataLeads(item)
+    setIsModalOpened(true)
+  }
+
   useEffect(() => {
     handleShowRecommendation()
 
@@ -252,7 +257,7 @@ const LpCarRecommendations = ({
                       size={ButtonSize.Big}
                       onClick={() => {
                         isOTO
-                          ? setIsModalOpened(true)
+                          ? onClickInterested(item)
                           : handleCalculateAbility(item, index)
                       }}
                       data-testid={elementId.PLP.Button.HitungKemampuan}

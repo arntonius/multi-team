@@ -1,7 +1,7 @@
 import { InferGetServerSidePropsType } from 'next'
 import { createContext, useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
-import { api } from 'services/api'
+
 import { useIsMobileSSr } from 'utils/hooks/useIsMobileSsr'
 import { HomepageMobile } from 'components/organisms'
 import { getIsSsrMobile } from 'utils/getIsSsrMobile'
@@ -17,6 +17,20 @@ import {
 } from 'utils/types/utils'
 import Script from 'next/script'
 import { getToken } from 'utils/handler/auth'
+import {
+  getRecommendation,
+  getBanner,
+  getMobileHeaderMenu,
+  getCities,
+  getTestimony,
+  getUsage,
+  getMainArticle,
+  getTypeCar,
+  getCarofTheMonth,
+  getMenu,
+  getAnnouncementBox as gab,
+  getMobileFooterMenu,
+} from 'services/api'
 
 interface HomePageDataLocalContextType {
   dataBanner: any
@@ -30,6 +44,7 @@ interface HomePageDataLocalContextType {
   dataMainArticle: any
   dataTypeCar: any
   dataCarofTheMonth: any
+  dataFooterMenu: any
 }
 /**
  * used to pass props without drilling through components
@@ -47,6 +62,7 @@ export const HomePageDataLocalContext =
     dataMainArticle: null,
     dataTypeCar: null,
     dataCarofTheMonth: null,
+    dataFooterMenu: [],
   })
 
 export default function WithTracker({
@@ -63,6 +79,7 @@ export default function WithTracker({
   dataTypeCar,
   dataCarofTheMonth,
   ssr,
+  dataFooterMenu,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { saveTypeCar, saveCarOfTheMonth, saveRecommendationToyota } = useCar()
   const {
@@ -70,11 +87,12 @@ export default function WithTracker({
     saveDesktopWebTopMenu,
     saveMobileWebTopMenus,
     saveDataAnnouncementBox,
+    saveMobileWebFooterMenus,
   } = useUtils()
 
   const getAnnouncementBox = async () => {
     try {
-      const res: any = await api.getAnnouncementBox({
+      const res: any = await gab({
         headers: {
           'is-login': getToken() ? 'true' : 'false',
         },
@@ -91,6 +109,7 @@ export default function WithTracker({
     saveTypeCar(dataTypeCar)
     saveRecommendationToyota(dataRecToyota)
     getAnnouncementBox()
+    saveMobileWebFooterMenus(dataFooterMenu)
   }, [])
 
   return (
@@ -107,6 +126,7 @@ export default function WithTracker({
         dataMainArticle,
         dataTypeCar,
         dataCarofTheMonth,
+        dataFooterMenu,
       }}
     >
       <Script
@@ -144,19 +164,21 @@ export async function getServerSideProps(context: any) {
       typeCarRes,
       carofTheMonthRes,
       menuDesktopRes,
+      footerMenuRes,
     ]: any = await Promise.all([
-      api.getRecommendation(params),
-      api.getBanner(),
-      api.getMobileHeaderMenu(),
-      api.getCities(),
-      api.getTestimony(),
-      api.getRecommendation('?brand=Toyota&city=jakarta&cityId=118'),
-      api.getRecommendation('?bodyType=MPV&city=jakarta&cityId=118'),
-      api.getUsage(),
-      api.getMainArticle('65'),
-      api.getTypeCar('?city=jakarta'),
-      api.getCarofTheMonth('?city=' + getCity().cityCode),
-      api.getMenu(),
+      getRecommendation(params),
+      getBanner(),
+      getMobileHeaderMenu(),
+      getCities(),
+      getTestimony(),
+      getRecommendation('?brand=Toyota&city=jakarta&cityId=118'),
+      getRecommendation('?bodyType=MPV&city=jakarta&cityId=118'),
+      getUsage(),
+      getMainArticle('65'),
+      getTypeCar('?city=jakarta'),
+      getCarofTheMonth('?city=' + getCity().cityCode),
+      getMenu(),
+      getMobileFooterMenu(),
     ])
     const [
       dataReccomendation,
@@ -171,6 +193,7 @@ export async function getServerSideProps(context: any) {
       dataTypeCar,
       dataCarofTheMonth,
       dataDesktopMenu,
+      dataFooterMenu,
     ] = await Promise.all([
       recommendationRes.carRecommendations,
       bannerRes.data,
@@ -184,6 +207,7 @@ export async function getServerSideProps(context: any) {
       typeCarRes,
       carofTheMonthRes.data,
       menuDesktopRes.data,
+      footerMenuRes.data,
     ])
     return {
       props: {
@@ -201,6 +225,7 @@ export async function getServerSideProps(context: any) {
         isSsrMobile: getIsSsrMobile(context),
         dataDesktopMenu,
         ssr: 'success',
+        dataFooterMenu,
       },
     }
   } catch (error) {
@@ -272,7 +297,7 @@ const jsonLD = (
       mainEntityOfPage: banner.attribute.web_mobile,
       representativeOfPage: 'https://schema.org/True',
       isFamilyFriendly: 'https://schema.org/True',
-      isAccesibleForFree: 'https://schema.org/True',
+      isAccesibleForFree: 'https://schema.org/False',
     })),
     Review: dataReviews.map((review) => ({
       '@type': 'Review',
@@ -294,7 +319,7 @@ const jsonLD = (
     SiteNavigationElement: {
       '@type': 'SiteNavigationElement',
       name: 'SEVA',
-      potencialAction: [
+      potentialAction: [
         {
           '@type': 'Action',
           name: 'Mobil',
@@ -323,7 +348,7 @@ const jsonLD = (
         {
           '@type': 'Action',
           name: 'Teman SEVA',
-          url: 'https://www.seva.id/teman-seva/dashboard',
+          url: 'https://www.seva.id/teman-seva/onboarding',
         },
         {
           '@type': 'Action',

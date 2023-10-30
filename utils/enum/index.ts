@@ -160,6 +160,9 @@ export enum SessionStorageKey {
   IsShowBadgeCreditOpportunity = 'IsShowBadgeCreditOpportunity',
   PageReferrerMultiKK = 'pageReferrerMultiKK',
   PageReferrerProfilePage = 'pageReferrerProfilePage',
+  prevLoginPath = 'prevLoginPath',
+  PAAmbassadorError = 'PAAmbassadorError',
+  BackupDataLoanPermutationWhenIncludeSDD01 = 'backupDataLoanPermutationWhenIncludeSDD01',
 }
 
 export enum HTTPResponseStatusCode {

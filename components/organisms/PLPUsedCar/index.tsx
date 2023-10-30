@@ -17,27 +17,16 @@ import { MoengageEventName, setTrackEventMoEngage } from 'helpers/moengage'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { api } from 'services/api'
-import { useCar } from 'services/context/carContext'
 import { useFunnelQueryUsedCarData } from 'services/context/funnelQueryUsedCarContext'
-import {
-  getNewFunnelRecommendations,
-  getUsedCarFunnelRecommendations,
-} from 'utils/handler/funnel'
-import { LanguageCode, LocalStorageKey, SessionStorageKey } from 'utils/enum'
+import { getUsedCarFunnelRecommendations } from 'utils/handler/funnel'
+import { LocalStorageKey, SessionStorageKey } from 'utils/enum'
 import { getConvertFilterIncome } from 'utils/filterUtils'
 import { getToken } from 'utils/handler/auth'
 import { Currency } from 'utils/handler/calculation'
 import { delayedExec } from 'utils/handler/delayed'
 import { getLocalStorage, saveLocalStorage } from 'utils/handler/localStorage'
-import { formatNumberByLocalization } from 'utils/handler/rupiah'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
-import { hundred, million } from 'utils/helpers/const'
-import {
-  OTONewCarUrl,
-  carResultsUrl,
-  usedCarResultUrl,
-} from 'utils/helpers/routes'
+import { usedCarResultUrl } from 'utils/helpers/routes'
 import {
   defaultCity,
   getCity,
@@ -46,14 +35,12 @@ import { useLocalStorage } from 'utils/hooks/useLocalStorage'
 import { Location } from 'utils/types'
 import {
   CarRecommendation,
-  CarRecommendationResponse,
   FilterParam,
   MinMaxMileage,
   MinMaxPrice,
   MinMaxYear,
 } from 'utils/types/context'
 import { MoengageViewCarSearch } from 'utils/types/moengage'
-import { AnnouncementBoxDataType } from 'utils/types/utils'
 import styles from 'styles/pages/mobil-bekas.module.scss'
 import {
   trackEventCountly,
@@ -71,6 +58,12 @@ import dynamic from 'next/dynamic'
 import { usedCar } from 'services/context/usedCarContext'
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
+import {
+  getMinMaxYearsUsedCar,
+  getMinMaxMileageUsedCar,
+  getMinMaxPriceUsedCar,
+  getMinMaxPrice,
+} from 'services/api'
 
 const LeadsFormPrimary = dynamic(() =>
   import('components/organisms').then((mod) => mod.LeadsFormPrimary),
@@ -197,7 +190,7 @@ export const PLPUsedCar = ({
         getUsedCarFunnelRecommendations({
           ...tempQuery,
           page: pagePlus,
-        }).then((response) => {
+        }).then((response: any) => {
           if (response) {
             setSampleArray({
               items: sampleArray.items.concat(response.carData),
@@ -447,7 +440,7 @@ export const PLPUsedCar = ({
     if (!isCurrentCitySameWithSSR || recommendation.length === 0) {
       const params = new URLSearchParams()
       getCity().cityCode && params.append('city', getCity().cityCode as string)
-      api.getMinMaxYearsUsedCar('').then((response) => {
+      getMinMaxYearsUsedCar('').then((response) => {
         if (response.data) {
           setMinMaxYear({
             minYearValue: response.data.minYears,
@@ -455,7 +448,7 @@ export const PLPUsedCar = ({
           })
         }
       })
-      api.getMinMaxMileageUsedCar('').then((response) => {
+      getMinMaxMileageUsedCar('').then((response) => {
         if (response.data) {
           setMinMaxMileage({
             minMileageValue: response.data.minMileages,
@@ -463,7 +456,7 @@ export const PLPUsedCar = ({
           })
         }
       })
-      api.getMinMaxPriceUsedCar('').then((response) => {
+      getMinMaxPriceUsedCar('').then((response) => {
         if (response.data) {
           const minmaxPriceData = response.data
           minmaxPriceData.minPrice = parseInt(
@@ -497,7 +490,7 @@ export const PLPUsedCar = ({
           setTempQuery(queryParam)
 
           getUsedCarFunnelRecommendations(queryParam)
-            .then((response) => {
+            .then((response: any) => {
               if (response) {
                 patchFunnelQuery(queryParam)
                 saveRecommendation(response.carData)
@@ -529,8 +522,7 @@ export const PLPUsedCar = ({
           )
         }
       })
-      api
-        .getMinMaxPrice('', { params })
+      getMinMaxPrice('', { params })
         .then((response) => {
           if (response) {
           }
@@ -597,7 +589,7 @@ export const PLPUsedCar = ({
       perPage: '10',
     }
     setTempQuery(queryParam)
-    getUsedCarFunnelRecommendations(queryParam).then((response) => {
+    getUsedCarFunnelRecommendations(queryParam).then((response: any) => {
       if (response) {
         patchFunnelQuery(queryParam)
         saveTotalItems(response.totalItems)

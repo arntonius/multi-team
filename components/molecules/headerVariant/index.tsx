@@ -10,7 +10,6 @@ import React, {
   useState,
 } from 'react'
 import { useMediaQuery } from 'react-responsive'
-import { api } from 'services/api'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import styles from 'styles/components/molecules/headerSearch.module.scss'
 import { LocalStorageKey } from 'utils/enum'
@@ -31,7 +30,6 @@ import {
   navigateToPLP,
   saveDataForCountlyTrackerPageViewPDP,
 } from 'utils/navigate'
-import { getPageName } from 'utils/pageName'
 import {
   trackEventCountly,
   valueMenuTabCategory,
@@ -42,6 +40,7 @@ import dynamic from 'next/dynamic'
 import { getCity } from 'utils/hooks/useGetCity'
 import { removeCarBrand } from 'utils/handler/removeCarBrand'
 import { removeCarModel } from 'utils/handler/removeCarModel'
+import { getCarofTheMonth, getSearchDataQuery } from 'services/api'
 
 interface HeaderVariantProps {
   overrideDisplay?: string
@@ -86,8 +85,7 @@ export default function HeaderVariant({
     getCity().id && params.append('cityId', getCity().id as string)
     params.append('query', inputValue as string)
 
-    api
-      .getSearchDataQuery('', { params })
+    getSearchDataQuery('', { params })
       .then((response) => {
         const listedResult = response.map(
           (item: { value: string; label: string }) => {
@@ -282,8 +280,7 @@ export default function HeaderVariant({
   }, [comDataNew])
 
   useEffect(() => {
-    api
-      .getCarofTheMonth('?city=' + getCity().cityCode)
+    getCarofTheMonth('?city=' + getCity().cityCode)
       .then((res) => {
         setComDataNew(res.data)
       })

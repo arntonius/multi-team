@@ -12,11 +12,11 @@ import dayjs from 'dayjs'
 import { InferType, number, object, string } from 'yup'
 import { useFormik } from 'formik'
 import { updateLeadFormCMSEVA } from 'services/leadsCM'
-import { api } from 'services/api'
+
 import { useUtils } from 'services/context/utilsContext'
-import { getLeadsDetail } from 'services/leadsSeva'
 import dynamic from 'next/dynamic'
 import FormDBLeads from 'components/molecules/formUpdateLeadsSevaOTO/formDBLeads'
+import { getAgent, getLeadsDetail } from 'services/api'
 
 const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
 const LabelTooltipSevaOTO = dynamic(() =>
@@ -96,9 +96,13 @@ const UpdateLeadsFormCM = ({
         leadId: value.dbLeadsId || '',
         salesId: value.salesId || 0,
         spkNo: value.noSPK || '',
-        spkDate: dayjs(value.spkDate).format('YYYY-MM-DD'),
+        spkDate:
+          value.spkDate !== '' ? dayjs(value.spkDate).format('YYYY-MM-DD') : '',
         bstkNo: value.noBSTK || '',
-        bstkDate: dayjs(value.bstkDate).format('YYYY-MM-DD'),
+        bstkDate:
+          value.bstkDate !== ''
+            ? dayjs(value.bstkDate).format('YYYY-MM-DD')
+            : '',
       }).then(() => {})
     },
     validateOnBlur: true,
@@ -219,7 +223,7 @@ const UpdateLeadsFormCM = ({
             <DatePickerCM
               forceRender={!!values.spkDate}
               placeholder="28/07/2023"
-              value={new Date(values.spkDate || '')}
+              value={new Date(values.spkDate || '') || ''}
               name="spkDate"
               onBlurInput={(e) => handleBlur(e)}
               onConfirm={(val: Date) => {
@@ -256,7 +260,7 @@ const UpdateLeadsFormCM = ({
             <DatePickerCM
               forceRender={!!values.bstkDate}
               placeholder="28/07/2023"
-              value={new Date(values.bstkDate || '')}
+              value={new Date(values.bstkDate || '') || ''}
               name="bstkDate"
               onBlurInput={(e) => handleBlur(e)}
               onConfirm={(val: Date) => {
@@ -313,7 +317,7 @@ export async function getServerSideProps(context: any) {
   // TODO: getDetail ID
 
   try {
-    const salesRes: any = await Promise.all([api.getAgent()])
+    const salesRes: any = await Promise.all([getAgent()])
     const response = await getLeadsDetail(detailId)
     const data: DataResponse = response.data
     const cmInput = data.cmInput
