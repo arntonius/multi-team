@@ -1,6 +1,6 @@
 import { rupiah } from 'utils/handler/rupiah'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { LeadsFormSecondary } from 'components/organisms'
 import Variants from '../variants'
 import {
@@ -20,6 +20,9 @@ import { LanguageCode, LocalStorageKey } from 'utils/enum'
 import { TrackerFlag, InstallmentTypeOptions } from 'utils/types/models'
 import { getNewFunnelLoanSpecialRate } from 'utils/handler/funnel'
 import dynamic from 'next/dynamic'
+import { getSeoFooterTextDescription } from 'utils/config/carVariantList.config'
+import { PdpDataLocalContext } from 'pages/mobil-baru/[brand]/[model]/[[...slug]]'
+import { useRouter } from 'next/router'
 const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 const PopupVariantDetail = dynamic(
@@ -39,6 +42,21 @@ export const PriceTab = ({
   isOTO = false,
 }: PriceTabProps) => {
   const { carModelDetails, carVariantDetails, recommendation } = useCar()
+  const {
+    dataCombinationOfCarRecomAndModelDetailDefaultCity,
+    carVariantDetailsResDefaultCity,
+    carRecommendationsResDefaultCity,
+  } = useContext(PdpDataLocalContext)
+  const modelDetailWithDefaultFromServer =
+    carModelDetails || dataCombinationOfCarRecomAndModelDetailDefaultCity
+  const variantDetailWithDefaultFromServer =
+    carVariantDetails || carVariantDetailsResDefaultCity
+  const carRecommendationsWithDefaultFromServer =
+    recommendation.length > 0
+      ? recommendation
+      : carRecommendationsResDefaultCity?.carRecommendations
+  const router = useRouter()
+
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -46,7 +64,6 @@ export const PriceTab = ({
 
   const [openModal, setOpenModal] = useState(false)
   const [variantView, setVariantView] = useState<CarVariantRecommendation>()
-  const [info, setInfo] = useState<any>({})
   const { funnelQuery } = useFunnelQueryData()
   const [flag, setFlag] = useState<TrackerFlag>(TrackerFlag.Init)
   const [monthlyInstallment, setMonthlyInstallment] = useState<number>(0)
@@ -76,7 +93,6 @@ export const PriceTab = ({
   useEffect(() => {
     if (carModelDetails && carVariantDetails && recommendation) {
       trackEventMoengage()
-      getSummaryInfo()
     }
   }, [carModelDetails, carVariantDetails, recommendation])
 
@@ -115,7 +131,7 @@ export const PriceTab = ({
   }
 
   const getColorVariant = () => {
-    const currentUrlPathName = window.location.pathname
+    const currentUrlPathName = router.asPath
     const splitedPath = currentUrlPathName.split('/')
     const carBrandModelUrl = `/${splitedPath[1]}/${splitedPath[2]}/${splitedPath[3]}`
     if (availableList.includes(carBrandModelUrl)) {
@@ -168,28 +184,25 @@ export const PriceTab = ({
       return `yang tersedia dalam kisaran harga ${lowerPrice} - ${upperPrice} juta`
     }
   }
-  const getSummaryInfo = () => {
-    const dimenssion = getDimenssion(recommendation)
-    const brand = carModelDetails?.brand || ''
-    const model = carModelDetails?.model || ''
-    const type = carVariantDetails?.variantDetail.bodyType
-    const seats = carVariantDetails?.variantDetail.carSeats
-    const priceRange = getPriceRange(carModelDetails?.variants)
-    const totalType = carModelDetails?.variants.length
+  const info = React.useMemo(() => {
+    const brand = modelDetailWithDefaultFromServer?.brand || ''
+    const model = modelDetailWithDefaultFromServer?.model || ''
+    const type = variantDetailWithDefaultFromServer?.variantDetail.bodyType
+    const seats = variantDetailWithDefaultFromServer?.variantDetail.carSeats
+    const priceRange = getPriceRange(modelDetailWithDefaultFromServer?.variants)
+    const totalType = modelDetailWithDefaultFromServer?.variants.length
     const color = getColorVariant()
-    const credit = getCreditPrice(carModelDetails?.variants)
-    const month = carModelDetails!.variants[0].tenure * 12
+    const dimenssion = getDimenssion(carRecommendationsWithDefaultFromServer)
+    const credit = getCreditPrice(modelDetailWithDefaultFromServer?.variants)
+    const month = modelDetailWithDefaultFromServer!?.variants[0].tenure * 12
     const transmissionType = getTransmissionType(
-      carModelDetails?.variants,
-    ).length
+      modelDetailWithDefaultFromServer?.variants,
+    )?.length
     const transmissionDetail = getTransmissionType(
-      carModelDetails?.variants,
-    ).join(' dan ')
+      modelDetailWithDefaultFromServer?.variants,
+    )?.join(' dan ')
 
-    const info = {
-      width: dimenssion?.width,
-      height: dimenssion?.height,
-      length: dimenssion?.length,
+    const temp = {
       brand,
       model,
       type,
@@ -197,25 +210,28 @@ export const PriceTab = ({
       priceRange,
       totalType,
       color,
+      width: dimenssion?.width,
+      height: dimenssion?.height,
+      length: dimenssion?.length,
       credit,
       month,
       transmissionType,
       transmissionDetail,
     }
-    setInfo(info)
-  }
+
+    return temp
+  }, [
+    modelDetailWithDefaultFromServer,
+    variantDetailWithDefaultFromServer,
+    carRecommendationsWithDefaultFromServer,
+  ])
+
   const dimension = `${info.length} x ${info.width} x ${info.height} mm`
 
   const getInfoText = (): string => {
     return `${info.brand} ${info.model} adalah mobil dengan ${info.seats} Kursi ${info.type} ${info.priceRange} di Indonesia. Mobil ini tersedia dalam  ${info.color} pilihan warna, ${info.totalType} tipe mobil, dan ${info.transmissionType} opsi transmisi: ${info.transmissionDetail} di Indonesia. Mobil ini memiliki dimensi sebagai berikut: ${info.length} mm L x ${info.width} mm W x ${info.height} mm H. Cicilan kredit mobil ${info.brand} ${info.model} dimulai dari Rp ${info.credit} juta selama ${info.month} bulan.`
   }
-  const getTipsText = (): string => {
-    const currentYear: number = new Date().getFullYear()
-    return `Saat ini membeli mobil baru bukanlah hal buruk. Di tahun ${currentYear} data menunjukan bahwa pembelian mobil baru mengalami peningkatan yang cukup signifikan,
-   ini artinya mobil baru masih menjadi pilihan banyak orang. Jika kamu berniat membeli mobil baru, mobil baru ${info.brand} ${info.model}
-  Membeli mobil baru sama halnya seperti membeli mobil bekas, kita juga harus memperhatikan perawatannya, karena mobil yang rajin perawatan tentu akan bertahan untuk jangka waktu yang panjang. Perawatan yang bisa dilakukan untuk mobil baru ${info.brand} ${info.model}
-    adalah pergantian oli, filter AC, periksa tekanan ban, serta mencuci mobil.`
-  }
+
   return (
     <div>
       <div className={styles.wrapper}>
@@ -256,7 +272,8 @@ export const PriceTab = ({
         <div className={styles.gap} />
         <Info
           headingText={`Membeli Mobil ${info.brand} ${info.model}? Seperti Ini Cara Perawatannya!`}
-          descText={getTipsText()}
+          descText={getSeoFooterTextDescription(info.brand, info.model)}
+          isUsingSetInnerHtmlDescText={true}
         />
         <div className={styles.gap} />
       </div>

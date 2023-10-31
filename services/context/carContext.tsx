@@ -146,4 +146,5 @@ export const CarProvider = ({
   )
 }
 
+/** this context will only be filled in CLIENT, avoid using this context for SEO related stuff */
 export const useCar = () => useContext(CarContext)
