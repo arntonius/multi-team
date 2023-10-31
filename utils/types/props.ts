@@ -402,6 +402,7 @@ export interface TestimonialData {
   cityName: string
   purchaseDate: string
   displayNumber: number
+  carBrand?: string
   carModelName?: string
   urlCarPage?: string
 }
