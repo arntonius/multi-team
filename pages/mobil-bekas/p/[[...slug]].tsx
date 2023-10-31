@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { PdpMobile, UsedPdpMobile } from 'components/organisms'
-
+import styles from 'styles/pages/pdpUsed.module.scss'
 import {
   CarModelDetailsResponse,
   CarRecommendation,
@@ -189,7 +189,7 @@ export default function index({
   }
 
   return (
-    <>
+    <div className={styles.mobile}>
       <UsedPdpDataLocalContext.Provider
         value={{
           usedCarModelDetailsRes: carModelDetailsRes,
@@ -197,7 +197,7 @@ export default function index({
       >
         <UsedPdpMobile />
       </UsedPdpDataLocalContext.Provider>
-    </>
+    </div>
   )
 }
 export async function getServerSideProps(context: any) {

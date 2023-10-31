@@ -568,6 +568,7 @@ export interface FunnelWidget {
 }
 
 export interface UsedCarFunnelWidget {
+  model: string[]
   brand: string[]
   minYear: string
   maxYear: string
