@@ -49,7 +49,7 @@ export const FormLeadsQualified = ({
           Leads Qualified <span className={styles.red}>*</span>
         </div>
       </div>
-      <Space size={[16, 16]} wrap>
+      <div className={styles.wrapperBox}>
         {leadsList.map(({ value }) => {
           return (
             <>
@@ -69,7 +69,7 @@ export const FormLeadsQualified = ({
             </>
           )
         })}
-      </Space>
+      </div>
     </div>
   )
 }
