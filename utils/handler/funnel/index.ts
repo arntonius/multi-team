@@ -86,9 +86,15 @@ export const getUsedCarFunnelRecommendations = (
     plate,
     page,
     perPage,
+    modelName,
   } = funnelQuery
 
   brand && brand.length > 0 && brand.map((item) => params.append('brand', item))
+
+  if (modelName && modelName.length > 0) {
+    const combinedModelNames = modelName.join('%2C')
+    params.append('modelName', combinedModelNames)
+  }
 
   sortBy && params.append('sortBy', sortBy as string)
 
@@ -108,7 +114,6 @@ export const getUsedCarFunnelRecommendations = (
   yearEnd && params.append('yearEnd', yearEnd?.toString() as string)
   page && params.append('page', page?.toString() as string)
   perPage && params.append('perPage', perPage?.toString() as string)
-
   // getCity().cityCode && params.append('city', getCity().cityCode as string)
   // getCity().id && params.append('cityId', getCity().id as string)
 
