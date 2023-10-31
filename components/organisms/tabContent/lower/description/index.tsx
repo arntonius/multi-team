@@ -4,6 +4,7 @@ import styles from 'styles/components/organisms/descriptionTab.module.scss'
 import {
   CarVariantRecommendation,
   SpecialRateListType,
+  UsedCarRecommendation,
   VariantDetail,
   VideoDataType,
 } from 'utils/types/utils'
@@ -20,7 +21,7 @@ import { Faq } from 'components/molecules/section/faq'
 import { TrackVariantList } from 'utils/types/tracker'
 import { CityOtrOption } from 'utils/types/utils'
 import { useLocalStorage } from 'utils/hooks/useLocalStorage'
-import { LeadsFormUsedCar } from 'components/organisms'
+import { LeadsFormUsedCar, UsedCarRecommendations } from 'components/organisms'
 import { setTrackEventMoEngage } from 'helpers/moengage'
 import { useFunnelQueryData } from 'services/context/funnelQueryContext'
 import DescriptionSection from 'components/organisms/descriptionSection/index'
@@ -33,7 +34,11 @@ import { TrackerFlag, InstallmentTypeOptions } from 'utils/types/models'
 import { getNewFunnelLoanSpecialRate } from 'utils/handler/funnel'
 import { UsedPdpDataLocalContext } from 'pages/mobil-bekas/p/[[...slug]]'
 import dynamic from 'next/dynamic'
+
+import { getUsedCarRecommendations } from 'services/api'
+
 import { getSeoFooterTextDescription } from 'utils/config/carVariantList.config'
+
 const Modal = dynamic(() => import('antd/lib/modal'), { ssr: false })
 
 const PopupVariantDetail = dynamic(
@@ -68,6 +73,10 @@ export const DescriptionTab = ({
     carRecommendationsResDefaultCity,
   } = useContext(PdpDataLocalContext)
 
+  const [usedCarRecommendations, setUsedCarRecommendations] = useState<
+    UsedCarRecommendation[]
+  >([])
+
   const router = useRouter()
 
   const modelDetail =
@@ -97,6 +106,20 @@ export const DescriptionTab = ({
       }) || []
     )
   }, [modelDetail])
+
+  const fetchUsedCarRecommendations = () => {
+    const params = new URLSearchParams()
+    params.append('bodyType', usedCarModelDetailsRes.typeName)
+    const response = getUsedCarRecommendations('', { params })
+
+    response.then((data: any) => {
+      setUsedCarRecommendations(data.data)
+    })
+  }
+
+  useEffect(() => {
+    fetchUsedCarRecommendations()
+  }, [])
 
   const getMonthlyInstallment = (carVariantTmp: CarVariantRecommendation) => {
     getNewFunnelLoanSpecialRate({
@@ -339,7 +362,7 @@ export const DescriptionTab = ({
       <div className={styles.wrapper}>
         <DescriptionSection scrollToLeads={scrollToLeads} />
       </div>
-      <div ref={toLeads} className={styles.reference}></div>
+      <div ref={toLeads} className={styles.reference} id="leads-form"></div>
       <LeadsFormUsedCar />
       <div className={styles.wrapper}>
         <Gap height={24} />
@@ -353,6 +376,18 @@ export const DescriptionTab = ({
           )}
           isUsingSetInnerHtmlDescText={true}
         />
+      </div>
+      <div className={styles.wrapper}>
+        {usedCarRecommendations.length > 0 && (
+          <UsedCarRecommendations
+            usedCarRecommendationList={usedCarRecommendations}
+            title="Beli Mobil Bekas Berkualitas"
+            onClick={() => {
+              return
+            }}
+            additionalContainerStyle={styles.recommendationAdditionalStyle}
+          />
+        )}
       </div>
     </div>
   )
