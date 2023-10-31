@@ -163,6 +163,7 @@ export enum SessionStorageKey {
   prevLoginPath = 'prevLoginPath',
   PAAmbassadorError = 'PAAmbassadorError',
   BackupDataLoanPermutationWhenIncludeSDD01 = 'backupDataLoanPermutationWhenIncludeSDD01',
+  KKIAFlowType = 'KKIAFlowType',
 }
 
 export enum HTTPResponseStatusCode {
