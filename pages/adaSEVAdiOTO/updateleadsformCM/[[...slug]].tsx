@@ -103,7 +103,21 @@ const UpdateLeadsFormCM = ({
           value.bstkDate !== ''
             ? dayjs(value.bstkDate).format('YYYY-MM-DD')
             : '',
-      }).then(() => {})
+      })
+        .then((res) => {
+          if (res.code === 'SUCCESS') {
+            setIsOpenToast(true)
+            setIsLoading(false)
+            setTimeout(() => {
+              setIsOpenToast(false)
+            }, 3000)
+          }
+        })
+        .catch((error) => {
+          setTimeout(() => {
+            setIsOpenToast(false)
+          }, 3000)
+        })
     },
     validateOnBlur: true,
     validationSchema: cmSchema,
@@ -154,18 +168,8 @@ const UpdateLeadsFormCM = ({
     }
     setIsRequiredBSTK(false)
     setIsRequiredSPK(false)
-    setIsOpenToast(true)
-    try {
-      handleSubmit()
-      setIsLoading(false)
-      setTimeout(() => {
-        setIsOpenToast(false)
-      }, 3000)
-    } catch (error) {
-      setTimeout(() => {
-        setIsOpenToast(false)
-      }, 3000)
-    }
+
+    handleSubmit()
   }
 
   return (

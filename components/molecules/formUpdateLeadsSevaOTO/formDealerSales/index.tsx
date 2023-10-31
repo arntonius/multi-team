@@ -121,7 +121,7 @@ export default function FormDealerSales({
   const onResetHandler = (event: any) => {
     event.preventDefault()
     inputRef.current?.focus()
-
+    handleChange(0)
     setInputValue('')
   }
 
