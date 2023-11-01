@@ -1,12 +1,9 @@
-import { AxiosResponse } from 'axios'
 import { FooterMobile, HeaderMobile } from 'components/organisms'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
 import { SessionStorageKey } from 'utils/enum'
 import { getToken } from 'utils/handler/auth'
 import { getSessionStorage } from 'utils/handler/sessionStorage'
-import { CityOtrOption } from 'utils/types'
-import { AnnouncementBoxDataType } from 'utils/types/utils'
 import styles from 'styles/components/templates/pageLayout.module.scss'
 import dynamic from 'next/dynamic'
 import { RouteName } from 'utils/navigate'
@@ -16,8 +13,12 @@ import { useAnnouncementBoxContext } from 'services/context/announcementBoxConte
 import { useAfterInteractive } from 'utils/hooks/useAfterInteractive'
 
 type PageLayoutProps = {
-  children: React.ReactNode
+  children: any
   footer?: boolean
+  shadowBox?: boolean
+  pageOrigination?: string
+  sourceButton?: string
+  onShowCity?: (show: boolean) => void
 }
 
 const CitySelectorModal = dynamic(
@@ -25,12 +26,23 @@ const CitySelectorModal = dynamic(
   { ssr: false },
 )
 
-const PageLayout = ({ children, footer = true }: PageLayoutProps) => {
+const PageLayout = ({
+  children,
+  footer = true,
+  shadowBox = true,
+  pageOrigination = '',
+  sourceButton = '',
+  onShowCity: handleCity,
+}: PageLayoutProps) => {
   const [isActive, setIsActive] = useState(false)
   const [isOpenCitySelectorModal, setIsOpenCitySelectorModal] = useState(false)
   const { cities, dataAnnouncementBox } = useUtils()
   const { showAnnouncementBox, saveShowAnnouncementBox } =
     useAnnouncementBoxContext()
+
+  const onShowCity = (show: boolean) => {
+    setIsOpenCitySelectorModal(show)
+  }
 
   const getAnnouncementBox = () => {
     if (dataAnnouncementBox) {
@@ -59,17 +71,20 @@ const PageLayout = ({ children, footer = true }: PageLayoutProps) => {
         <HeaderMobile
           isActive={isActive}
           setIsActive={setIsActive}
-          emitClickCityIcon={() => setIsOpenCitySelectorModal(true)}
-          style={{ withBoxShadow: true, position: 'sticky' }}
+          emitClickCityIcon={() => {
+            setIsOpenCitySelectorModal(true)
+            handleCity && handleCity(false)
+          }}
+          style={shadowBox ? { withBoxShadow: true, position: 'sticky' } : {}}
           isShowAnnouncementBox={showAnnouncementBox}
           setShowAnnouncementBox={saveShowAnnouncementBox}
           pageOrigination={
             client && window.location.href.includes('akun/profil')
               ? RouteName.ProfilePage
-              : ''
+              : pageOrigination
           }
         />
-        {children}
+        {children({ onShowCity })}
         {footer && (
           <FooterMobile
             pageOrigination={
@@ -87,8 +102,9 @@ const PageLayout = ({ children, footer = true }: PageLayoutProps) => {
         pageOrigination={
           client && window.location.href.includes('akun/profil')
             ? RouteName.ProfilePage
-            : ''
+            : pageOrigination
         }
+        sourceButton={sourceButton}
       />
     </>
   )
