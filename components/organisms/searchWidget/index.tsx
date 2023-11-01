@@ -395,7 +395,8 @@ const SearchWidget = () => {
           <span
             className={`${styles.expandFinancialInfo} ${styles.expandFinancialInfoClose}`}
           >
-            Isi data dibawah ini untuk mendapatkan rekomendasi mobil yang cocok
+            Isi data dibawah ini untuk mendapatkan rekomendasi mobil yang cocok{' '}
+            <br />
             dengan kondisi keuanganmu.
           </span>
         </>
@@ -610,7 +611,7 @@ const SearchWidget = () => {
           onClick={submit}
           data-testid={elementId.Homepage.Button.CariMobil}
         >
-          Cari Mobil Baru
+          Cari Mobil
         </Button>
       </div>
     </div>
