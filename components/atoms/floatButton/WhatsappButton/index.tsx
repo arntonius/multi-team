@@ -25,12 +25,14 @@ export interface FloatButtonProps {
   ['aria-label']?: React.HtmlHTMLAttributes<HTMLButtonElement>['aria-label']
 }
 
-type Props = Omit<FloatButtonProps, 'icon'>
+type Props = Omit<FloatButtonProps, 'icon'> & {
+  additionalStyle?: string
+}
 
-const WhatsappButton = (props: any) => {
+const WhatsappButton = ({ additionalStyle, ...props }: Props) => {
   return (
     <FloatButton
-      className="whatsapp-floating-button"
+      className={`whatsapp-floating-button ${additionalStyle}`}
       icon={<IconWhatsapp width={32} height={32} />}
       {...props}
     />

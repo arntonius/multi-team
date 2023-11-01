@@ -134,6 +134,7 @@ export interface FormLCState {
         modelName: string
         modelImage: string
         brandName: string
+        loanRank: string
       }
     | undefined
   variant:
@@ -297,6 +298,7 @@ export default function LoanCalculatorPage() {
       modelName: '',
       modelId: '',
       modelImage: CarSillhouete as unknown as string,
+      loanRank: '',
     },
     variant: {
       variantId: '',
@@ -457,6 +459,7 @@ export default function LoanCalculatorPage() {
             modelName: `${modelData[0].brand} ${modelData[0].model}`,
             modelId: modelData[0].id,
             modelImage: modelData[0].images[0],
+            loanRank: modelData[0].loanRank,
           },
         })
       }
@@ -712,6 +715,7 @@ export default function LoanCalculatorPage() {
             modelName: '',
             modelId: '',
             modelImage: CarSillhouete as unknown as string,
+            loanRank: '',
           },
           variant: variantEmptyValue,
         })
@@ -775,6 +779,7 @@ export default function LoanCalculatorPage() {
           modelId: '',
           modelImage: '',
           modelName: '',
+          loanRank: '',
         },
       })
     }

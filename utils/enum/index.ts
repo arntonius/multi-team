@@ -164,6 +164,9 @@ export enum SessionStorageKey {
   PAAmbassadorError = 'PAAmbassadorError',
   BackupDataLoanPermutationWhenIncludeSDD01 = 'backupDataLoanPermutationWhenIncludeSDD01',
   KKIAFlowType = 'KKIAFlowType',
+  PageReferrerIA = 'PageReferrerIA',
+  LastVisitedPageKKIAFlow = 'LastVisitedPageKKIAFlow',
+  PtbcLeadId = 'PtbcLeadId',
 }
 
 export enum HTTPResponseStatusCode {
@@ -260,4 +263,8 @@ export enum ZIndex {
   'FloatingIcon' = 35,
   'Modal' = 40,
   'Notification' = 50,
+}
+
+export enum TemanSeva {
+  PTBC = 'SEVAPTBC',
 }
