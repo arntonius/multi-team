@@ -46,17 +46,15 @@ export const DescriptionTab = ({
   setSelectedTabValue,
 }: DescriptionProps) => {
   const { carModelDetails, carVariantDetails, recommendation } = useCar()
-  const { usedCarModelDetailsRes } = useContext(UsedPdpDataLocalContext)
+  const { usedCarModelDetailsRes, usedCarRecommendations } = useContext(
+    UsedPdpDataLocalContext,
+  )
 
   const {
     dataCombinationOfCarRecomAndModelDetailDefaultCity,
     carVariantDetailsResDefaultCity,
     carRecommendationsResDefaultCity,
   } = useContext(PdpDataLocalContext)
-
-  const [usedCarRecommendations, setUsedCarRecommendations] = useState<
-    UsedCarRecommendation[]
-  >([])
 
   const router = useRouter()
 
@@ -75,20 +73,6 @@ export const DescriptionTab = ({
     LocalStorageKey.CityOtr,
     null,
   )
-
-  const fetchUsedCarRecommendations = () => {
-    const params = new URLSearchParams()
-    params.append('bodyType', usedCarModelDetailsRes.typeName)
-    const response = getUsedCarRecommendations('', { params })
-
-    response.then((data: any) => {
-      setUsedCarRecommendations(data.data)
-    })
-  }
-
-  useEffect(() => {
-    fetchUsedCarRecommendations()
-  }, [])
 
   const cheapestVariantData = React.useMemo(() => {
     const cheapestVariant = modelDetail?.variants
