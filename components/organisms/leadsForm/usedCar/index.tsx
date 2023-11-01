@@ -23,6 +23,7 @@ import { useRouter } from 'next/router'
 import { useCar } from 'services/context/carContext'
 import { ButtonVersion, ButtonSize } from 'components/atoms/button'
 import {
+  LeadsUsedCar,
   LocalStorageKey,
   SessionStorageKey,
   UnverifiedLeadSubCategory,
@@ -46,6 +47,7 @@ import { createUnverifiedLeadNewUsedCar } from 'utils/handler/lead'
 import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { UsedPdpDataLocalContext } from 'pages/mobil-bekas/p/[[...slug]]'
 import { LeadsActionParam, PageOriginationName } from 'utils/types/props'
+import { SelectedCalculateLoanUsedCar } from 'utils/types/utils'
 
 const SupergraphicLeft = '/revamp/illustration/supergraphic-small.webp'
 const SupergraphicRight = '/revamp/illustration/supergraphic-large.webp'
@@ -55,44 +57,36 @@ interface PropsLeadsForm {
   toLeads?: any
   onVerify?: (e: any) => void
   onFailed?: (e: any) => void
-  // isOTO?: boolean
+  selectedLoan?: SelectedCalculateLoanUsedCar | null
 }
 
 export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
-  // isOTO = false,
   toLeads,
+  selectedLoan = null,
 }) => {
-  const platform = 'web'
   const toastSuccessInfo = 'Agen kami akan segera menghubungimu dalam 1x24 jam.'
   const [name, setName] = useState<string>('')
   const [phone, setPhone] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  // const [infoCar, setInfoCar] = useState<any>()
   const [isFilled, setIsFilled] = useState<boolean>(false)
   const [modalOpened, setModalOpened] = useState<
     'otp' | 'success-toast' | 'none'
   >('none')
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false)
-  // const { carModelDetails, carVariantDetails } = useCar()
+
   const { usedCarModelDetailsRes } = useContext(UsedPdpDataLocalContext)
+  const carLeads = usedCarModelDetailsRes
+
+  const infoCar = `${usedCarModelDetailsRes.variantTitle} ${usedCarModelDetailsRes.nik}`
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
-  )
-  const { funnelQuery } = useFunnelQueryData()
-  const [loanRankPLP] = useSessionStorage(
-    SessionStorageKey.LoanRankFromPLP,
-    false,
   )
   const referralCodeFromUrl: string | null = getLocalStorage(
     LocalStorageKey.referralTemanSeva,
   )
 
   const router = useRouter()
-
-  // const model = router.query.model as string
-  // const brand = router.query.brand as string
-  // const upperTab = router.query.tab as string
   const loanRankcr = router.query.loanRankCVL ?? ''
 
   const handleInputName = (payload: any): void => {
@@ -124,64 +118,6 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
   useEffect(() => {
     getDataCustomer()
   }, [])
-
-  // useEffect(() => {
-  //   if (carModelDetails) {
-  //     setInfoCar(`${carModelDetails.brand} ${carModelDetails.model}`)
-  //   }
-  // }, [carModelDetails])
-
-  // const sortedCarModelVariant = useMemo(() => {
-  //   return (
-  //     carModelDetails?.variants.sort(function (a, b) {
-  //       return a.priceValue - b.priceValue
-  //     }) || []
-  //   )
-  // }, [carModelDetails])
-
-  // const getDp = () => {
-  //   return sortedCarModelVariant[0].dpAmount
-  // }
-
-  // const getTenure = (): number => {
-  //   return sortedCarModelVariant[0].tenure
-  // }
-
-  // const trackLeads = (): LeadsActionParam => {
-  //   let loanRank = ''
-  //   if (
-  //     funnelQuery.age &&
-  //     funnelQuery.monthlyIncome &&
-  //     funnelQuery.tenure &&
-  //     funnelQuery.downPaymentAmount
-  //   ) {
-  //     if (sortedCarModelVariant[0].loanRank === LoanRank.Green) {
-  //       loanRank = 'Mudah'
-  //     } else if (sortedCarModelVariant[0].loanRank === LoanRank.Red) {
-  //       loanRank = 'Sulit'
-  //     }
-  //   }
-  //   const filterIncome = getConvertFilterIncome(
-  //     String(funnelQuery.monthlyIncome),
-  //   )
-
-  //   return {
-  //     ...(funnelQuery.monthlyIncome && {
-  //       Income: `Rp${filterIncome}`,
-  //     }),
-  //     ...(funnelQuery.age && {
-  //       Age: String(funnelQuery.age),
-  //     }),
-  //     Car_Brand: carModelDetails?.brand,
-  //     Car_Model: carModelDetails?.model,
-  //     Car_Body_Type: carVariantDetails?.variantDetail.bodyType,
-  //     DP: `Rp${Currency(String(getDp()))}`,
-  //     Tenure: String(getTenure()),
-  //     ...(loanRankPLP && loanRank && { Peluang_Kredit: loanRank }),
-  //     Page_Origination: PageOriginationName.PDPLeadsForm,
-  //     ...(cityOtr && { City: cityOtr.cityName }),
-  //   }
-  // }
 
   const verified = () => {
     const data = {
@@ -258,56 +194,111 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
         temanSevaStatus = 'Yes'
       }
     }
-    const data = {
-      platform,
-      name,
-      phoneNumber: phone,
-      selectedTenure: '',
-      selectedTdp: '',
-      selectedInstallment: '',
-      carId: '',
-      makeName: '',
-      variantName: '',
-      skuCode: '',
-      colourName: '',
-      engineCapacity: '',
-      priceValue: '',
-      seat: '',
-      variantTitle: '',
-      transmission: '',
-      fuelType: '',
-      productCat: '',
-      nik: '',
-      cityName: '',
-      plate: '',
-      mileage: '',
-      taxDate: '',
-      partnerName: '',
-      partnerId: '',
-      // origination: isOTO
-      //   ? UnverifiedLeadSubCategory.OTO_NEW_CAR_PDP_LEADS_FORM
-      //   : UnverifiedLeadSubCategory.SEVA_NEW_CAR_PDP_LEADS_FORM,
-      ...(cityOtr?.id && { cityId: cityOtr.id }),
-      // dp: getDp(),
-      // tenure: getTenure(),
-      // monthlyInstallment: sortedCarModelVariant[0].monthlyInstallment,
-      // carBrand: carModelDetails?.brand,
-      // carModelText: carModelDetails?.model,
-      // carVariantText: carVariantDetails?.variantDetail.name,
-    }
-    try {
-      await createUnverifiedLeadNewUsedCar(data)
-      setModalOpened('success-toast')
-      trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
-        PAGE_ORIGINATION: 'PDP - ' + valueMenuTabCategory(),
-        LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
-        TEMAN_SEVA_STATUS: temanSevaStatus,
-        PHONE_NUMBER: '+62' + phone,
-      })
-      setIsLoading(false)
-      setTimeout(() => setModalOpened('none'), 3000)
-    } catch (error) {
-      throw error
+    if (selectedLoan !== null) {
+      const data = {
+        origination:
+          selectedLoan !== null
+            ? LeadsUsedCar.USED_CAR_CALCULATOR_LEADS_FORM
+            : LeadsUsedCar.USED_CAR_PDP_LEADS_FORM,
+        customerName: name,
+        phoneNumber: phone,
+        selectedTenure: selectedLoan?.tenor,
+        selectedTdp: selectedLoan?.totalDP,
+        selectedInstallment: selectedLoan?.totalInstallment,
+        priceFormatedNumber: carLeads.priceValue,
+        carId: carLeads.carId,
+        makeName: carLeads.brandName,
+        modelName: carLeads.modelName,
+        variantName: carLeads.variantName,
+        skuCode: carLeads.skuCode,
+        colourName: carLeads.color,
+        engineCapacity: carLeads.carSpecifications.find(
+          (item: any) => item.specCode === 'engine-capacity',
+        ).value,
+        priceValue: carLeads.priceValue,
+        seat: carLeads.seat,
+        variantTitle: carLeads.variantTitle,
+        transmission: carLeads.carSpecifications.find(
+          (item: any) => item.specCode === 'transmission',
+        ).value,
+        fuelType: carLeads.carSpecifications.find(
+          (item: any) => item.specCode === 'fuel-type',
+        ).value,
+        productCat: carLeads.productCat,
+        nik: carLeads.nik,
+        cityName: carLeads.cityName.replace(' ', ''),
+        plate: carLeads.plate,
+        mileage: carLeads.mileage,
+        taxDate: carLeads.taxDate,
+        partnerName: carLeads.partnerName,
+        partnerId: carLeads.partnerId,
+      }
+
+      try {
+        await createUnverifiedLeadNewUsedCar(data)
+        setModalOpened('success-toast')
+        trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
+          PAGE_ORIGINATION: 'PDP - ' + valueMenuTabCategory(),
+          LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
+          TEMAN_SEVA_STATUS: temanSevaStatus,
+          PHONE_NUMBER: '+62' + phone,
+        })
+        setIsLoading(false)
+        setTimeout(() => setModalOpened('none'), 3000)
+      } catch (error) {
+        throw error
+      }
+    } else {
+      const data = {
+        origination:
+          selectedLoan !== null
+            ? LeadsUsedCar.USED_CAR_CALCULATOR_LEADS_FORM
+            : LeadsUsedCar.USED_CAR_PDP_LEADS_FORM,
+        customerName: name,
+        phoneNumber: phone,
+        priceFormatedNumber: carLeads.priceValue,
+        carId: carLeads.carId,
+        makeName: carLeads.brandName,
+        modelName: carLeads.modelName,
+        variantName: carLeads.variantName,
+        skuCode: carLeads.skuCode,
+        colourName: carLeads.color,
+        engineCapacity: carLeads.carSpecifications.find(
+          (item: any) => item.specCode === 'engine-capacity',
+        ).value,
+        priceValue: carLeads.priceValue,
+        seat: carLeads.seat,
+        variantTitle: carLeads.variantTitle,
+        transmission: carLeads.carSpecifications.find(
+          (item: any) => item.specCode === 'transmission',
+        ).value,
+        fuelType: carLeads.carSpecifications.find(
+          (item: any) => item.specCode === 'fuel-type',
+        ).value,
+        productCat: carLeads.productCat,
+        nik: carLeads.nik,
+        cityName: carLeads.cityName.replace(' ', ''),
+        plate: carLeads.plate,
+        mileage: carLeads.mileage,
+        taxDate: carLeads.taxDate,
+        partnerName: carLeads.partnerName,
+        partnerId: carLeads.partnerId,
+      }
+
+      try {
+        await createUnverifiedLeadNewUsedCar(data)
+        setModalOpened('success-toast')
+        trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_SUCCESS_VIEW, {
+          PAGE_ORIGINATION: 'PDP - ' + valueMenuTabCategory(),
+          LOGIN_STATUS: isUserLoggedIn ? 'Yes' : 'No',
+          TEMAN_SEVA_STATUS: temanSevaStatus,
+          PHONE_NUMBER: '+62' + phone,
+        })
+        setIsLoading(false)
+        setTimeout(() => setModalOpened('none'), 3000)
+      } catch (error) {
+        throw error
+      }
     }
   }
 
@@ -343,42 +334,6 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
     }
   }
 
-  // const trackClickCtaCountly = () => {
-  //   trackEventCountly(CountlyEventNames.WEB_PDP_LOAN_CALCULATOR_CTA_CLICK, {
-  //     SOURCE_SECTION: 'Leads form',
-  //     MENU_TAB_CATEGORY: valueMenuTabCategory(),
-  //     VISUAL_TAB_CATEGORY: upperTab ? upperTab : 'Warna',
-  //     CAR_BRAND: brand ? capitalizeWords(brand.replaceAll('-', ' ')) : '',
-  //     CAR_MODEL: model ? capitalizeWords(model.replaceAll('-', ' ')) : '',
-  //     CAR_ORDER: 'Null',
-  //     CAR_VARIANT: 'Null',
-  //   })
-  // }
-
-  const queryParamForPDP = () => {
-    const params = new URLSearchParams({
-      ...(loanRankcr &&
-        typeof loanRankcr === 'string' && { loanRankCVL: loanRankcr }),
-    })
-
-    return params
-  }
-
-  // const onClickCalculateCta = () => {
-  //   let urlDirection =
-  //     variantListUrl
-  //       .replace(':brand', brand)
-  //       .replace(':model', model)
-  //       .replace(':tab', 'kredit') + queryParamForPDP()
-
-  //   if (router.basePath) {
-  //     urlDirection = router.basePath + urlDirection
-  //   }
-
-  //   trackClickCtaCountly()
-  //   saveDataForCountlyTrackerPageViewLC(PreviousButton.LeadsForm)
-  //   window.location.href = urlDirection
-  // }
   const onClickNameField = () => {
     trackEventCountly(CountlyEventNames.WEB_LEADS_FORM_NAME_CLICK, {
       PAGE_ORIGINATION: 'PDP - ' + valueMenuTabCategory(),
@@ -394,19 +349,11 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
   }
   return (
     <div ref={toLeads}>
-      {/* <div className={isOTO ? styles.wrapperOTO : styles.wrapper}> */}
       <div className={styles.wrapper}>
         <div className={styles.background}>
           <div className={styles.wrapperSupergraphicLeft}>
             <Image
               src={SupergraphicLeft}
-              // alt={
-              //   brand
-              //     ? `Vector Form Customer Service Mobil ${
-              //         carModelDetails?.brand
-              //       } ${carModelDetails?.model.replace('-', ' ')}`
-              //     : 'Vector Promosi Mobil'
-              // }
               alt={'Vector Promosi Mobil'}
               width={200}
               height={140}
@@ -416,13 +363,6 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
           <div className={styles.wrapperSupergraphicRight}>
             <Image
               src={SupergraphicRight}
-              // alt={
-              //   brand
-              //     ? `Vector Form Customer Service Mobil ${
-              //         carModelDetails?.brand
-              //       } ${carModelDetails?.model.replace('-', ' ')}`
-              //     : 'Vector Promosi Mobil'
-              // }
               alt={'Vector Promosi Mobil'}
               width={200}
               height={140}
@@ -433,7 +373,7 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
 
         <div className={styles.foreground}>
           <h2 className={styles.textHeading}>
-            Yuk, cari tahu & tanya lebih lanjut tentang #infoCar
+            Yuk, cari tahu & tanya lebih lanjut tentang {infoCar}
           </h2>
           <div className={styles.form}>
             <Input

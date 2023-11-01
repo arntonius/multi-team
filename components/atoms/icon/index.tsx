@@ -95,6 +95,7 @@ import { IconSquareCheckedBox } from './SquareCheckedBox'
 import { IconYoutubeOutlined } from './YoutubeOutlined'
 import { IconLinkedinOutlined } from './LinkedinOutlined'
 import { IconLockFill } from './LockFill'
+import { IconThumbsUp } from './ThumbsUp'
 
 // const IconChevronUp: React.FC<PropsIcon> = ({
 //   width,
@@ -812,4 +813,5 @@ export {
   IconDocumentSigned,
   IconYoutubeOutlined,
   IconLinkedinOutlined,
+  IconThumbsUp,
 }

@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { PdpMobile, UsedPdpMobile } from 'components/organisms'
-
+import styles from 'styles/pages/pdpUsed.module.scss'
 import {
   CarModelDetailsResponse,
   CarRecommendation,
@@ -32,13 +32,14 @@ import {
   getMenu,
   getAnnouncementBox as gab,
   getUsedCarBySKU,
+  getUsedCarRecommendations,
 } from 'services/api'
 interface UsedPdpDataLocalContextType {
   // /**
   //  * this variable use "jakarta" as default payload, so that search engine could see page content.
   //  * need to re-fetch API in client with city from localStorage
   //  */
-  // carRecommendationsResDefaultCity: any
+  usedCarRecommendations: any
   // /**
   //  * this variable use "jakarta" as default payload, so that search engine could see page content.
   //  * need to re-fetch API in client with city from localStorage
@@ -59,9 +60,11 @@ interface UsedPdpDataLocalContextType {
  */
 export const UsedPdpDataLocalContext =
   createContext<UsedPdpDataLocalContextType>({
+    usedCarRecommendations: null,
     usedCarModelDetailsRes: null,
   })
 export default function index({
+  usedCarRecommendationRes,
   carModelDetailsRes,
   dataDesktopMenu,
   dataMobileMenu,
@@ -189,15 +192,16 @@ export default function index({
   }
 
   return (
-    <>
+    <div className={styles.mobile}>
       <UsedPdpDataLocalContext.Provider
         value={{
           usedCarModelDetailsRes: carModelDetailsRes,
+          usedCarRecommendations: usedCarRecommendationRes,
         }}
       >
         <UsedPdpMobile />
       </UsedPdpDataLocalContext.Provider>
-    </>
+    </div>
   )
 }
 export async function getServerSideProps(context: any) {
@@ -278,6 +282,14 @@ export async function getServerSideProps(context: any) {
     //   },
     // )
 
+    // const params = new URLSearchParams()
+
+    // params.append('bodyType', carDetailRes.data[0].typeName)
+
+    const [carRecommendationsRes]: any = await Promise.all([
+      getUsedCarRecommendations(`?bodyType=${carDetailRes.data[0].typeName}`),
+    ])
+
     return {
       props: {
         // carRecommendationsRes,
@@ -287,6 +299,7 @@ export async function getServerSideProps(context: any) {
         // metaTagDataRes,
         // carVideoReviewRes,
         // carArticleReviewRes,
+        usedCarRecommendationRes: carRecommendationsRes.carData,
         carModelDetailsRes: carDetailRes.data[0],
         isSsrMobile: getIsSsrMobile(context),
         dataMobileMenu: menuMobileRes.data,
@@ -301,6 +314,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         notFound: false,
+        usedCarRecommendationRes: [],
         dataMobileMenu: [],
         dataFooter: [],
         dataCities: [],

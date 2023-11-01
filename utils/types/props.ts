@@ -402,6 +402,9 @@ export interface TestimonialData {
   cityName: string
   purchaseDate: string
   displayNumber: number
+  carBrand?: string
+  carModelName?: string
+  urlCarPage?: string
 }
 export interface LoanDetail {
   loanRank: LoanRank
@@ -568,6 +571,7 @@ export interface FunnelWidget {
 }
 
 export interface UsedCarFunnelWidget {
+  model: string[]
   brand: string[]
   minYear: string
   maxYear: string

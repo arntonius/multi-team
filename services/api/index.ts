@@ -1,6 +1,7 @@
 import {
   CheckTemanSeva,
   CreateProbeTrackRequest,
+  CreditCarCalculation,
   CustomerKtpSeva,
   DeleteAccountRequestType,
   SendInstantApproval,
@@ -278,11 +279,21 @@ const getMinMaxMileageUsedCar = (params: string, config?: AxiosRequestConfig) =>
 const getBrandList = (params: string, config?: AxiosRequestConfig) =>
   get(collections.usedCar.brandList + params, config)
 
+const getModelUsedCar = (params: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.modelUsedCar + params, config)
+
 const getUsedCarBySKU = (
   id: string,
   params: string,
   config?: AxiosRequestConfig,
 ) => get(collections.usedCar.uuid.replace(':uuid', id) + params, config)
+
+const getUsedCarRecommendations = (
+  params?: string,
+  config?: AxiosRequestConfig,
+) => get(collections.usedCar.usedRecommendations + params, config)
+const getCarCreditsSk = (params?: string, config?: AxiosRequestConfig) =>
+  get(collections.usedCar.getCarCreditsSk + params, config)
 
 export {
   getMenu,
@@ -321,7 +332,10 @@ export {
   getMinMaxMileageUsedCar,
   getUsedCarBySKU,
   getBrandList,
+  getModelUsedCar,
+  getUsedCarRecommendations,
   getFinalDpRangeValidation,
+  getCarCreditsSk,
   postUpdateLeadsOTO,
   postUnverifiedLeadsNew,
   postUnverifiedLeadsNewUsedCar,

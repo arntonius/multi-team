@@ -192,6 +192,7 @@ export const getServerSideProps: GetServerSideProps<{
     transmission,
     cityId,
     sortBy,
+    modelName,
   } = ctx.query
 
   try {

@@ -38,6 +38,7 @@ import { LeadsFormSecondary } from './leadsForm/secondary'
 import PromoSection from './promoSection/index'
 import Articles from './articles/index'
 import { CalculationResult } from './calculationResult/index'
+import { CalculationUsedCarResult } from './calculationUsedCarResult/index'
 import PDPCarOverviewSkeleton from './pdpCarOverviewSkeleton'
 import SidebarMobile from './sidebarMobile'
 import HomepageMobile from './homepageMobile'
@@ -66,6 +67,11 @@ import UsedPdpMobile from './UsedPdpMobile'
 import { LeadsFormUsedCar } from './leadsForm/usedCar'
 import Profile from './profile'
 import { SearchWidgetSection } from './searchWidgetSection'
+import UsedCarRecommendations from './UsedCarRecommendations'
+import { AlternativeUsedCarRecomendationCard } from './alternativeUsedCarRecomendationCard'
+import { PopupResultRecommended } from './popupResultFilter/resultRecommended'
+import { CarGallery } from './tabContent/upper/CarGallery'
+import PdpUsedCarUpperSection from './PdpUsedCarUpperSection'
 
 const Exterior360ViewerTab = dynamic(
   () => import('./tabContent/upper/exterior360Viewer'),
@@ -140,4 +146,10 @@ export {
   Profile,
   SearchWidgetSection,
   UsedCarSearchWidget,
+  UsedCarRecommendations,
+  AlternativeUsedCarRecomendationCard,
+  PopupResultRecommended,
+  CarGallery,
+  PdpUsedCarUpperSection,
+  CalculationUsedCarResult,
 }
