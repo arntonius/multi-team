@@ -41,6 +41,7 @@ import {
 } from 'utils/handler/sessionStorage'
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { useUtils } from 'services/context/utilsContext'
+import { IconThumbsUp } from 'components/atoms/icon'
 
 type CarDetailCardProps = {
   order?: number
@@ -263,6 +264,7 @@ export const CarDetailCard = ({
     saveDataLeads(recommendation)
     setOpenInterestingModal(true)
   }
+  const IconThumbs = () => <IconThumbsUp />
 
   return (
     <div className={styles.container}>
@@ -305,11 +307,14 @@ export const CarDetailCard = ({
             priority={true}
           />
         )}
-        {isFilter && recommendation.loanRank === 'Red' && (
+        {/* {isFilter && recommendation.loanRank === 'Red' && (
           <LabelSulit onClick={onClickResultSulit} />
-        )}
+        )} */}
         {isFilter && recommendation.loanRank === 'Green' && (
-          <LabelMudah onClick={onClickResultMudah} />
+          <LabelMudah
+            onClick={onClickResultMudah}
+            prefixComponent={IconThumbs}
+          />
         )}
         <div
           className={styles.contentWrapper}
