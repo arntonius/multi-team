@@ -115,6 +115,11 @@ const QualificationCreditModal = dynamic(() =>
   ),
 )
 const Toast = dynamic(() => import('components/atoms').then((mod) => mod.Toast))
+const PopupResultRecommended = dynamic(() =>
+  import('components/organisms/popupResultFilter/resultRecommended').then(
+    (mod) => mod.PopupResultRecommended,
+  ),
+)
 
 const CarSillhouete = '/revamp/illustration/car-sillhouete.webp'
 
@@ -256,6 +261,7 @@ export const CreditTab = () => {
   )
   const [finalMinInputDp, setFinalMinInputDp] = useState(0)
   const [finalMaxInputDp, setFinalMaxInputDp] = useState(0)
+  const [isOpenPopupRecommended, setIsOpenPopupRecommended] = useState(false)
 
   const isUsingFilterFinancial =
     !!filterStorage?.age &&
@@ -1495,6 +1501,7 @@ export const CreditTab = () => {
       sortBy: 'highToLow',
       age: forms?.age,
       monthlyIncome: forms?.monthlyIncome,
+      downPaymentAmount: forms?.downPaymentAmount,
     })
     const filteredCarRecommendations = response.carRecommendations.filter(
       (car: any) => car.loanRank === LoanRank.Green,
@@ -1996,7 +2003,7 @@ export const CreditTab = () => {
               carRecommendationList={carRecommendations}
               title="Rekomendasi Sesuai Kemampuan Finansialmu"
               onClick={() => {
-                return
+                setIsOpenPopupRecommended(true)
               }}
               selectedCity={forms?.city?.cityName}
               additionalContainerStyle={styles.recommendationAdditionalStyle}
@@ -2049,6 +2056,13 @@ export const CreditTab = () => {
         typeToast={'error'}
         onCancel={() => setIsOpenToast(false)}
         closeOnToastClick
+      />
+
+      <PopupResultRecommended
+        open={isOpenPopupRecommended}
+        onCancel={() => {
+          setIsOpenPopupRecommended(false)
+        }}
       />
     </div>
   )
