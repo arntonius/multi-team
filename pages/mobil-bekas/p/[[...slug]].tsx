@@ -111,7 +111,6 @@ export default function index({
     saveCities(dataCities)
     getAnnouncementBox()
     checkCitySlug(citySlug, dataCities, setCurrentCity)
-    console.log(usedCarRecommendationRes)
   }, [])
 
   const getAnnouncementBox = async () => {
