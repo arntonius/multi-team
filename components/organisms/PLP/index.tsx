@@ -70,11 +70,11 @@ const PopupPromo = dynamic(() =>
 const PopupResultSulit = dynamic(() =>
   import('components/organisms').then((mod) => mod.PopupResultSulit),
 )
-const PopupResultMudah = dynamic(() =>
-  import('components/organisms').then((mod) => mod.PopupResultMudah),
-)
-const PopupResultInfo = dynamic(() =>
-  import('components/organisms').then((mod) => mod.PopupResultInfo),
+// const PopupResultMudah = dynamic(() =>
+//   import('components/organisms').then((mod) => mod.PopupResultMudah),
+// )
+const PopupResultRecommended = dynamic(() =>
+  import('components/organisms').then((mod) => mod.PopupResultRecommended),
 )
 const CitySelectorModal = dynamic(() =>
   import('components/molecules').then((mod) => mod.CitySelectorModal),
@@ -470,7 +470,8 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
   useEffect(() => {
     if (
       isFilterFinancial &&
-      getLocalStorage(LocalStorageKey.flagResultFilterInfoPLP) !== true
+      getLocalStorage(LocalStorageKey.flagResultFilterInfoPLP) !== true &&
+      sampleArray.items.some((a) => a.loanRank === 'Green')
     ) {
       setOpenLabelResultInfo(true)
     }
@@ -582,6 +583,7 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
   }
   const onCloseResultInfoClose = () => {
     setOpenLabelResultInfo(false)
+    setOpenLabelResultMudah(false)
     trackEventCountly(CountlyEventNames.WEB_PLP_FINCAP_BANNER_DESC_EXIT_CLICK)
   }
 
@@ -822,14 +824,14 @@ export const PLP = ({ minmaxPrice, isOTO = false }: PLPProps) => {
             setOpenLabelResultSulit(false)
           }}
         />
-        <PopupResultMudah
+        {/* <PopupResultMudah
           open={openLabelResultMudah}
           onCancel={() => {
             setOpenLabelResultMudah(false)
           }}
-        />
-        <PopupResultInfo
-          open={openLabelResultInfo}
+        /> */}
+        <PopupResultRecommended
+          open={openLabelResultInfo || openLabelResultMudah}
           onCancel={onCloseResultInfoClose}
           onOk={onCloseResultInfo}
         />
