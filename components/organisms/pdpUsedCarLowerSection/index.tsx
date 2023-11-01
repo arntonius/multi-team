@@ -22,6 +22,7 @@ import {
 import { getLocalStorage } from 'utils/handler/localStorage'
 import { LocalStorageKey } from 'utils/enum'
 import { useUtils } from 'services/context/utilsContext'
+import { usedCarDetailUrl } from 'utils/helpers/routes'
 
 const lowerSectionNavigationTabTemp = [
   {
@@ -52,7 +53,6 @@ export const PdpUsedCarLowerSection = ({
   onChangeTab,
 }: pdpUsedCarLowerSectionProps) => {
   const router = useRouter()
-  //   const { slug } = router.query
   const [lowerTabSlug] = ['Deskripsi', 'Kredit']
   const path = lowerTabSlug ? capitalizeFirstLetter(lowerTabSlug) : ''
   const [selectedTabValue, setSelectedTabValue] = useState(
@@ -105,6 +105,11 @@ export const PdpUsedCarLowerSection = ({
   ) => {
     if (value.toLowerCase() === 'kredit' && isExecuteFromClickingTab) {
       saveDataForCountlyTrackerPageViewLC(PreviousButton.undefined)
+      navigateToTabCredit()
+    }
+    if (value.toLowerCase() === 'deskripsi' && isExecuteFromClickingTab) {
+      saveDataForCountlyTrackerPageViewLC(PreviousButton.undefined)
+      navigateToTabDescription()
     }
     trackClickLowerTabCountly(value)
     trackAnnouncementBoxView(value)
@@ -140,6 +145,27 @@ export const PdpUsedCarLowerSection = ({
       const path = capitalizeFirstLetter(lowerTabSlug)
       setSelectedTabValue(path)
     }
+  }
+
+  const navigateToTabCredit = () => {
+    const id = router.asPath.split('/')[3]
+    router.replace(
+      {
+        pathname: usedCarDetailUrl.replace(':id', id) + '/kredit',
+      },
+      undefined,
+      { scroll: false },
+    )
+  }
+  const navigateToTabDescription = () => {
+    const id = router.asPath.split('/')[3]
+    router.replace(
+      {
+        pathname: usedCarDetailUrl.replace(':id', id),
+      },
+      undefined,
+      { scroll: false },
+    )
   }
 
   const renderContent = () => {

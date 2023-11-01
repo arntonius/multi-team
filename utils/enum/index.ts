@@ -201,6 +201,11 @@ export enum UnverifiedLeadSubCategory {
   OTO_NEW_CAR_LP_LEADS_FORM = 'OTONCLPF',
 }
 
+export enum LeadsUsedCar {
+  USED_CAR_PDP_LEADS_FORM = 'USED_CAR_PDP_LEADS_FORM',
+  USED_CAR_CALCULATOR_LEADS_FORM = 'USED_CAR_CALCULATOR_LEADS_FORM',
+}
+
 export enum ContactType {
   phone = 'phone',
   whatsApp = 'whatsApp',
