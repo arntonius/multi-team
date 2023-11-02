@@ -106,6 +106,7 @@ import CustomModal from './modal/custom'
 import BottomSheet from './bottomSheet'
 import { SearchInput } from './searchInput'
 import DatePickerCM from './inputDate/datepickerCM'
+import { DatePicker } from './inputDate'
 export {
   DatePickerCM,
   IconLockFill,
@@ -214,4 +215,5 @@ export {
   IconColor,
   IconNumberField,
   IconDocumentSigned,
+  DatePicker,
 }

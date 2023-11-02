@@ -104,6 +104,7 @@ export enum LocalStorageKey {
   LastHitTracker = 'lastHitTracker',
   carModelLoanRank = 'carModelLoanRank', // loan rank on plp
   LastTimeUpdateUtm = 'lastTimeUpdateUtm',
+  prevLoginPath = 'prevLoginPath',
 }
 
 export enum SessionStorageKey {
