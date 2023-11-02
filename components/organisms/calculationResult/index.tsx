@@ -337,7 +337,7 @@ export const CalculationResult = ({
       <span className={styles.subtitle}>
         Perhitungan final akan diberikan oleh partner SEVA.
       </span>
-      <div className={styles.dataHeaderWrapper}>
+      <div className={styles.dataHeaderWrapperUsedCar}>
         <span className={`${styles.dataHeaderText} ${styles.tenorHeader}`}>
           Tenor
         </span>
