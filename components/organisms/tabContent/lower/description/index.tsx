@@ -46,9 +46,11 @@ export const DescriptionTab = ({
   setSelectedTabValue,
 }: DescriptionProps) => {
   const { carModelDetails, carVariantDetails, recommendation } = useCar()
-  const { usedCarModelDetailsRes, usedCarRecommendations } = useContext(
-    UsedPdpDataLocalContext,
-  )
+  const {
+    usedCarModelDetailsRes,
+    usedCarRecommendations,
+    usedCarNewRecommendations,
+  } = useContext(UsedPdpDataLocalContext)
 
   const {
     dataCombinationOfCarRecomAndModelDetailDefaultCity,
@@ -122,9 +124,9 @@ export const DescriptionTab = ({
       <div ref={toLeads} className={styles.reference} id="leads-form"></div>
       <LeadsFormUsedCar />
       <div className={styles.wrapper}>
-        {carRecommendations?.length > 0 && (
+        {usedCarNewRecommendations?.length > 0 && (
           <NewCarRecommendations
-            carRecommendationList={carRecommendations}
+            carRecommendationList={usedCarNewRecommendations}
             title="Rekomendasi Mobil Baru"
             onClick={() => {
               return
@@ -134,18 +136,16 @@ export const DescriptionTab = ({
           />
         )}
       </div>
-      <div className={styles.wrapper}>
-        {usedCarRecommendations?.length > 0 && (
-          <UsedCarRecommendations
-            usedCarRecommendationList={usedCarRecommendations}
-            title="Beli Mobil Bekas Berkualitas"
-            onClick={() => {
-              return
-            }}
-            additionalContainerStyle={styles.recommendationAdditionalStyle}
-          />
-        )}
-      </div>
+      {usedCarRecommendations?.length > 0 && (
+        <UsedCarRecommendations
+          usedCarRecommendationList={usedCarRecommendations}
+          title="Beli Mobil Bekas Berkualitas"
+          onClick={() => {
+            return
+          }}
+          additionalContainerStyle={styles.recommendationAdditionalStyle}
+        />
+      )}
     </div>
   )
 }
