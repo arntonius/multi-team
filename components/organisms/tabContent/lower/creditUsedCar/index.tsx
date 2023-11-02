@@ -1134,18 +1134,16 @@ export const CreditUsedCarTab = () => {
           />
         )}
       </div>
-      <div className={styles.wrapper}>
-        {usedCarRecommendations?.length > 0 && (
-          <UsedCarRecommendations
-            usedCarRecommendationList={usedCarRecommendations}
-            title="Beli Mobil Bekas Berkualitas"
-            onClick={() => {
-              return
-            }}
-            additionalContainerStyle={styles.recommendationAdditionalStyle}
-          />
-        )}
-      </div>
+      {usedCarRecommendations?.length > 0 && (
+        <UsedCarRecommendations
+          usedCarRecommendationList={usedCarRecommendations}
+          title="Beli Mobil Bekas Berkualitas"
+          onClick={() => {
+            return
+          }}
+          additionalContainerStyle={styles.recommendationAdditionalStyle}
+        />
+      )}
       <AssuranceCreditModal
         isOpen={isAssuranceModalOpen}
         onClickCloseButton={onCloseQualificationPopUp}
