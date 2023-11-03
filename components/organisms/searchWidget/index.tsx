@@ -377,6 +377,7 @@ const SearchWidget = () => {
 
     setErrorFinance((prev: any) => ({ ...prev, monthlyIncome }))
   }, [funnelWidget.monthlyIncome])
+
   const renderText = () => {
     if (isMobile) {
       return (
