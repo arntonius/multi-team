@@ -156,26 +156,25 @@ export const LandingIA = ({
           trackLandingIAContinue('Main')
         }
         saveSessionStorage(SessionStorageKey.KTPUploaded, 'uploaded')
-        onClose()
         saveSessionStorage(
           SessionStorageKey.LastVisitedPageKKIAFlow,
           window.location.pathname,
         )
         router.push(ktpReviewUrl)
+        onClose()
       } else {
         saveSessionStorage(SessionStorageKey.KTPUploaded, 'not upload')
-        onClose()
         saveSessionStorage(
           SessionStorageKey.LastVisitedPageKKIAFlow,
           window.location.pathname,
         )
         router.push(cameraKtpUrl)
+        onClose()
       }
       setLoading('')
     } catch (e: any) {
       if (e.response.data.code === 'NO_NIK_REGISTERED') {
         saveSessionStorage(SessionStorageKey.KTPUploaded, 'not upload')
-        onClose()
         saveSessionStorage(
           SessionStorageKey.LastVisitedPageKKIAFlow,
           window.location.pathname,
@@ -186,6 +185,7 @@ export const LandingIA = ({
         )
         trackLandingIAContinue('Null')
         router.push(cameraKtpUrl)
+        onClose()
       } else if (e?.response?.data?.message) {
         setToastMessage(`${e?.response?.data?.message}`)
         setIsOpenToast(true)
@@ -314,7 +314,13 @@ const Header = () => {
             <span className={styles.boldText}>Cepat?</span> Yuk, Lanjut ke Tahap{' '}
             <span className={styles.boldText}>Instant Approval</span>
           </span>
-          <Image src={BGLanding} alt="illustration" />
+          <Image
+            src={BGLanding}
+            alt="illustration"
+            width={570}
+            height={710}
+            style={{ height: 'auto' }}
+          />
         </div>
       </div>
       <Image
