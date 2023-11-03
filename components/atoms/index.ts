@@ -109,6 +109,7 @@ import CustomModal from './modal/custom'
 import BottomSheet from './bottomSheet'
 import { SearchInput } from './searchInput'
 import DatePickerCM from './inputDate/datepickerCM'
+import { DatePicker } from './inputDate'
 import { NewInput } from './input/newInput'
 import { ToastSevaRefi } from './toastSevaRefi'
 export {
@@ -219,6 +220,7 @@ export {
   IconColor,
   IconNumberField,
   IconDocumentSigned,
+  DatePicker,
   DoneTickToast,
   NewInput,
   ArrowLeftSmall,
