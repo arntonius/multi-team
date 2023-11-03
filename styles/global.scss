@@ -101,6 +101,10 @@ button {
   padding: 48px 24px 24px 24px;
 }
 
+.custom-modal-login-alert .ant-modal-content {
+  padding: 0;
+}
+
 .custom-modal .ant-modal-close {
   top: 25px;
 }
@@ -495,4 +499,8 @@ span.ant-select-selection-placeholder {
     transform: translateX(-50%);
     inset-block-end: 32px !important;
   }
+}
+
+.refinancing-custom-form-modal .ant-modal-content {
+  padding: 0
 }
