@@ -10,7 +10,6 @@ import {
   getCustomerSpouseKtpSeva,
 } from 'utils/handler/customer'
 import { getLocalStorage } from 'utils/handler/localStorage'
-import urls from 'utils/helpers/url'
 import { CustomerRegister } from 'utils/types/models'
 import { UTMTagsData } from 'utils/types/utils'
 
@@ -120,7 +119,7 @@ export const sendRefiContact = async (
   const { AES } = (await import('crypto-js')).default
   const encryptedPayload = AES.encrypt(
     JSON.stringify(payload),
-    process.env.REACT_APP_LEAD_PAYLOAD_ENCRYPT_KEY ?? '',
+    process.env.NEXT_PUBLIC_LEAD_PAYLOAD_ENCRYPTION_KEY ?? '',
   ).toString()
 
   const config = {
@@ -130,5 +129,32 @@ export const sendRefiContact = async (
     },
   }
 
-  return post(urls.internalUrls.sendRefiContact, encryptedPayload, config)
+  return post(collections.refinancing.sendRefiContact, encryptedPayload, config)
+}
+
+export const sendRefiQuestion = async (
+  question?: string,
+  contactId?: string,
+) => {
+  const { AES } = (await import('crypto-js')).default
+  const encryptedPayload = AES.encrypt(
+    JSON.stringify({
+      question: question,
+      contactId: contactId,
+    }),
+    process.env.NEXT_PUBLIC_LEAD_PAYLOAD_ENCRYPTION_KEY ?? '',
+  ).toString()
+
+  const config = {
+    headers: {
+      'torq-api-key': environments.unverifiedLeadApiKey,
+      'Content-Type': 'text/plain',
+    },
+  }
+
+  return post(
+    collections.refinancing.sendRefiQuestion,
+    encryptedPayload,
+    config,
+  )
 }

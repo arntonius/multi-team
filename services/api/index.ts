@@ -4,7 +4,9 @@ import {
   CreditCarCalculation,
   CustomerKtpSeva,
   DeleteAccountRequestType,
+  RefinancingSecondLeadsData,
   SendInstantApproval,
+  UTMTagsData,
   UpdateProfileType,
   updateLeadFormCM,
   updateLeadFormOTO,
@@ -23,6 +25,8 @@ import {
 } from 'utils/types/utils'
 import environments from 'helpers/environments'
 import AES from 'crypto-js/aes'
+import { getLocalStorage } from 'utils/handler/localStorage'
+import { LocalStorageKey } from 'utils/enum'
 // import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 // import { getLocalStorage } from 'utils/handler/localStorage'
 // import { UTMTagsData } from 'utils/types/props'
@@ -146,6 +150,20 @@ const getFinalDpRangeValidation = (variantId: string, cityCode: string) =>
       .replace(':variantId', variantId)
       .replace(':cityCode', cityCode),
   )
+const getRefinancingCarsBrand = () => {
+  return get(collections.refinancing.refinancingCarsBrand)
+}
+const getRefinancingCarsModel = (model?: string) => {
+  return get(
+    collections.refinancing.refinancingCarsModel.replace(
+      ':model',
+      String(model),
+    ),
+  )
+}
+const getRefinancingCarsYear = () => {
+  return get(collections.refinancing.refinancingCarsYear)
+}
 
 // post request
 const postUnverifiedLeadsNew = (body: any) => {
@@ -260,6 +278,37 @@ const postUpdateLeadsCM = (
 ) => post(collections.omnicom.updateLeadsCM, body, config)
 const postCheckTemanSeva = (body: CheckTemanSeva) =>
   post(collections.temanSeva.checkTemanSeva, body)
+const postSendRefinancingSecondLeadsForm = (
+  data: RefinancingSecondLeadsData,
+) => {
+  const UTMTags = getLocalStorage<UTMTagsData>(LocalStorageKey.UtmTags)
+  const payload = {
+    ...data,
+    utmSource: UTMTags?.utm_source,
+    utmMedium: UTMTags?.utm_medium,
+    utmCampaign: UTMTags?.utm_campaign,
+    utmId: UTMTags?.utm_id,
+    utmContent: null, // temporary
+    utmTerm: UTMTags?.utm_term,
+    adSet: UTMTags?.adset,
+  }
+  const encryptedPayload = AES.encrypt(
+    JSON.stringify(payload),
+    process.env.REACT_APP_LEAD_PAYLOAD_ENCRYPT_KEY ?? '',
+  ).toString()
+
+  const config = {
+    headers: {
+      'torq-api-key': environments.unverifiedLeadApiKey,
+      'Content-Type': 'text/plain',
+    },
+  }
+  return post(
+    collections.refinancing.refinancingSecondLeadsForm,
+    encryptedPayload,
+    config,
+  )
+}
 
 const getUsedCars = (params?: string, config?: AxiosRequestConfig) =>
   get(collections.usedCar.usedCars + params, config)
@@ -341,6 +390,9 @@ export {
   getUsedNewCarRecommendations,
   getFinalDpRangeValidation,
   getCarCreditsSk,
+  getRefinancingCarsBrand,
+  getRefinancingCarsModel,
+  getRefinancingCarsYear,
   postUpdateLeadsOTO,
   postUnverifiedLeadsNew,
   postUnverifiedLeadsNewUsedCar,
@@ -367,4 +419,5 @@ export {
   postUpdateProfile,
   postUpdateLeadsCM,
   postCheckTemanSeva,
+  postSendRefinancingSecondLeadsForm,
 }

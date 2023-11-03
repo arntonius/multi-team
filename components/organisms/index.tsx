@@ -72,6 +72,8 @@ import { AlternativeUsedCarRecomendationCard } from './alternativeUsedCarRecomen
 import { PopupResultRecommended } from './popupResultFilter/resultRecommended'
 import { CarGallery } from './tabContent/upper/CarGallery'
 import PdpUsedCarUpperSection from './PdpUsedCarUpperSection'
+import { RefinancingLandingPageContent } from './refinancingLandingPageContent'
+import { TemanSevaPageHeader } from './temanSevaPageHeader'
 
 const Exterior360ViewerTab = dynamic(
   () => import('./tabContent/upper/exterior360Viewer'),
@@ -152,4 +154,6 @@ export {
   CarGallery,
   PdpUsedCarUpperSection,
   CalculationUsedCarResult,
+  RefinancingLandingPageContent,
+  TemanSevaPageHeader,
 }

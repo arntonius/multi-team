@@ -1,0 +1,172 @@
+@import '../abstract/colors';
+@import '../abstract/mixins';
+
+.container {
+  display: flex;
+  flex-direction: column;
+  background-color: #{$secondary-blue};
+  margin: 0 auto;
+  max-width: 480px;
+}
+
+.bodyContainer {
+  height: 100%;
+  width: 100%;
+  border-radius: 16px 16px 0 0;
+  background-color: #{$primary-white};
+  padding: 28px 16px 41px 17px;
+  display: flex;
+  flex-direction: column;
+}
+
+.labelForm {
+  font-family: var(--open-sans);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 18px;
+  color: #{$secondaryGrey};
+  margin-bottom: 8px;
+}
+
+.prefixRp {
+  font-family: var(--open-sans);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #{$secondaryGrey};
+  margin-right: 5px;
+}
+
+.errorWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6.37px;
+  margin-bottom: 8px;
+  margin-top: -18px;
+}
+
+.errorText {
+  font-family: var(--open-sans);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 20px;
+  color: #{$primary-red};
+}
+
+.tenureWrapper {
+  display: flex;
+  flex-direction: row;
+  flex-basis: 0;
+  gap: 6.22px;
+  margin-bottom: 17px;
+}
+
+.tenureOption {
+  height: 40px;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  border: 1.5px solid #{$primaryLightGrey};
+  background-color: #{$primary-white};
+
+  label {
+    font-family: var(--open-sans);
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #{$quartenaryBlack};
+  }
+}
+
+.tenureOptionSelected {
+  border: 1.5px solid #{$primaryBlue};
+  background-color: #{$secondaryLightGrey};
+
+  label {
+    font-weight: 600;
+    color: #{$primaryBlue};
+  }
+}
+
+.accWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 20px;
+}
+
+.accClaim {
+  font-family: var(--open-sans);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  color: #{$tertiaryGrey};
+  width: 243px;
+}
+
+.styledReferralInput {
+  margin-top: 0px !important;
+  margin-bottom: 24px;
+
+  & span:first-child {
+    font-family: var(--open-sans);
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 18px;
+    color: #{$secondaryGrey};
+    margin-bottom: 8px;
+  }
+}
+
+.sendButton {
+  width: 100%;
+  height: 48px;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  justify-content: space-around;
+  margin: 0px auto 10px;
+  font-family: KanyonBold;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0px;
+  background: rgb(36, 110, 212);
+  color: rgb(255, 255, 255);
+  border: none;
+}
+
+.acceptanceWord {
+  font-family: var(--open-sans);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 18px;
+  color: #{$primaryGrey};
+  text-align: center;
+}
+
+.styledInput {
+  margin-bottom: 20px;
+  border-color: #{$primaryLightGrey} !important;
+}
+
+.styledInputError {
+  border-color: #{$primary-red} !important;
+}
+
+.styledSearchInput {
+  margin-bottom: 20px;
+}
