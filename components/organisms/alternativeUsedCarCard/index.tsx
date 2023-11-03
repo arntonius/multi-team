@@ -164,7 +164,7 @@ export const AlternativeUsedCarCard = ({
   }
 
   const formatLowestInstallment = replacePriceSeparatorByLocalization(
-    recommendation.startInstallmentL,
+    recommendation.startInstallment,
     LanguageCode.id,
   )
 

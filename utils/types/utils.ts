@@ -271,7 +271,7 @@ export type UsedNewCarRecommendation = {
   url: string
   priceValue: number
   mainImageUrl: string
-  startInstallmentL: number
+  startInstallment: number
 }
 
 export interface CarRecommendationResponse {
@@ -1162,4 +1162,16 @@ export interface SalesAgent {
   id: number
   salesCodeNpk: string
   salesName: string
+}
+
+export type RefinancingSecondLeadsData = {
+  carBrandText: string
+  carModelText: string
+  carYear: string
+  cityId: number
+  contactId: number | string
+  loanAmount: number
+  loanTenure: string
+  leasing: string
+  temanSevaTrxCode: string
 }
