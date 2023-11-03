@@ -8,14 +8,12 @@ import { useGalleryContext } from 'services/context/galleryContext'
 import {
   cameraKtpUrl,
   formKtpUrl,
-  loanCalculatorDefaultUrl,
   uploadKtpSpouseQueryParam,
 } from 'utils/helpers/routes'
 import { Button, IconChevronLeft, IconLoading, Toast } from 'components/atoms'
 import { ProgressBar } from 'components/atoms/progressBar'
 import { ButtonSize, ButtonVersion } from 'components/atoms/button'
 import { IconLockFill } from 'components/atoms/icon/LockFill'
-import PopupError from 'components/organisms/popupError'
 import { DocumentType, SessionStorageKey, UploadDataKey } from 'utils/enum'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
@@ -32,6 +30,11 @@ import {
 import { useValidateUserFlowKKIA } from 'utils/hooks/useValidateUserFlowKKIA'
 import { defineRouteName } from 'utils/navigate'
 import { FormLCState } from 'utils/types/utils'
+import dynamic from 'next/dynamic'
+
+const PopupError = dynamic(() => import('components/organisms/popupError'), {
+  ssr: false,
+})
 
 const LogoPrimary = '/revamp/icon/logo-primary.webp'
 
@@ -55,7 +58,7 @@ const VerifyKtp = () => {
   const isInPtbcFlow = kkFlowType && kkFlowType === 'ptbc'
 
   const getTitleText = () => {
-    if (ktpType && ktpType.toLowerCase() === 'spouse') {
+    if (ktpType && String(ktpType).toLowerCase() === 'spouse') {
       return 'Foto KTP Pasangan'
     } else {
       return 'Foto KTP'
@@ -63,7 +66,7 @@ const VerifyKtp = () => {
   }
 
   const getSubtitleText = () => {
-    if (ktpType && ktpType.toLowerCase() === 'spouse') {
+    if (ktpType && String(ktpType).toLowerCase() === 'spouse') {
       return 'Pastikan foto KTP pasanganmu terlihat jelas dan bisa dibaca.'
     } else {
       return 'Pastikan foto KTP terlihat jelas dan bisa dibaca.'
@@ -100,7 +103,7 @@ const VerifyKtp = () => {
             window.location.pathname,
           )
           trackKTPVerification({ ktpContinue: true })
-          if (ktpType && ktpType.toLowerCase() === 'spouse') {
+          if (ktpType && String(ktpType).toLowerCase() === 'spouse') {
             router.push(formKtpUrl + uploadKtpSpouseQueryParam)
           } else {
             router.push(formKtpUrl)

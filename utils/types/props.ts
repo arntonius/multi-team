@@ -272,7 +272,7 @@ export interface PropsToast extends Omit<ModalProps, 'closable'> {
   text: string
   closeOnToastClick?: boolean
   width?: number
-  typeToast?: 'success' | 'error'
+  typeToast?: 'success' | 'error' | 'warning'
 }
 
 export interface PropsTypeCar {
@@ -516,7 +516,7 @@ export interface PropsToast extends Omit<ModalProps, 'closable'> {
   text: string
   closeOnToastClick?: boolean
   width?: number
-  typeToast?: 'success' | 'error'
+  typeToast?: 'success' | 'error' | 'warning'
 }
 
 export interface PropsModal extends ModalProps {
