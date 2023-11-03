@@ -60,6 +60,8 @@ export const DescriptionTab = ({
 
   const router = useRouter()
 
+  const [usedCarRecommendationList, setUsedCarRecommendationList] = useState([])
+
   const modelDetail =
     carModelDetails || dataCombinationOfCarRecomAndModelDetailDefaultCity
   const variantDetail = carVariantDetails || carVariantDetailsResDefaultCity
@@ -105,6 +107,14 @@ export const DescriptionTab = ({
   }
 
   useEffect(() => {
+    const temp = usedCarRecommendations.filter(
+      (data: any) => data.id !== usedCarModelDetailsRes.carId,
+    )
+
+    setUsedCarRecommendationList(temp)
+  }, [usedCarRecommendations, usedCarModelDetailsRes])
+
+  useEffect(() => {
     if (carModelDetails && cheapestVariantData && flag === TrackerFlag.Init) {
       trackEventMoengage()
       setFlag(TrackerFlag.Sent)
@@ -136,9 +146,9 @@ export const DescriptionTab = ({
           />
         )}
       </div>
-      {usedCarRecommendations?.length > 0 && (
+      {usedCarRecommendationList?.length > 0 && (
         <UsedCarRecommendations
-          usedCarRecommendationList={usedCarRecommendations}
+          usedCarRecommendationList={usedCarRecommendationList}
           title="Beli Mobil Bekas Berkualitas"
           onClick={() => {
             scrollToLeads()
