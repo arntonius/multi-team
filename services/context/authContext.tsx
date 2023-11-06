@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: any) => {
       saveLocalStorage(LocalStorageKey.sevaCust, encryptedData)
     } catch (error) {
       removeInformationWhenLogout()
-      ;(await import('next/router')).default.replace(LoginSevaUrl)
+      window.location.replace(LoginSevaUrl)
     }
   }
 
