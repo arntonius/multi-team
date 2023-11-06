@@ -60,6 +60,10 @@ export const DescriptionTab = ({
 
   const router = useRouter()
 
+  const [usedCarRecommendationList, setUsedCarRecommendationList] = useState([])
+  const [usedCarNewRecommendationList, setUsedCarNewRecommendationList] =
+    useState([])
+
   const modelDetail =
     carModelDetails || dataCombinationOfCarRecomAndModelDetailDefaultCity
   const variantDetail = carVariantDetails || carVariantDetailsResDefaultCity
@@ -105,6 +109,30 @@ export const DescriptionTab = ({
   }
 
   useEffect(() => {
+    const temp = usedCarRecommendations.filter(
+      (data: any) => data.id !== usedCarModelDetailsRes.carId,
+    )
+
+    temp.slice(0, 10)
+
+    setUsedCarRecommendationList(temp.slice(0, 10))
+  }, [usedCarRecommendations, usedCarModelDetailsRes])
+
+  useEffect(() => {
+    const temp = usedCarNewRecommendations.filter(
+      (data: any) =>
+        (data.makeName + data.modelName)?.toLowerCase() !==
+        (
+          usedCarModelDetailsRes.brandName + usedCarModelDetailsRes.modelName
+        )?.toLowerCase(),
+    )
+
+    const result = temp.slice(0, 10)
+
+    setUsedCarNewRecommendationList(result)
+  }, [usedCarNewRecommendations, usedCarModelDetailsRes])
+
+  useEffect(() => {
     if (carModelDetails && cheapestVariantData && flag === TrackerFlag.Init) {
       trackEventMoengage()
       setFlag(TrackerFlag.Sent)
@@ -124,9 +152,9 @@ export const DescriptionTab = ({
       <div ref={toLeads} className={styles.reference} id="leads-form"></div>
       <LeadsFormUsedCar />
       <div className={styles.wrapper}>
-        {usedCarNewRecommendations?.length > 0 && (
+        {usedCarNewRecommendationList?.length > 0 && (
           <NewCarRecommendations
-            carRecommendationList={usedCarNewRecommendations}
+            carRecommendationList={usedCarNewRecommendationList}
             title="Rekomendasi Mobil Baru"
             onClick={() => {
               return
@@ -136,9 +164,9 @@ export const DescriptionTab = ({
           />
         )}
       </div>
-      {usedCarRecommendations?.length > 0 && (
+      {usedCarRecommendationList?.length > 0 && (
         <UsedCarRecommendations
-          usedCarRecommendationList={usedCarRecommendations}
+          usedCarRecommendationList={usedCarRecommendationList}
           title="Beli Mobil Bekas Berkualitas"
           onClick={() => {
             scrollToLeads()

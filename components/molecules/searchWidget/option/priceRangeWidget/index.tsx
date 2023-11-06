@@ -106,7 +106,7 @@ const PriceRangeWidget = ({
     }
   }
 
-  const onChangeSlider = (newValue: [number, number]) => {
+  const onChangeSlider = (newValue: number[]) => {
     setRawPrice({ min: newValue[0], max: newValue[1] })
     setPrice({ min: Currency(newValue[0]), max: Currency(newValue[1]) })
     if (newValue[0] > limitPrice.min) {
@@ -244,7 +244,7 @@ const PriceRangeWidget = ({
             min={limitPrice.min}
             max={limitPrice.max}
             step={1000000}
-            onChange={(e) => onChangeSlider}
+            onChange={onChangeSlider}
             defaultValue={[
               rawPrice.min || limitPrice.min,
               rawPrice.max || limitPrice.max,
