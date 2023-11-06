@@ -266,7 +266,7 @@ const FilterMobileUsedCar = ({
         plateFilter.length > 0 && {
           plate: String(plateFilter),
         }),
-      ...(funnelQuery.sortBy && { sortBy: String(funnelQuery.sortBy) }),
+      // ...(funnelQuery.sortBy && { sortBy: String(funnelQuery.sortBy) }),
     }
     if (!resetTmp) {
       if (
