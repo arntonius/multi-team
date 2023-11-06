@@ -174,10 +174,13 @@ export const CreditUsedCarTab = () => {
   )
 
   const [usedCarRecommendationList, setUsedCarRecommendationList] = useState([])
+  const [usedCarNewRecommendationList, setUsedCarNewRecommendationList] =
+    useState([])
 
   const [info, setInfo] = useState<any>({})
   const { funnelQuery, patchFunnelQuery } = useFunnelQueryData()
   const [isDisableCtaCalculate, setIsDisableCtaCalculate] = useState(true)
+  const [disableBtnCalculate, setDisableBtnCalculate] = useState(false)
   const [isValidatingEmptyField, setIsValidatingEmptyField] = useState(false)
   const [isLoadingCalculation, setIsLoadingCalculation] = useState(false)
   const [, setPromoCodeSessionStorage] =
@@ -436,8 +439,6 @@ export const CreditUsedCarTab = () => {
   }
 
   useEffect(() => {
-    // console.log
-    fetchCarRecommendations()
     const timeoutCountlyTracker = setTimeout(() => {
       if (!isSentCountlyPageView) {
         trackCountlyViewCreditTab()
@@ -520,6 +521,20 @@ export const CreditUsedCarTab = () => {
 
     setUsedCarRecommendationList(temp.slice(0, 10))
   }, [usedCarRecommendations, usedCarModelDetailsRes])
+
+  useEffect(() => {
+    const temp = usedCarNewRecommendations.filter(
+      (data: any) =>
+        (data.makeName + data.modelName)?.toLowerCase() !==
+        (
+          usedCarModelDetailsRes.brandName + usedCarModelDetailsRes.modelName
+        )?.toLowerCase(),
+    )
+
+    const result = temp.slice(0, 10)
+
+    setUsedCarNewRecommendationList(result)
+  }, [usedCarNewRecommendations, usedCarModelDetailsRes])
 
   useEffect(() => {
     if (chosenAssurance.label === '' || isDpTooLow || isDpExceedLimit) {
@@ -840,6 +855,7 @@ export const CreditUsedCarTab = () => {
     }
 
     setIsLoadingCalculation(true)
+    setDisableBtnCalculate(true)
     const payloadUsedCar: CreditCarCalculation = {
       nik: usedCarModelDetailsRes.nik,
       DP: dpValue,
@@ -880,9 +896,11 @@ export const CreditUsedCarTab = () => {
           )
         }
         setIsOpenToast(true)
+        setDisableBtnCalculate(false)
       })
       .finally(() => {
         setIsLoadingCalculation(false)
+        setDisableBtnCalculate(false)
       })
   }
 
@@ -1082,6 +1100,7 @@ export const CreditUsedCarTab = () => {
             size={ButtonSize.Big}
             onClick={onClickCalculate}
             style={{ marginTop: 32 }}
+            disabled={disableBtnCalculate}
             data-testid={elementId.PDP.Button.HitungKemampuan}
           >
             {isLoadingCalculation || isLoadingInsuranceAndPromo ? (
@@ -1133,9 +1152,9 @@ export const CreditUsedCarTab = () => {
       )}
 
       <div className={styles.wrapper}>
-        {usedCarNewRecommendations.length > 0 && (
+        {usedCarNewRecommendationList?.length > 0 && (
           <NewCarRecommendations
-            carRecommendationList={usedCarNewRecommendations}
+            carRecommendationList={usedCarNewRecommendationList}
             title="Rekomendasi Mobil Baru"
             onClick={() => {
               return
