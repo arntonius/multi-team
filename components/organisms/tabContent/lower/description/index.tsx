@@ -21,6 +21,7 @@ import { UsedPdpDataLocalContext } from 'pages/mobil-bekas/p/[[...slug]]'
 import dynamic from 'next/dynamic'
 
 import { getUsedCarRecommendations } from 'services/api'
+import { useAnnouncementBoxContext } from 'services/context/announcementBoxContext'
 
 const NewCarRecommendations = dynamic(
   () => import('components/organisms/NewCarRecommendations'),
@@ -51,6 +52,8 @@ export const DescriptionTab = ({
     usedCarRecommendations,
     usedCarNewRecommendations,
   } = useContext(UsedPdpDataLocalContext)
+
+  const { showAnnouncementBox } = useAnnouncementBoxContext()
 
   const {
     dataCombinationOfCarRecomAndModelDetailDefaultCity,
@@ -149,7 +152,15 @@ export const DescriptionTab = ({
       <div className={styles.wrapper}>
         <DescriptionSection scrollToLeads={scrollToLeads} />
       </div>
-      <div ref={toLeads} className={styles.reference} id="leads-form"></div>
+      <div
+        ref={toLeads}
+        className={
+          showAnnouncementBox
+            ? styles.reference
+            : styles.referenceWithoutAnnounce
+        }
+        id="leads-form"
+      ></div>
       <LeadsFormUsedCar />
       <div className={styles.wrapper}>
         {usedCarNewRecommendationList?.length > 0 && (
