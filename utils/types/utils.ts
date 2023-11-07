@@ -263,6 +263,16 @@ export type UsedCarRecommendation = {
   skuCode: string
   urlMedia: string
 }
+export type UsedNewCarRecommendation = {
+  id: string
+  modelName: string
+  makeName: string
+  variantTitle: string
+  url: string
+  priceValue: number
+  mainImageUrl: string
+  startInstallment: number
+}
 
 export interface CarRecommendationResponse {
   carRecommendations: CarRecommendation[]
@@ -383,6 +393,13 @@ export interface CityOtrOption {
   id?: string
 }
 
+export interface BrandList {
+  makeId: number | null
+  makeCode: string
+  makeName: string
+  logoUrl: string | null
+}
+
 export interface CarModelBasicInfo {
   id: string
   brand: string
@@ -461,6 +478,7 @@ export interface FormLCState {
         modelName: string
         modelImage: string
         brandName: string
+        loanRank: string
       }
     | undefined
   variant:
@@ -987,6 +1005,7 @@ export interface SendKualifikasiKreditRequest {
   loanRank: string
   platform: 'web'
   selectablePromo?: string[]
+  dob?: string
 }
 
 export interface SendMultiKualifikasiKredit {
@@ -1004,6 +1023,7 @@ export interface SendMultiKualifikasiKredit {
   transmission?: string
   limit?: number
   offset?: number
+  tsTrxCode?: string
 }
 
 export type MultKKCarVariant = CarVariantLoan & {
@@ -1149,4 +1169,16 @@ export interface SalesAgent {
   id: number
   salesCodeNpk: string
   salesName: string
+}
+
+export type RefinancingSecondLeadsData = {
+  carBrandText: string
+  carModelText: string
+  carYear: string
+  cityId: number
+  contactId: number | string
+  loanAmount: number
+  loanTenure: string
+  leasing: string
+  temanSevaTrxCode: string
 }

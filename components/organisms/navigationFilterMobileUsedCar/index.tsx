@@ -23,6 +23,7 @@ import {
   getUsedCarFunnelRecommendations,
 } from 'utils/handler/funnel'
 import { usedCar } from 'services/context/usedCarContext'
+import { getCarBrand } from 'utils/carModelUtils/carModelUtils'
 
 type NavFilterMobileUsedCarProps = {
   carlist?: any
@@ -58,6 +59,7 @@ export const NavigationFilterMobileUsedCar = ({
   const { funnelQuery, patchFunnelQuery } = useFunnelQueryUsedCarData()
   const { sortBy } = funnelQuery
   const router = useRouter()
+
   const filterSortOption = sortOptionsUsedCar.filter(
     (x) => x.value === sortBy,
   )[0]
@@ -196,7 +198,7 @@ export const NavigationFilterMobileUsedCar = ({
         yearEnd: filter.yearEnd,
         mileageStart: filter.mileageStart,
         mileageEnd: filter.mileageEnd,
-        cityId: filter.cityId,
+        // cityId: filter.cityId,
         transmission:
           filter.transmission.length > 0
             ? String(filter.transmission).replace(' ', ',')
@@ -204,7 +206,7 @@ export const NavigationFilterMobileUsedCar = ({
         // sortBy: sortBy,
         brand:
           filter.brand.length > 0 ? String(filter.brand).replace(' ', ',') : '',
-        sortBy: String(funnelQuery.sortBy) || 'lowToHigh',
+        // sortBy: funnelQuery.sortBy && String(funnelQuery.sortBy),
       }
 
       isOTO

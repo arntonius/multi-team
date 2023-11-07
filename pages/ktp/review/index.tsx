@@ -1,16 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styles from 'styles/pages/ktp-review.module.scss'
-
 import clsx from 'clsx'
-
 import elementId from 'helpers/elementIds'
-
 import Fuse from 'fuse.js'
 import { useProtectPage } from 'utils/hooks/useProtectPage/useProtectPage'
 import { useRouter } from 'next/router'
 import {
   CityOtrOption,
   FormControlValue,
+  FormLCState,
   GetCustomerKtpSeva,
   Option,
 } from 'utils/types/utils'
@@ -26,17 +24,22 @@ import {
 } from 'utils/httpUtils/customerUtils'
 import {
   cameraKtpUrl,
+  creditQualificationResultUrl,
+  creditQualificationReviewUrl,
+  formKtpUrl,
   leasingCompanyOption,
+  multiResultCreditQualificationPageUrl,
   uploadKtpSpouseQueryParam,
 } from 'utils/helpers/routes'
 import { IconRadioButtonActive } from 'components/atoms/icon/RadioButtonActive'
 import { IconRadioButtonInactive } from 'components/atoms/icon/RadioButtonInactive'
 import {
   IconAdd,
+  IconClose,
   IconSquareCheckBox,
   IconSquareCheckedBox,
 } from 'components/atoms/icon'
-import { Button, InputSelect, Skeleton } from 'components/atoms'
+import { Button, InputSelect, Overlay, Skeleton } from 'components/atoms'
 import { addZero, monthId } from 'utils/handler/date'
 import HeaderCreditClasificationMobile from 'components/organisms/headerCreditClasificationMobile'
 import { ProgressBar } from 'components/atoms/progressBar'
@@ -45,6 +48,17 @@ import { ToastType } from 'utils/types/models'
 import Seo from 'components/atoms/seo'
 import { defaultSeoImage } from 'utils/helpers/const'
 import { getCities } from 'services/api'
+import {
+  valueForUserTypeProperty,
+  valueForInitialPageProperty,
+  trackEventCountly,
+} from 'helpers/countly/countly'
+import { CountlyEventNames } from 'helpers/countly/eventNames'
+import { useTranslation } from 'react-i18next'
+import { useFinancialQueryData } from 'services/context/finnancialQueryContext'
+import { useValidateUserFlowKKIA } from 'utils/hooks/useValidateUserFlowKKIA'
+import { defineRouteName } from 'utils/navigate'
+import Tooltip from 'antd/lib/tooltip'
 
 const searchOption = {
   keys: ['label'],
@@ -55,6 +69,15 @@ const searchOption = {
 
 export default function KtpReview() {
   useProtectPage()
+  useValidateUserFlowKKIA([
+    creditQualificationReviewUrl,
+    multiResultCreditQualificationPageUrl,
+    creditQualificationResultUrl,
+    formKtpUrl,
+    cameraKtpUrl,
+  ])
+  const commonErrorMessage =
+    'Mohon maaf, terjadi kendala jaringan silahkan coba kembali lagi'
   const router = useRouter()
   const [allKtpData, setAllKtpData] = useState<GetCustomerKtpSeva[]>([])
   const [isLoadingKtpData, setIsLoadingKtpData] = useState(false)
@@ -90,6 +113,81 @@ export default function KtpReview() {
     [],
   )
   const { showToast, RenderToast } = useToast()
+  const [isShowPersonalDomicileTooltip, setIsShowPersonalDomicileTooltip] =
+    useState(false)
+  const [isUserNeverSetPersonalDomicile, setIsUserNeverSetPersonalDomicile] =
+    useState(false)
+  const [
+    isErrorPersonalDomicileFieldEmpty,
+    setIsErrorPersonalDomicileFieldEmpty,
+  ] = useState(false)
+  const [isErrorSpouseDomicileFieldEmpty, setIsErrorSpouseDomicileFieldEmpty] =
+    useState(false)
+  const domicileFieldRef = useRef<HTMLDivElement | null>(null)
+  const kkForm: FormLCState | null = getSessionStorage(
+    SessionStorageKey.KalkulatorKreditForm,
+  )
+
+  const { fincap } = useFinancialQueryData()
+  const kkFlowType = getSessionStorage(SessionStorageKey.KKIAFlowType)
+  const isInPtbcFlow = kkFlowType && kkFlowType === 'ptbc'
+
+  const trackKTPConfirmation = ({
+    ktpContinue = false,
+    allKtpDataAsParameter = [],
+  }: {
+    ktpContinue: boolean
+    allKtpDataAsParameter: Array<any>
+  }) => {
+    const prevPage = getSessionStorage(SessionStorageKey.PreviousPage) as any
+    const brand = kkForm?.model?.brandName || 'Null'
+    const model = kkForm?.model
+      ? kkForm?.model?.modelName.replace(brand, '')
+      : 'Null'
+    const track = {
+      KTP_PROFILE: allKtpDataAsParameter.length > 1 ? 'Main + Spouse' : 'Main',
+      PAGE_REFERRER:
+        prevPage && prevPage.refer ? defineRouteName(prevPage.refer) : 'Null',
+      PELUANG_KREDIT_BADGE: fincap
+        ? kkForm && kkForm.model?.loanRank
+          ? kkForm.model.loanRank === 'Green'
+            ? 'Mudah disetujui'
+            : 'Sulit disetujui'
+          : 'Null'
+        : 'Null',
+      CAR_BRAND: brand,
+      CAR_MODEL: model,
+    }
+
+    const mainKTP = { MAIN_KTP: isSpouseAsMainKtp ? 'Spouse' : 'Main' }
+
+    const initialUser = {
+      USER_TYPE: valueForUserTypeProperty(),
+      INITIAL_PAGE: valueForInitialPageProperty(),
+    }
+
+    if (ktpContinue) {
+      trackEventCountly(CountlyEventNames.WEB_KTP_PAGE_CONFIRMATION_CTA_CLICK, {
+        ...track,
+        ...mainKTP,
+      })
+    } else {
+      if (isInPtbcFlow) {
+        trackEventCountly(
+          CountlyEventNames.WEB_PTBC_KTP_PAGE_CONFIRMATION_VIEW,
+          {
+            KTP_PROFILE:
+              allKtpDataAsParameter.length > 1 ? 'Main + Spouse' : 'Main',
+          },
+        )
+      } else {
+        trackEventCountly(CountlyEventNames.WEB_KTP_PAGE_CONFIRMATION_VIEW, {
+          ...track,
+          ...initialUser,
+        })
+      }
+    }
+  }
 
   useEffect(() => {
     getCustomerInfoData()
@@ -145,9 +243,17 @@ export default function KtpReview() {
       const responsePersonalKtp = await fetchCustomerKtp() // when fetch failed, will return null
       const responseSpouseKtp = await fetchCustomerSpouseKtp() // when fetch failed, will return null
       const customerPersonalKtpData: GetCustomerKtpSeva[] | null =
-        responsePersonalKtp?.data
+        responsePersonalKtp
       const customerSpouseKtpData: GetCustomerKtpSeva[] | null =
-        responseSpouseKtp?.data
+        responseSpouseKtp
+      if (
+        customerPersonalKtpData &&
+        customerPersonalKtpData.length > 0 &&
+        !customerPersonalKtpData[0].city
+      ) {
+        setIsShowPersonalDomicileTooltip(true)
+        setIsUserNeverSetPersonalDomicile(true)
+      }
 
       const tempArr = []
       if (
@@ -209,11 +315,14 @@ export default function KtpReview() {
         const index = tempArr.findIndex((item) => !item.isSpouse)
         tempArr.push(...tempArr.splice(0, index))
       }
-
       setAllKtpData(tempArr)
       setIsLoadingKtpData(false)
-    } catch (error: any) {
-      console.error('qwe error', error)
+
+      trackKTPConfirmation({
+        ktpContinue: false,
+        allKtpDataAsParameter: tempArr,
+      })
+    } catch (e) {
       showToast()
       // if fetched ktp data not exist, it will return "null", wont get into catch block
     }
@@ -234,8 +343,8 @@ export default function KtpReview() {
         label: '',
         value: '',
       }
-      tempObj.value = item?.cityName
-      tempObj.label = item?.cityName
+      tempObj.value = item.cityName
+      tempObj.label = item.cityName
       tempArray.push(tempObj)
     }
     return tempArray
@@ -300,6 +409,9 @@ export default function KtpReview() {
     } else if (ktpData.isSpouse) {
       setIsUsingSpouseKtpDomicile((prev) => !prev)
     }
+    trackEventCountly(
+      CountlyEventNames.WEB_KTP_PAGE_CONFIRMATION_SAME_CITY_CLICK,
+    )
   }
 
   const onChangeInputHandler = (value: string, ktpData: GetCustomerKtpSeva) => {
@@ -311,6 +423,7 @@ export default function KtpReview() {
           .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
           .join(' '),
       )
+      setIsErrorPersonalDomicileFieldEmpty(false)
     } else if (ktpData.isSpouse) {
       setSpouseDomicileValue(
         value
@@ -319,6 +432,7 @@ export default function KtpReview() {
           .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
           .join(' '),
       )
+      setIsErrorSpouseDomicileFieldEmpty(false)
     }
   }
 
@@ -350,25 +464,14 @@ export default function KtpReview() {
   }
 
   const onClickAddSpouseKtp = () => {
+    saveSessionStorage(
+      SessionStorageKey.LastVisitedPageKKIAFlow,
+      window.location.pathname,
+    )
+    trackEventCountly(
+      CountlyEventNames.WEB_KTP_PAGE_CONFIRMATION_ADD_SPOUSE_CLICK,
+    )
     router.push(cameraKtpUrl + uploadKtpSpouseQueryParam)
-  }
-
-  const getButtonDisabledStatus = () => {
-    if (
-      !isSpouseAsMainKtp &&
-      !isUsingPersonalKtpDomicile &&
-      !personalDomicileValue
-    ) {
-      return true
-    } else if (
-      isSpouseAsMainKtp &&
-      !isUsingSpouseKtpDomicile &&
-      !spouseDomicileValue
-    ) {
-      return true
-    } else {
-      return false
-    }
   }
 
   const getMainKtpDomicileData = () => {
@@ -385,7 +488,44 @@ export default function KtpReview() {
     }
   }
 
+  const scrollToCityField = () => {
+    if (domicileFieldRef) {
+      domicileFieldRef.current?.scrollIntoView({
+        block: 'center',
+        inline: 'center',
+      })
+    }
+  }
+
+  const validateForm = () => {
+    if (
+      !isSpouseAsMainKtp &&
+      !isUsingPersonalKtpDomicile &&
+      !personalDomicileValue
+    ) {
+      setIsErrorPersonalDomicileFieldEmpty(true)
+      scrollToCityField()
+      return false
+    } else if (
+      isSpouseAsMainKtp &&
+      !isUsingSpouseKtpDomicile &&
+      !spouseDomicileValue
+    ) {
+      setIsErrorSpouseDomicileFieldEmpty(true)
+      scrollToCityField()
+      return false
+    } else {
+      return true
+    }
+  }
+
   const onClickNextButton = () => {
+    const formValidationResult = validateForm()
+
+    if (!formValidationResult) {
+      return
+    }
+
     const tempObj = {
       isUsingTheSameDomicile: isSpouseAsMainKtp
         ? isUsingSpouseKtpDomicile
@@ -404,8 +544,13 @@ export default function KtpReview() {
       SessionStorageKey.MainKtpType,
       isSpouseAsMainKtp ? 'spouse' : 'personal',
     )
-
-    // TODO @toni : change to dynamic value
+    sessionStorage.removeItem(SessionStorageKey.LastVisitedPageKKIAFlow)
+    setTimeout(() => {
+      trackKTPConfirmation({
+        ktpContinue: true,
+        allKtpDataAsParameter: allKtpData,
+      })
+    }, 500)
     router.push(leasingCompanyOption)
   }
 
@@ -429,6 +574,25 @@ export default function KtpReview() {
     }
   }
 
+  const handleCloseTooltip = () => {
+    setIsShowPersonalDomicileTooltip(false)
+  }
+
+  const renderTooltipContent = () => {
+    return (
+      <div className={styles.tooltipContent}>
+        <span className={styles.tootipText}>Lengkapi data di bawah ini</span>
+        <div
+          className={styles.iconWrapper}
+          role="button"
+          onClick={handleCloseTooltip}
+        >
+          <IconClose width={13} height={13} color="#FFFFFF" />
+        </div>
+      </div>
+    )
+  }
+
   const renderDomicileField = (ktpData: GetCustomerKtpSeva) => {
     if (
       !ktpData.isSpouse &&
@@ -436,22 +600,61 @@ export default function KtpReview() {
       !isUsingPersonalKtpDomicile
     ) {
       return (
-        <div className={styles.domicileFieldWrapper}>
-          <span className={styles.fieldLabel}>Pilih Kota Domisili</span>
-          <InputSelect
-            ref={inputPersonalDomicileRef}
-            value={personalDomicileValue}
-            options={personalSuggestionsLists}
-            onChange={(value) => onChangeInputHandler(value, ktpData)}
-            placeholderText={'Pilih Kota'}
-            isAutoFocus={false}
-            noOptionsText="Kota tidak ditemukan"
-            onBlurInput={() => onBlurHandler(ktpData)}
-            onChoose={(item) => onChooseHandler(item, ktpData)}
-            onReset={() => onResetHandler(ktpData)}
-            datatestid={elementId.Homepage.GlobalHeader.FieldInputCity}
+        <>
+          <Overlay
+            isShow={isShowPersonalDomicileTooltip}
+            onClick={handleCloseTooltip}
+            zIndex={998}
           />
-        </div>
+          <div style={{ width: '100%' }}>
+            <Tooltip
+              title={renderTooltipContent()}
+              color="#246ED4"
+              placement="top"
+              className="custom-tooltip-ktp-review-domicile-field"
+              open={isShowPersonalDomicileTooltip}
+              overlayClassName="custom-tooltip-ktp-review-domicile-field"
+            >
+              <div
+                className={styles.domicileFieldWrapper}
+                ref={domicileFieldRef}
+              >
+                <span className={styles.fieldLabel}>Pilih Kota Domisili</span>
+                <div
+                  style={{ width: '100%' }}
+                  className={
+                    isShowPersonalDomicileTooltip ? styles.bordered : ''
+                  }
+                  onClick={handleCloseTooltip}
+                >
+                  <InputSelect
+                    ref={inputPersonalDomicileRef}
+                    value={personalDomicileValue}
+                    options={personalSuggestionsLists}
+                    onChange={(value) => onChangeInputHandler(value, ktpData)}
+                    placeholderText={'Pilih Kota'}
+                    isAutoFocus={false}
+                    noOptionsText="Kota tidak ditemukan"
+                    onBlurInput={() => onBlurHandler(ktpData)}
+                    onFocusInput={() => {
+                      trackEventCountly(
+                        CountlyEventNames.WEB_KTP_PAGE_CONFIRMATION_DOMICILE_CITY_CLICK,
+                        { KTP_PROFILE: 'Main' },
+                      )
+                    }}
+                    onChoose={(item) => onChooseHandler(item, ktpData)}
+                    onReset={() => onResetHandler(ktpData)}
+                    datatestid={elementId.Homepage.GlobalHeader.FieldInputCity}
+                    isError={isErrorPersonalDomicileFieldEmpty}
+                  />
+                </div>
+                {isErrorPersonalDomicileFieldEmpty ? (
+                  <span className={styles.errorMessage}>Wajib diisi</span>
+                ) : null}
+              </div>
+            </Tooltip>
+          </div>
+        </>
       )
     } else if (
       ktpData.isSpouse &&
@@ -469,11 +672,21 @@ export default function KtpReview() {
             placeholderText={'Pilih Kota'}
             isAutoFocus={false}
             noOptionsText="Kota tidak ditemukan"
+            onFocusInput={() => {
+              trackEventCountly(
+                CountlyEventNames.WEB_KTP_PAGE_CONFIRMATION_DOMICILE_CITY_CLICK,
+                { KTP_PROFILE: 'Spouse' },
+              )
+            }}
             onBlurInput={() => onBlurHandler(ktpData)}
             onChoose={(item) => onChooseHandler(item, ktpData)}
             onReset={() => onResetHandler(ktpData)}
             datatestid={elementId.Homepage.GlobalHeader.FieldInputCity}
+            isError={isErrorSpouseDomicileFieldEmpty}
           />
+          {isErrorSpouseDomicileFieldEmpty ? (
+            <span className={styles.errorMessage}>Wajib diisi</span>
+          ) : null}
         </div>
       )
     }
@@ -491,6 +704,11 @@ export default function KtpReview() {
   }
 
   const renderKtpDataSection = (ktpData: GetCustomerKtpSeva, index: number) => {
+    const isShowCheckbox = ktpData.isSpouse
+      ? ktpData.isSpouse === isSpouseAsMainKtp
+      : ktpData.isSpouse === isSpouseAsMainKtp &&
+        !isUserNeverSetPersonalDomicile
+
     return (
       <div key={index} className={styles.ktpSection}>
         <div className={styles.ktpHeaderSection}>
@@ -533,38 +751,6 @@ export default function KtpReview() {
           </div>
           <div className={styles.ktpDataRow}>
             <span className={clsx(styles.ktpDataText, styles.ktpDataRowLeft)}>
-              Alamat
-            </span>
-            <span className={clsx(styles.ktpDataText, styles.ktpDataRowRight)}>
-              {ktpData.address}
-            </span>
-          </div>
-          <div className={styles.ktpDataRow}>
-            <span className={clsx(styles.ktpDataText, styles.ktpDataRowLeft)}>
-              RT/RW
-            </span>
-            <span className={clsx(styles.ktpDataText, styles.ktpDataRowRight)}>
-              {ktpData.rtrw}
-            </span>
-          </div>
-          <div className={styles.ktpDataRow}>
-            <span className={clsx(styles.ktpDataText, styles.ktpDataRowLeft)}>
-              Kel/Desa
-            </span>
-            <span className={clsx(styles.ktpDataText, styles.ktpDataRowRight)}>
-              {ktpData.keldesa}
-            </span>
-          </div>
-          <div className={styles.ktpDataRow}>
-            <span className={clsx(styles.ktpDataText, styles.ktpDataRowLeft)}>
-              Kecamatan
-            </span>
-            <span className={clsx(styles.ktpDataText, styles.ktpDataRowRight)}>
-              {ktpData.kecamatan}
-            </span>
-          </div>
-          <div className={styles.ktpDataRow}>
-            <span className={clsx(styles.ktpDataText, styles.ktpDataRowLeft)}>
               Kota
             </span>
             <span className={clsx(styles.ktpDataText, styles.ktpDataRowRight)}>
@@ -588,7 +774,7 @@ export default function KtpReview() {
             </span>
           </div>
 
-          {ktpData.isSpouse === isSpouseAsMainKtp ? (
+          {isShowCheckbox ? (
             <div className={styles.ktpDataRow}>
               <span className={clsx(styles.ktpDataText, styles.ktpDataRowLeft)}>
                 Kota Domisili
@@ -623,7 +809,6 @@ export default function KtpReview() {
         <div className={styles.progressBarWrapper}>
           <ProgressBar percentage={80} colorPrecentage="#51A8DB" />
         </div>
-
         {isLoadingKtpData ? (
           <div className={clsx(styles.content, styles.shimmerWrapper)}>
             {[...Array(15)].map((x, i) => (
@@ -666,7 +851,6 @@ export default function KtpReview() {
               <Button
                 version={ButtonVersion.PrimaryDarkBlue}
                 size={ButtonSize.Big}
-                disabled={getButtonDisabledStatus()}
                 onClick={onClickNextButton}
               >
                 Selanjutnya
@@ -674,14 +858,13 @@ export default function KtpReview() {
             </div>
           </div>
         )}
-
-        <RenderToast
-          type={ToastType.Error}
-          message="Oops.. Sepertinya terjadi kesalahan. Coba lagi nanti"
-          overridePositionToBottom={true}
-          duration={3}
-        />
       </div>
+      <RenderToast
+        type={ToastType.Error}
+        message={commonErrorMessage}
+        overridePositionToBottom={true}
+        duration={3}
+      />
     </>
   )
 }

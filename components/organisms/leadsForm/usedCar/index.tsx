@@ -23,6 +23,7 @@ import { useRouter } from 'next/router'
 import { useCar } from 'services/context/carContext'
 import { ButtonVersion, ButtonSize } from 'components/atoms/button'
 import {
+  LanguageCode,
   LeadsUsedCar,
   LocalStorageKey,
   SessionStorageKey,
@@ -48,9 +49,17 @@ import { getCustomerInfoSeva } from 'utils/handler/customer'
 import { UsedPdpDataLocalContext } from 'pages/mobil-bekas/p/[[...slug]]'
 import { LeadsActionParam, PageOriginationName } from 'utils/types/props'
 import { SelectedCalculateLoanUsedCar } from 'utils/types/utils'
+import { replacePriceSeparatorByLocalization } from 'utils/handler/rupiah'
 
 const SupergraphicLeft = '/revamp/illustration/supergraphic-small.webp'
 const SupergraphicRight = '/revamp/illustration/supergraphic-large.webp'
+
+interface ChoosenAssurance {
+  label: string
+  name: string
+  tenureAR: number
+  tenureTLO: number
+}
 
 interface PropsLeadsForm {
   otpStatus?: any
@@ -58,13 +67,16 @@ interface PropsLeadsForm {
   onVerify?: (e: any) => void
   onFailed?: (e: any) => void
   selectedLoan?: SelectedCalculateLoanUsedCar | null
+  chosenAssurance?: ChoosenAssurance | null
 }
 
 export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
   toLeads,
   selectedLoan = null,
+  chosenAssurance = null,
 }) => {
-  const toastSuccessInfo = 'Agen kami akan segera menghubungimu dalam 1x24 jam.'
+  const toastSuccessInfo =
+    'Agen Setir Kanan akan menghubungi kamu dalam 1x24 jam.'
   const [name, setName] = useState<string>('')
   const [phone, setPhone] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -77,7 +89,9 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
   const { usedCarModelDetailsRes } = useContext(UsedPdpDataLocalContext)
   const carLeads = usedCarModelDetailsRes
 
-  const infoCar = `${usedCarModelDetailsRes.variantTitle} ${usedCarModelDetailsRes.nik}`
+  const modelName =
+    carLeads?.modelName.slice(0, 1) + carLeads?.modelName.slice(1).toLowerCase()
+  const infoCar = `${carLeads?.brandName}  ${modelName} ${carLeads?.variantName} ${carLeads?.nik}`
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
@@ -205,7 +219,12 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
         selectedTenure: selectedLoan?.tenor,
         selectedTdp: selectedLoan?.totalDP,
         selectedInstallment: selectedLoan?.totalInstallment,
-        priceFormatedNumber: carLeads.priceValue,
+        priceFormatedNumber:
+          'Rp. ' +
+          replacePriceSeparatorByLocalization(
+            carLeads.priceValue,
+            LanguageCode.id,
+          ),
         carId: carLeads.carId,
         makeName: carLeads.brandName,
         modelName: carLeads.modelName,
@@ -215,7 +234,7 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
         engineCapacity: carLeads.carSpecifications.find(
           (item: any) => item.specCode === 'engine-capacity',
         ).value,
-        priceValue: carLeads.priceValue,
+        priceValue: carLeads.priceValue.split('.')[0],
         seat: carLeads.seat,
         variantTitle: carLeads.variantTitle,
         transmission: carLeads.carSpecifications.find(
@@ -232,6 +251,10 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
         taxDate: carLeads.taxDate,
         partnerName: carLeads.partnerName,
         partnerId: carLeads.partnerId,
+        cityId: carLeads.cityId,
+        sevaUrl: carLeads.sevaUrl,
+        tenureAR: chosenAssurance?.tenureAR,
+        tenureTLO: chosenAssurance?.tenureTLO,
       }
 
       try {
@@ -256,7 +279,12 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
             : LeadsUsedCar.USED_CAR_PDP_LEADS_FORM,
         customerName: name,
         phoneNumber: phone,
-        priceFormatedNumber: carLeads.priceValue,
+        priceFormatedNumber:
+          'Rp. ' +
+          replacePriceSeparatorByLocalization(
+            carLeads.priceValue,
+            LanguageCode.id,
+          ),
         carId: carLeads.carId,
         makeName: carLeads.brandName,
         modelName: carLeads.modelName,
@@ -266,7 +294,7 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
         engineCapacity: carLeads.carSpecifications.find(
           (item: any) => item.specCode === 'engine-capacity',
         ).value,
-        priceValue: carLeads.priceValue,
+        priceValue: carLeads.priceValue.split('.')[0],
         seat: carLeads.seat,
         variantTitle: carLeads.variantTitle,
         transmission: carLeads.carSpecifications.find(
@@ -283,6 +311,8 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
         taxDate: carLeads.taxDate,
         partnerName: carLeads.partnerName,
         partnerId: carLeads.partnerId,
+        cityId: carLeads.cityId,
+        sevaUrl: carLeads.sevaUrl,
       }
 
       try {
@@ -372,9 +402,7 @@ export const LeadsFormUsedCar: React.FC<PropsLeadsForm> = ({
         </div>
 
         <div className={styles.foreground}>
-          <h2 className={styles.textHeading}>
-            Yuk, cari tahu & tanya lebih lanjut tentang {infoCar}
-          </h2>
+          <h2 className={styles.textHeading}>Tanyakan unit {infoCar}</h2>
           <div className={styles.form}>
             <Input
               dataTestId={elementId.Field.FullName}

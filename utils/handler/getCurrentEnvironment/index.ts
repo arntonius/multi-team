@@ -30,6 +30,7 @@ const FirebaseAPIKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY
 const environments = {
   localhost: {
     name: 'Localhost',
+    rootPath: 'localhost',
     displayDebugErrors: true,
     firebaseConfigs: {
       apiKey: 'AIzaSyBi0MBSiB88xCvbti1T8plNTreX-bzZfAw',
@@ -51,6 +52,7 @@ const environments = {
   },
   development: {
     name: 'Development',
+    rootPath: 'https://dev.sevaio.xyz',
     displayDebugErrors: true,
     firebaseConfigs: {
       apiKey: 'AIzaSyBi0MBSiB88xCvbti1T8plNTreX-bzZfAw',
@@ -72,6 +74,7 @@ const environments = {
 
   staging: {
     name: 'Staging',
+    rootPath: 'https://staging.sevaio.xyz',
     displayDebugErrors: true,
     firebaseConfigs: {
       apiKey: FirebaseAPIKey,
@@ -92,6 +95,7 @@ const environments = {
 
   production: {
     name: 'Production',
+    rootPath: 'https://seva.id',
     displayDebugErrors: false,
     firebaseConfigs: {
       apiKey: FirebaseAPIKey,

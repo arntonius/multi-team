@@ -92,6 +92,10 @@ export interface CreateUnverifiedLeadRequestNewUsedCar {
   taxDate?: string
   partnerName?: string
   partnerId?: number
+  sevaUrl?: string
+  cityId?: number
+  tenureAR?: number
+  tenureTLO?: number
 }
 
 const getCustomerAssistantDetails = (phoneNumber: string) => {
@@ -120,13 +124,12 @@ export const createUnverifiedLeadNewUsedCar = (
   const UTMTags = getLocalStorage<UTMTagsData>(LocalStorageKey.UtmTags)
   return postUnverifiedLeadsNewUsedCar({
     ...requestBody,
-    // utmSource: UTMTags?.utm_source,
-    // utmMedium: UTMTags?.utm_medium,
-    // utmCampaign: UTMTags?.utm_campaign,
-    // utmId: UTMTags?.utm_id,
-    // utmContent: null, // temporary
-    // utmTerm: UTMTags?.utm_term,
-    // adSet: UTMTags?.adset,
+    utmSource: UTMTags?.utm_source ? UTMTags.utm_source : null,
+    utmMedium: UTMTags?.utm_medium ? UTMTags.utm_medium : null,
+    utmCampaign: UTMTags?.utm_campaign ? UTMTags.utm_campaign : null,
+    utmContent: null, // temporary
+    utmTerm: UTMTags?.utm_term ? UTMTags.utm_term : null,
+    utmAdset: UTMTags?.adset ? UTMTags.adset : null,
   })
 }
 

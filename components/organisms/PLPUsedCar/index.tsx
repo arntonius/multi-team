@@ -90,8 +90,13 @@ export const PLPUsedCar = ({
   isOTO = false,
 }: PLPProps) => {
   const router = useRouter()
-  const { recommendation, saveRecommendation, totalItems, saveTotalItems } =
-    usedCar()
+  const {
+    recommendation,
+    saveRecommendation,
+    totalItems,
+    saveTotalItems,
+    cityList,
+  } = usedCar()
   const [alternativeCars, setAlternativeCar] = useState<CarRecommendation[]>([])
   const {
     bodyType,
@@ -177,7 +182,8 @@ export const PLPUsedCar = ({
   })
   const user: string | null = getLocalStorage(LocalStorageKey.sevaCust)
   const isCurrentCitySameWithSSR = getCity().cityCode === defaultCity.cityCode
-  const [cityListPLP, setCityListPLP] = useState([])
+  const [cityListPLP, setCityListPLP] = useState(cityList)
+  funnelQuery.brand = brand?.split(',').map((item) => getCarBrand(item)) || []
 
   const fetchMoreData = () => {
     if (sampleArray.items.length >= totalItems!) {
@@ -187,8 +193,24 @@ export const PLPUsedCar = ({
       if (sampleArray.items.length >= 10 * page) {
         const pagePlus = page + 1
         setPage(pagePlus)
+        const queryParam: any = {
+          brand:
+            brand?.split(',')?.map((item) => getCarBrand(item).toLowerCase()) ||
+            [],
+          priceStart: priceStart ? priceStart : '',
+          priceEnd: priceEnd ? priceEnd : '',
+          yearEnd: yearEnd ? yearEnd : '',
+          yearStart: yearStart ? yearStart : '',
+          mileageEnd: mileageEnd ? mileageEnd : '',
+          mileageStart: mileageStart ? mileageStart : '',
+          transmission: transmission ? transmission?.split(',') : [],
+          modelName: modelName ? modelName?.split('%2C') : [],
+          sortBy: sortBy || 'lowToHigh',
+          page: pagePlus || '1',
+          perPage: '10',
+        }
         getUsedCarFunnelRecommendations({
-          ...tempQuery,
+          ...(tempQuery ? tempQuery : queryParam),
           page: pagePlus,
         }).then((response: any) => {
           if (response) {
@@ -201,6 +223,10 @@ export const PLPUsedCar = ({
       clearTimeout(timeout)
     }, 1000)
   }
+
+  useEffect(() => {
+    return () => cleanEffect()
+  }, [])
 
   const cleanEffect = () => {
     if (!isCurrentCitySameWithSSR) {
@@ -432,127 +458,6 @@ export const PLPUsedCar = ({
     setPage(1)
   }, [sampleArray])
 
-  useEffect(() => {
-    if (isActive) {
-      trackEventCountly(CountlyEventNames.WEB_HAMBURGER_OPEN, {
-        PAGE_ORIGINATION: getPageName(),
-        LOGIN_STATUS: isLogin,
-        USER_TYPE: valueForUserTypeProperty(),
-      })
-    }
-
-    if (!isCurrentCitySameWithSSR || recommendation.length === 0) {
-      const params = new URLSearchParams()
-      getCity().cityCode && params.append('city', getCity().cityCode as string)
-      getMinMaxYearsUsedCar('').then((response) => {
-        if (response.data) {
-          setMinMaxYear({
-            minYearValue: response.data.minYears,
-            maxYearValue: response.data.maxYears,
-          })
-        }
-      })
-      getMinMaxMileageUsedCar('').then((response) => {
-        if (response.data) {
-          setMinMaxMileage({
-            minMileageValue: response.data.minMileages,
-            maxMileageValue: response.data.maxMileages,
-          })
-        }
-      })
-      getMinMaxPriceUsedCar('').then((response) => {
-        if (response.data) {
-          const minmaxPriceData = response.data
-          minmaxPriceData.minPrice = parseInt(
-            minmaxPriceData.minPrice.replace(/^0+/, ''),
-          )
-          minmaxPriceData.maxPrice = parseInt(
-            minmaxPriceData.maxPrice.replace(/^0+/, ''),
-          )
-          setMinMaxPrice({
-            minPriceValue: minmaxPriceData.minPrice,
-            maxPriceValue: minmaxPriceData.maxPrice,
-          })
-          const queryParam: any = {
-            brand:
-              brand
-                ?.split(',')
-                ?.map((item) => getCarBrand(item).toLowerCase()) || '',
-            priceStart: priceStart ? priceStart : '',
-            priceEnd: priceEnd ? priceEnd : '',
-            yearEnd: yearEnd ? yearEnd : '',
-            yearStart: yearStart ? yearStart : '',
-            mileageEnd: mileageEnd ? mileageEnd : '',
-            mileageStart: mileageStart ? mileageStart : '',
-            transmission: transmission ? transmission?.split(',') : [],
-            modelName: modelName ? modelName?.split('%2C') : [],
-            // cityId: cityId ? cityId?.split(',') : [],
-            sortBy: sortBy || 'lowToHigh',
-            page: page || '1',
-            perPage: '10',
-          }
-
-          setTempQuery(queryParam)
-
-          getUsedCarFunnelRecommendations(queryParam)
-            .then((response: any) => {
-              if (response) {
-                patchFunnelQuery(queryParam)
-                saveRecommendation(response.carData)
-                setResultMinMaxPrice({
-                  resultMinPrice: response.lowestCarPrice || 0,
-                  resultMaxPrice: response.highestCarPrice || 0,
-                })
-                saveTotalItems(response.totalItems)
-                setPage(1)
-                setSampleArray({
-                  items: response.carData,
-                })
-                setTimeout(() => {
-                  checkFincapBadge(response.carData)
-                }, 1000)
-              }
-              setShowLoading(false)
-            })
-            .catch(() => {
-              setShowLoading(false)
-              router.push({
-                pathname: usedCarResultUrl,
-              })
-            })
-          getUsedCarFunnelRecommendations({ ...queryParam, brand: [] }).then(
-            (response: any) => {
-              if (response) setAlternativeCar(response.carData)
-            },
-          )
-        }
-      })
-      getMinMaxPrice('', { params })
-        .then((response) => {
-          if (response) {
-          }
-        })
-        .catch()
-    } else {
-      saveTotalItems(totalItems!)
-      saveRecommendation(recommendation)
-      const queryParam: any = {
-        brand: brand?.split(',')?.map((item) => getCarBrand(item)) || '',
-        modelName: modelName?.split('%2C') || '',
-        priceStart: priceStart,
-        priceEnd: priceEnd,
-        yearStart: yearStart,
-        yearEnd: yearEnd,
-        sortBy: sortBy || 'lowToHigh',
-      }
-      patchFunnelQuery(queryParam)
-      setTimeout(() => {
-        // checkFincapBadge(recommendation.slice(0, 10))
-      }, 1000)
-    }
-    return () => cleanEffect()
-  }, [])
-
   const onCloseResultInfo = () => {
     setOpenLabelResultInfo(false)
     saveLocalStorage(LocalStorageKey.flagResultFilterInfoPLP, 'true')
@@ -662,7 +567,7 @@ export const PLPUsedCar = ({
           isOTO={isOTO}
         />
 
-        {!showLoading && sampleArray?.items?.length === 0 ? (
+        {sampleArray?.items?.length === 0 ? (
           <>
             <NavigationFilterMobileUsedCar
               setRecommendations={saveRecommendation}

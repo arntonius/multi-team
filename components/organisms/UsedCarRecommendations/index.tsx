@@ -113,12 +113,12 @@ export default function UsedCarRecommendations({
     <div
       className={`${styles.alternativeCarContainer} ${additionalContainerStyle}`}
     >
-      <h3
+      <h2
         className={styles.alternativeCarTitle}
         data-testid={elementId.LoanCalculator.RekomendasiFinansial}
       >
         {title}
-      </h3>
+      </h2>
       <div>
         <Swiper
           slidesPerView={'auto'}
@@ -132,14 +132,18 @@ export default function UsedCarRecommendations({
               <AlternativeUsedCarRecomendationCard
                 key={index}
                 recommendation={item}
-                onClickLabel={onClick}
+                onClickLabel={() => {
+                  onClick()
+                }}
                 label={<LabelMudah style={{ left: 0 }} />}
                 pageOrigination="PDP - Kredit"
               >
                 <div
                   className={styles.alternativeCarLink}
                   onClick={
-                    () => {}
+                    () => {
+                      onClick()
+                    }
                     // handleClickDetailCar(`${carResultsUrl}/${item.id}`, item)
                   }
                   data-testid={elementId.LoanCalculator.Button.LihatDetail}
@@ -149,7 +153,9 @@ export default function UsedCarRecommendations({
                 <Button
                   version={ButtonVersion.Secondary}
                   size={ButtonSize.Big}
-                  onClick={() => {}}
+                  onClick={() => {
+                    onClick()
+                  }}
                 >
                   Tanya Unit
                 </Button>

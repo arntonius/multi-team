@@ -133,6 +133,7 @@ interface FormState {
         modelName: string
         modelImage: string
         brandName: string
+        loanRank: string
       }
     | undefined
   variant:
@@ -151,19 +152,35 @@ interface FormState {
   paymentOption: InstallmentTypeOptions
 }
 
+interface ChoosenAssurance {
+  label: string
+  name: string
+  tenureAR: number
+  tenureTLO: number
+}
+
 export const CreditUsedCarTab = () => {
-  const { usedCarModelDetailsRes, usedCarRecommendations } = useContext(
-    UsedPdpDataLocalContext,
-  )
+  const {
+    usedCarModelDetailsRes,
+    usedCarRecommendations,
+    usedCarNewRecommendations,
+  } = useContext(UsedPdpDataLocalContext)
+
   const router = useRouter()
   const { carModelDetails, carVariantDetails, recommendation } = useCar()
   const [cityOtr] = useLocalStorage<CityOtrOption | null>(
     LocalStorageKey.CityOtr,
     null,
   )
+
+  const [usedCarRecommendationList, setUsedCarRecommendationList] = useState([])
+  const [usedCarNewRecommendationList, setUsedCarNewRecommendationList] =
+    useState([])
+
   const [info, setInfo] = useState<any>({})
   const { funnelQuery, patchFunnelQuery } = useFunnelQueryData()
   const [isDisableCtaCalculate, setIsDisableCtaCalculate] = useState(true)
+  const [disableBtnCalculate, setDisableBtnCalculate] = useState(false)
   const [isValidatingEmptyField, setIsValidatingEmptyField] = useState(false)
   const [isLoadingCalculation, setIsLoadingCalculation] = useState(false)
   const [, setPromoCodeSessionStorage] =
@@ -189,7 +206,13 @@ export const CreditUsedCarTab = () => {
     null,
   )
   const [isAssuranceModalOpen, setIsAssuranceModalOpen] = useState(false)
-  const [chosenAssurance, setChosenAssurance] = useState<any>({})
+  const [chosenAssurance, setChosenAssurance] = useState<ChoosenAssurance>({
+    label: '',
+    name: '',
+    tenureAR: 0,
+    tenureTLO: 0,
+  })
+
   const [carRecommendations, setCarRecommendations] = useState<
     CarRecommendation[]
   >([])
@@ -269,6 +292,7 @@ export const CreditUsedCarTab = () => {
       modelName: '',
       modelId: '',
       modelImage: CarSillhouete,
+      loanRank: '',
     },
     variant: {
       variantId: '',
@@ -296,6 +320,7 @@ export const CreditUsedCarTab = () => {
         modelName: '',
         modelId: '',
         modelImage: '',
+        loanRank: '',
       },
       variant: {
         ...variantEmptyValue,
@@ -414,8 +439,6 @@ export const CreditUsedCarTab = () => {
   }
 
   useEffect(() => {
-    // console.log
-    fetchCarRecommendations()
     const timeoutCountlyTracker = setTimeout(() => {
       if (!isSentCountlyPageView) {
         trackCountlyViewCreditTab()
@@ -472,6 +495,7 @@ export const CreditUsedCarTab = () => {
           modelName: '',
           modelId: '',
           modelImage: '',
+          loanRank: '',
         },
       }
 
@@ -491,16 +515,35 @@ export const CreditUsedCarTab = () => {
   }, [forms.city?.cityCode])
 
   useEffect(() => {
-    if (
-      Object.keys(chosenAssurance).length === 0 &&
-      chosenAssurance.length === undefined
-    ) {
+    const temp = usedCarRecommendations.filter(
+      (data: any) => data.id !== usedCarModelDetailsRes.carId,
+    )
+
+    setUsedCarRecommendationList(temp.slice(0, 10))
+  }, [usedCarRecommendations, usedCarModelDetailsRes])
+
+  useEffect(() => {
+    const temp = usedCarNewRecommendations.filter(
+      (data: any) =>
+        (data.makeName + data.modelName)?.toLowerCase() !==
+        (
+          usedCarModelDetailsRes.brandName + usedCarModelDetailsRes.modelName
+        )?.toLowerCase(),
+    )
+
+    const result = temp.slice(0, 10)
+
+    setUsedCarNewRecommendationList(result)
+  }, [usedCarNewRecommendations, usedCarModelDetailsRes])
+
+  useEffect(() => {
+    if (chosenAssurance.label === '' || isDpTooLow || isDpExceedLimit) {
       setIsDisableCtaCalculate(true)
       return
     } else {
       setIsDisableCtaCalculate(false)
     }
-  }, [chosenAssurance])
+  }, [chosenAssurance, isDpTooLow, isDpExceedLimit])
 
   useEffect(() => {
     updateSelectedVariantData()
@@ -724,8 +767,12 @@ export const CreditUsedCarTab = () => {
     }
 
     if (name === 'assurance') {
-      const result = assuranceOptions.find((opt: any) => opt.label === value)
-      setChosenAssurance(result)
+      const result = assuranceOptions.find(
+        (opt: ChoosenAssurance) => opt.label === value,
+      )
+      if (result) {
+        setChosenAssurance(result)
+      }
     }
 
     setForms({
@@ -808,6 +855,7 @@ export const CreditUsedCarTab = () => {
     }
 
     setIsLoadingCalculation(true)
+    setDisableBtnCalculate(true)
     const payloadUsedCar: CreditCarCalculation = {
       nik: usedCarModelDetailsRes.nik,
       DP: dpValue,
@@ -848,16 +896,18 @@ export const CreditUsedCarTab = () => {
           )
         }
         setIsOpenToast(true)
+        setDisableBtnCalculate(false)
       })
       .finally(() => {
         setIsLoadingCalculation(false)
+        setDisableBtnCalculate(false)
       })
   }
 
   const validateFormFields = () => {
     setIsValidatingEmptyField(true)
 
-    if (Object.keys(chosenAssurance).length === 0) {
+    if (chosenAssurance.label === '') {
       scrollToElement('loan-calculator-form-age')
     }
   }
@@ -877,13 +927,6 @@ export const CreditUsedCarTab = () => {
       element.scrollIntoView()
       // add more scroll because global page header is fixed position
       window.scrollBy({ top: -100, left: 0 })
-    }
-    if (!tooltipNextDisplay || isTooltipExpired()) {
-      setIsTooltipOpen(true)
-      trackCountlyOnShowTooltip()
-      const nextDisplay = calculateNextDisplayDate().toString()
-      setTooltipNextDisplay(nextDisplay)
-      localStorage.setItem('tooltipNextDisplay', nextDisplay)
     }
   }
 
@@ -1022,9 +1065,7 @@ export const CreditUsedCarTab = () => {
               handleChange={handleChange}
               name="downPaymentAmount"
               isDisabled={false}
-              isErrorEmptyField={
-                isValidatingEmptyField && !forms.downPaymentAmount
-              }
+              isErrorEmptyField={isValidatingEmptyField && !dpValue}
               isDpTooLow={isDpTooLow}
               setIsDpTooLow={setIsDpTooLow}
               isDpExceedLimit={isDpExceedLimit}
@@ -1042,12 +1083,15 @@ export const CreditUsedCarTab = () => {
               ageList={assuranceOptions}
               name="assurance"
               handleChange={handleChange}
-              defaultValue={chosenAssurance?.length > 0 ? chosenAssurance : ''}
+              disabled={isDpTooLow || isDpExceedLimit}
+              defaultValue={
+                chosenAssurance.label !== '' ? chosenAssurance.label : ''
+              }
               onShowDropdown={onShowDropdownAgeField}
               isError={isValidatingEmptyField && !chosenAssurance}
               setIsAssuranceModal={setIsAssuranceModalOpen}
             />
-            {isValidatingEmptyField && Object.keys(chosenAssurance).length === 0
+            {isValidatingEmptyField && chosenAssurance?.label === ''
               ? renderErrorMessageEmpty()
               : null}
           </div>
@@ -1056,6 +1100,7 @@ export const CreditUsedCarTab = () => {
             size={ButtonSize.Big}
             onClick={onClickCalculate}
             style={{ marginTop: 32 }}
+            disabled={disableBtnCalculate}
             data-testid={elementId.PDP.Button.HitungKemampuan}
           >
             {isLoadingCalculation || isLoadingInsuranceAndPromo ? (
@@ -1100,16 +1145,19 @@ export const CreditUsedCarTab = () => {
             />
           </div>
           <div ref={toLeads} className={styles.reference}></div>
-          <LeadsFormUsedCar selectedLoan={selectedLoan} />
+          <LeadsFormUsedCar
+            selectedLoan={selectedLoan}
+            chosenAssurance={chosenAssurance}
+          />
         </>
       ) : (
         <></>
       )}
 
       <div className={styles.wrapper}>
-        {carRecommendations.length > 0 && (
+        {usedCarNewRecommendationList?.length > 0 && (
           <NewCarRecommendations
-            carRecommendationList={carRecommendations}
+            carRecommendationList={usedCarNewRecommendationList}
             title="Rekomendasi Mobil Baru"
             onClick={() => {
               return
@@ -1119,18 +1167,16 @@ export const CreditUsedCarTab = () => {
           />
         )}
       </div>
-      <div className={styles.wrapper}>
-        {usedCarRecommendations?.length > 0 && (
-          <UsedCarRecommendations
-            usedCarRecommendationList={usedCarRecommendations}
-            title="Beli Mobil Bekas Berkualitas"
-            onClick={() => {
-              return
-            }}
-            additionalContainerStyle={styles.recommendationAdditionalStyle}
-          />
-        )}
-      </div>
+      {usedCarRecommendationList?.length > 0 && (
+        <UsedCarRecommendations
+          usedCarRecommendationList={usedCarRecommendationList}
+          title="Beli Mobil Bekas Berkualitas"
+          onClick={() => {
+            return
+          }}
+          additionalContainerStyle={styles.recommendationAdditionalStyle}
+        />
+      )}
       <AssuranceCreditModal
         isOpen={isAssuranceModalOpen}
         onClickCloseButton={onCloseQualificationPopUp}

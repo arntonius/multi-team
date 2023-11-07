@@ -46,9 +46,11 @@ export const DescriptionTab = ({
   setSelectedTabValue,
 }: DescriptionProps) => {
   const { carModelDetails, carVariantDetails, recommendation } = useCar()
-  const { usedCarModelDetailsRes, usedCarRecommendations } = useContext(
-    UsedPdpDataLocalContext,
-  )
+  const {
+    usedCarModelDetailsRes,
+    usedCarRecommendations,
+    usedCarNewRecommendations,
+  } = useContext(UsedPdpDataLocalContext)
 
   const {
     dataCombinationOfCarRecomAndModelDetailDefaultCity,
@@ -57,6 +59,10 @@ export const DescriptionTab = ({
   } = useContext(PdpDataLocalContext)
 
   const router = useRouter()
+
+  const [usedCarRecommendationList, setUsedCarRecommendationList] = useState([])
+  const [usedCarNewRecommendationList, setUsedCarNewRecommendationList] =
+    useState([])
 
   const modelDetail =
     carModelDetails || dataCombinationOfCarRecomAndModelDetailDefaultCity
@@ -103,6 +109,30 @@ export const DescriptionTab = ({
   }
 
   useEffect(() => {
+    const temp = usedCarRecommendations.filter(
+      (data: any) => data.id !== usedCarModelDetailsRes.carId,
+    )
+
+    temp.slice(0, 10)
+
+    setUsedCarRecommendationList(temp.slice(0, 10))
+  }, [usedCarRecommendations, usedCarModelDetailsRes])
+
+  useEffect(() => {
+    const temp = usedCarNewRecommendations.filter(
+      (data: any) =>
+        (data.makeName + data.modelName)?.toLowerCase() !==
+        (
+          usedCarModelDetailsRes.brandName + usedCarModelDetailsRes.modelName
+        )?.toLowerCase(),
+    )
+
+    const result = temp.slice(0, 10)
+
+    setUsedCarNewRecommendationList(result)
+  }, [usedCarNewRecommendations, usedCarModelDetailsRes])
+
+  useEffect(() => {
     if (carModelDetails && cheapestVariantData && flag === TrackerFlag.Init) {
       trackEventMoengage()
       setFlag(TrackerFlag.Sent)
@@ -122,9 +152,9 @@ export const DescriptionTab = ({
       <div ref={toLeads} className={styles.reference} id="leads-form"></div>
       <LeadsFormUsedCar />
       <div className={styles.wrapper}>
-        {carRecommendations?.length > 0 && (
+        {usedCarNewRecommendationList?.length > 0 && (
           <NewCarRecommendations
-            carRecommendationList={carRecommendations}
+            carRecommendationList={usedCarNewRecommendationList}
             title="Rekomendasi Mobil Baru"
             onClick={() => {
               return
@@ -134,18 +164,16 @@ export const DescriptionTab = ({
           />
         )}
       </div>
-      <div className={styles.wrapper}>
-        {usedCarRecommendations?.length > 0 && (
-          <UsedCarRecommendations
-            usedCarRecommendationList={usedCarRecommendations}
-            title="Beli Mobil Bekas Berkualitas"
-            onClick={() => {
-              return
-            }}
-            additionalContainerStyle={styles.recommendationAdditionalStyle}
-          />
-        )}
-      </div>
+      {usedCarRecommendationList?.length > 0 && (
+        <UsedCarRecommendations
+          usedCarRecommendationList={usedCarRecommendationList}
+          title="Beli Mobil Bekas Berkualitas"
+          onClick={() => {
+            scrollToLeads()
+          }}
+          additionalContainerStyle={styles.recommendationAdditionalStyle}
+        />
+      )}
     </div>
   )
 }

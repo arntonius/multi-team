@@ -17,7 +17,6 @@ interface CarLocationProps {
   modelList: any
   setLocationSelected?: any
   isResetFilter?: boolean
-  isApplied: boolean
 }
 
 interface Option {
@@ -30,7 +29,6 @@ export const FormSearchModel = ({
   modelList,
   setLocationSelected,
   isResetFilter,
-  isApplied,
 }: CarLocationProps) => {
   const { funnelWidget, saveFunnelWidget } = useContext(
     SearchUsedCarWidgetContext,
@@ -38,6 +36,7 @@ export const FormSearchModel = ({
   const [chosen, setChosen] = useState(
     funnelWidget.model ? funnelWidget.model : [],
   )
+  const [selectedBrand, setSelectedBrand] = useState([])
   const [totalChosen, setTotalChosen] = useState(0)
   const [changeIcon, setChangeIcon] = useState(false)
   const [options, setOptions] = useState(modelList)
@@ -54,9 +53,28 @@ export const FormSearchModel = ({
 
   const formattedData = distinctData.map((item: any) => ({
     brandName: item.brandName.charAt(0) + item.brandName.slice(1).toLowerCase(),
-    modelName: item.modelName.charAt(0) + item.modelName.slice(1).toLowerCase(),
+    modelName: item.modelName,
     modelCode: item.modelCode,
   }))
+
+  const onBlurAction = (value: any) => {
+    const temp = distinctData.filter((data: any) =>
+      value.includes(data.modelCode),
+    )
+
+    const mappingTemp = temp.map((data: any) =>
+      data.isAstra ? data.brandName.toLowerCase() : 'other',
+    )
+
+    const filteredTemp = mappingTemp.filter(
+      (value: any, index: any, self: any) => {
+        const indexOfItem = self.findIndex((item: any) => item === value)
+        return indexOfItem === index
+      },
+    )
+
+    saveFunnelWidget({ ...funnelWidget, brand: filteredTemp })
+  }
 
   const handleChange = (value: any) => {
     setTotalChosen(value.length)
@@ -68,6 +86,7 @@ export const FormSearchModel = ({
     setChosen([])
     setTotalChosen(0)
     setLocationSelected([])
+    setSelectedBrand([])
     return
   }
 
@@ -75,10 +94,7 @@ export const FormSearchModel = ({
     if (isResetFilter) {
       handleClearFilter()
     }
-    // if (funnelQuery.location && !isApplied) {
-    //   setChosen(funnelQuery.location)
-    // }
-  }, [isResetFilter, isApplied])
+  }, [isResetFilter])
 
   return (
     <div className={styles.container} id="formCarLocation">
@@ -96,7 +112,10 @@ export const FormSearchModel = ({
           <Select
             mode="multiple"
             placeholder="Cari mobil bekas"
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => {
+              handleChange(e)
+              onBlurAction(e)
+            }}
             onDropdownVisibleChange={() => {
               setChangeIcon(!changeIcon)
             }}
@@ -129,11 +148,11 @@ export const FormSearchModel = ({
               </>
             )}
           >
-            {formattedData.map((item: Option, index: number) => (
+            {distinctData.map((item: Option, index: number) => (
               <Option
                 key={index}
                 value={item.modelCode}
-                label={item.modelName}
+                label={item.brandName + ' ' + item.modelName}
                 style={{
                   padding: '18px 16px',
                   fontSize: '14px',

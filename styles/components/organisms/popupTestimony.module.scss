@@ -23,6 +23,7 @@
   padding-right: 17px;
   a {
     margin-bottom: 8px;
+    margin-top: -2px;
   }
 
   .nameAge {
@@ -41,6 +42,7 @@
   .carBrandAndModelName {
     @extend .timeCityCar;
     margin-bottom: 8px;
+    height: 18px;
   }
 
   .description {

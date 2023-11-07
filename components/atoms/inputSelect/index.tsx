@@ -43,6 +43,7 @@ interface Props<T extends FormControlValue> {
   optionTestid?: string
   prefix?: string
   onShowDropdown?: () => void
+  additionalContainerClassname?: string
 }
 
 const forwardedInputSelect = <T extends FormControlValue>(
@@ -77,6 +78,7 @@ const forwardedInputSelect = <T extends FormControlValue>(
     optionTestid,
     prefix,
     onShowDropdown,
+    additionalContainerClassname,
   }: Props<T>,
   ref?: ForwardedRef<HTMLInputElement>,
 ) => {
@@ -164,7 +166,7 @@ const forwardedInputSelect = <T extends FormControlValue>(
   }
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${additionalContainerClassname}`}>
       <div
         className={clsx({
           [styles.inputArea]: true,
