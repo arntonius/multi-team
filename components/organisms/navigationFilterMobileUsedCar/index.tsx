@@ -188,7 +188,7 @@ export const NavigationFilterMobileUsedCar = ({
       page: '1',
       perPage: '10',
     }
-    getUsedCarFunnelRecommendations(filter).then((response: any) => {
+    getUsedCarFunnelRecommendations(filerPagePerpage).then((response: any) => {
       setTotalItems(response.totalItems)
       setRecommendations(response.carData)
       const paramUrl = {

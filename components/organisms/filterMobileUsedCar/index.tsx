@@ -190,6 +190,8 @@ const FilterMobileUsedCar = ({
       mileageStart: '',
       priceEnd: '',
       priceStart: '',
+      page: '1',
+      perPage: '10',
     }
     if (!resetTmp) {
       if (
