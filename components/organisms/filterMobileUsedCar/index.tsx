@@ -151,6 +151,7 @@ const FilterMobileUsedCar = ({
     if (resetTmp) {
       const resetBrandAndBodyType: FunnelQuery = {
         brand: [],
+        modelName: [],
         cityId: [],
         transmission: [],
         plate: [],
@@ -188,6 +189,7 @@ const FilterMobileUsedCar = ({
       yearStart: '',
       mileageEnd: '',
       mileageStart: '',
+      modelName: [],
       priceEnd: '',
       priceStart: '',
       page: '1',
@@ -246,6 +248,7 @@ const FilterMobileUsedCar = ({
         !resetTmp && transmissionFilter.length > 0 ? transmissionFilter : [],
       plate: !resetTmp && plateFilter.length > 0 ? plateFilter : [],
       sortBy: funnelQuery.sortBy || 'lowToHigh',
+      modelName: [],
       priceStart: '',
       priceEnd: '',
       yearStart: '',
